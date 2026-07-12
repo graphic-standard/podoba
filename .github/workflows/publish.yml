@@ -34,7 +34,7 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: oven-sh/setup-bun@v2
         with:
@@ -42,7 +42,7 @@ jobs:
 
       # npm (not bun) performs the OIDC exchange; trusted publishing needs the
       # npm CLI >= 11.5.1, newer than what any Node LTS ships, so upgrade it.
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 22
       - name: Upgrade npm (OIDC trusted publishing needs >= 11.5.1)
