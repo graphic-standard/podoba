@@ -28,6 +28,7 @@
 	},
 	"scripts": {
 		"typecheck": "tsc --build",
+		"version:bump": "bun scripts/version.ts",
 		"publish:packages": "bun scripts/publish.ts"
 	},
 	"devDependencies": {
