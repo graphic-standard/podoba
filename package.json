@@ -27,7 +27,8 @@
 		}
 	},
 	"scripts": {
-		"typecheck": "tsc --build"
+		"typecheck": "tsc --build",
+		"publish:packages": "bun scripts/publish.ts"
 	},
 	"devDependencies": {
 		"typescript": "catalog:"

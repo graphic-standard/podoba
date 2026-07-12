@@ -46,14 +46,11 @@ jobs:
       # tarball was built by this workflow from graphic-standard/podoba; it needs
       # the id-token: write permission above and a matching "repository" field in
       # each package.json.
+      # scripts/publish.ts resolves catalog:/workspace: → concrete versions in
+      # the published tarball (source keeps the catalog), then publishes tokens →
+      # tailwind → react in dependency order with signed provenance.
       - name: Publish @podoba/* to npm
-        run: |
-          set -euo pipefail
-          for pkg in tokens tailwind react; do
-            echo "::group::@podoba/$pkg"
-            (cd "packages/$pkg" && bun publish --access public --provenance)
-            echo "::endgroup::"
-          done
+        run: bun scripts/publish.ts --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
