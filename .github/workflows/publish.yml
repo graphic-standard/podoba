@@ -1,20 +1,32 @@
 name: publish
 
-# Publishes @podoba/* to npm. Cut a GitHub Release (which creates the tag) to
-# trigger, or run it manually from the Actions tab. The version published is
-# whatever sits in each package.json — bump those (in lockstep) first.
+# Publishes @podoba/* to npm. Push a version tag (e.g. `v0.0.2`) to trigger, or
+# run it manually from the Actions tab. package.json is the source of truth: the
+# version published is whatever sits in each package.json (bumped in lockstep),
+# and scripts/publish.ts ABORTS if the pushed tag doesn't match it. So:
 #
-# Requires one repo secret: NPM_TOKEN (an npm automation token for the @podoba
-# org, with publish rights).
+#   # bump all three packages/*/package.json to 0.0.2, commit, then:
+#   git tag v0.0.2 && git push origin v0.0.2
+#
+# The `release` skill (.claude/skills/release) does all of that in one step.
+# A GitHub Release also creates a tag, so cutting a release still triggers this.
+#
+# Auth: npm OIDC trusted publishing — NO token/secret. Each package must have a
+# trusted publisher configured at npmjs.com (package → Settings → Trusted
+# Publisher → GitHub Actions): org `graphic-standard`, repo `podoba`, workflow
+# `publish.yml`. The `id-token: write` permission below lets npm exchange the
+# workflow's OIDC token for a short-lived publish credential and auto-attach
+# provenance.
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
 
 permissions:
   contents: read
-  id-token: write # reserved for npm provenance — see NOTE at the bottom
+  id-token: write # required: npm OIDC trusted publishing + provenance
 
 concurrency: publish-podoba
 
@@ -28,29 +40,25 @@ jobs:
         with:
           bun-version: 1.3.14
 
-      # Writes ~/.npmrc pointed at NODE_AUTH_TOKEN; bun reads it for auth.
+      # npm (not bun) performs the OIDC exchange; trusted publishing needs the
+      # npm CLI >= 11.5.1, newer than what any Node LTS ships, so upgrade it.
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
+      - name: Upgrade npm (OIDC trusted publishing needs >= 11.5.1)
+        run: npm install -g npm@latest && npm --version
 
       - run: bun install
 
       - name: Typecheck
         run: bun run typecheck
 
-      # Publish in dependency order (react depends on tokens + tailwind). bun
-      # rewrites each workspace:* dep to the real version at pack time, so
-      # consumers receive proper ranges instead of the workspace protocol.
-      # --provenance emits a signed attestation (npm's id-token OIDC) proving the
-      # tarball was built by this workflow from graphic-standard/podoba; it needs
-      # the id-token: write permission above and a matching "repository" field in
-      # each package.json.
+      # Publish in dependency order (react depends on tokens + tailwind).
       # scripts/publish.ts resolves catalog:/workspace: → concrete versions in
-      # the published tarball (source keeps the catalog), then publishes tokens →
-      # tailwind → react in dependency order with signed provenance.
+      # the published tarball (source keeps the catalog), then shells out to
+      # `npm publish` per package (tokens → tailwind → react). --provenance emits
+      # a signed attestation; with OIDC trusted publishing npm generates it
+      # automatically, but we pass the flag to fail loudly if the environment
+      # can't attest.
       - name: Publish @podoba/* to npm
         run: bun scripts/publish.ts --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}

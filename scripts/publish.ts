@@ -7,6 +7,11 @@
 // catalog:/workspace: protocols, so a naive publish ships an uninstallable
 // package (EUNSUPPORTEDPROTOCOL). This does the resolution deterministically.
 //
+// The actual upload goes through `npm publish` (not `bun publish`) because CI
+// authenticates via npm's OIDC trusted publishing — a feature of the npm CLI
+// (>= 11.5.1) that bun does not implement. By the time we shell out, package.json
+// already carries concrete versions, so npm just uploads a plain package.
+//
 // Usage:
 //   bun scripts/publish.ts                # publish (npm registry)
 //   bun scripts/publish.ts --provenance   # + signed provenance (CI)
@@ -33,6 +38,24 @@ const localVersion: Record<string, string> = {};
 for (const dir of ORDER) {
   const pkg = read(`${ROOT}packages/${dir}/package.json`);
   localVersion[pkg.name as string] = pkg.version as string;
+}
+
+// package.json is the source of truth; @podoba/* publish at one shared version.
+const versions = new Set(Object.values(localVersion));
+if (versions.size !== 1) {
+  throw new Error(`@podoba/* versions are not in lockstep: ${JSON.stringify(localVersion)}`);
+}
+const [version] = versions;
+
+// On a tag build, the tag MUST match the manifest — otherwise a stray tag would
+// silently (re)publish the wrong version. Only fires in CI on a tag push; local
+// runs and workflow_dispatch publish whatever package.json says. Use the release
+// skill to keep the bump commit and the tag in sync.
+if (process.env.GITHUB_REF_TYPE === "tag") {
+  const tag = process.env.GITHUB_REF_NAME ?? "";
+  if (tag !== `v${version}`) {
+    throw new Error(`tag ${tag} != package version v${version} — bump package.json to match the tag (or push the matching tag)`);
+  }
 }
 
 function resolveSpec(name: string, spec: string): string {
@@ -80,7 +103,7 @@ for (const dir of ORDER) {
     }
 
     console.log(`\n▶ publishing ${pkg.name}@${pkg.version}`);
-    const res = spawnSync("bun", ["publish", "--access", "public", ...publishArgs], {
+    const res = spawnSync("npm", ["publish", "--access", "public", ...publishArgs], {
       cwd: `${ROOT}packages/${dir}`,
       stdio: "inherit",
     });
