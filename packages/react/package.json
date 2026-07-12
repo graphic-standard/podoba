@@ -1,0 +1,39 @@
+{
+	"name": "@podoba/react",
+	"version": "0.0.1",
+	"type": "module",
+	"description": "podoba React components — React Aria Components + Tailwind primitives + layout, built with uic.",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"files": ["src"],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"typecheck": "tsc --build"
+	},
+	"dependencies": {
+		"@podoba/tokens": "workspace:*",
+		"@podoba/tailwind": "workspace:*",
+		"react-aria-components": "catalog:ui",
+		"class-variance-authority": "catalog:ui",
+		"clsx": "catalog:ui",
+		"tailwind-merge": "catalog:ui",
+		"@radix-ui/react-slot": "catalog:ui"
+	},
+	"peerDependencies": {
+		"react": ">=19",
+		"react-dom": ">=19"
+	},
+	"devDependencies": {
+		"react": "catalog:ui",
+		"react-dom": "catalog:ui",
+		"@types/react": "catalog:ui",
+		"@types/react-dom": "catalog:ui",
+		"typescript": "catalog:",
+		"@types/bun": "catalog:"
+	}
+}

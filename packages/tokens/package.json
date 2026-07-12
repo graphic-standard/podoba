@@ -1,0 +1,24 @@
+{
+	"name": "@podoba/tokens",
+	"version": "0.0.1",
+	"type": "module",
+	"description": "podoba design tokens — static DTCG tokens.json + generated CSS custom properties. Framework-agnostic.",
+	"main": "./src/index.ts",
+	"types": "./src/index.ts",
+	"exports": {
+		".": "./src/index.ts",
+		"./variables.css": "./src/variables.css",
+		"./tokens.json": "./src/tokens.json"
+	},
+	"files": ["src"],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"typecheck": "tsc --build"
+	},
+	"devDependencies": {
+		"typescript": "catalog:",
+		"@types/bun": "catalog:"
+	}
+}
