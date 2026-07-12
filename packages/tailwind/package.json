@@ -3,6 +3,13 @@
 	"version": "0.0.1",
 	"type": "module",
 	"description": "podoba Tailwind preset — binds @podoba/tokens CSS custom properties to theme.extend.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/graphic-standard/podoba.git",
+		"directory": "packages/tailwind"
+	},
+	"homepage": "https://github.com/graphic-standard/podoba#readme",
+	"bugs": "https://github.com/graphic-standard/podoba/issues",
 	"main": "./src/index.ts",
 	"types": "./src/index.ts",
 	"exports": {
