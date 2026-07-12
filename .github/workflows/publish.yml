@@ -1,0 +1,62 @@
+name: publish
+
+# Publishes @podoba/* to npm. Cut a GitHub Release (which creates the tag) to
+# trigger, or run it manually from the Actions tab. The version published is
+# whatever sits in each package.json — bump those (in lockstep) first.
+#
+# Requires one repo secret: NPM_TOKEN (an npm automation token for the @podoba
+# org, with publish rights).
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # reserved for npm provenance — see NOTE at the bottom
+
+concurrency: publish-podoba
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      # Writes ~/.npmrc pointed at NODE_AUTH_TOKEN; bun reads it for auth.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - run: bun install
+
+      - name: Typecheck
+        run: bun run typecheck
+
+      # Publish in dependency order (react depends on tokens + tailwind). bun
+      # rewrites each workspace:* dep to the real version at pack time, so
+      # consumers receive proper ranges instead of the workspace protocol.
+      - name: Publish @podoba/* to npm
+        run: |
+          set -euo pipefail
+          for pkg in tokens tailwind react; do
+            echo "::group::@podoba/$pkg"
+            (cd "packages/$pkg" && bun publish --access public)
+            echo "::endgroup::"
+          done
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+# NOTE — to enable npm provenance (cryptographic proof the tarball was built by
+# this workflow, which defends against look-alike/hijacked publishes):
+#   1. add a "repository" field to each packages/*/package.json, e.g.
+#        "repository": { "type": "git", "url": "git+https://github.com/<org>/podoba.git", "directory": "packages/react" }
+#   2. append `--provenance` to the `bun publish` command above.
+# The id-token: write permission needed for it is already granted here.
