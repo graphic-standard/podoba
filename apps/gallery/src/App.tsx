@@ -515,6 +515,28 @@ const SECTIONS: SectionDef[] = [
 						</Dialog>
 					</DialogTrigger>
 				</Demo>
+
+				<Demo label="Full-screen (blurred backdrop)">
+					<DialogTrigger>
+						<Button variant="secondary">Open full-screen</Button>
+						<Dialog
+							size="full"
+							title="Full-screen canvas"
+							description="A near-fullscreen takeover over a blurred backdrop — for pickers, editors, galleries."
+						>
+							{({ close }) => (
+								<div className="flex min-h-0 flex-1 flex-col gap-4">
+									<div className="flex flex-1 items-center justify-center rounded-lg border border-border bg-surface-card">
+										<Text tone="muted">Canvas fills the height; inner content scrolls independently.</Text>
+									</div>
+									<div className="flex shrink-0 justify-end">
+										<Button onPress={close}>Done</Button>
+									</div>
+								</div>
+							)}
+						</Dialog>
+					</DialogTrigger>
+				</Demo>
 			</>
 		),
 	},
