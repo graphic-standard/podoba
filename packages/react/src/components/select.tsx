@@ -48,7 +48,7 @@ export const SelectItem = uic(ListBoxItem, {
 	// medium weight. We add a `surface-muted` focus background (gs highlights with
 	// weight only) so keyboard focus stays clearly visible on the cream content.
 	baseClass:
-		'flex cursor-pointer select-none items-center rounded-md px-5 py-1 text-sm text-fg outline-none ' +
+		'flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-sm text-fg outline-none ' +
 		'data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 }) as (props: ListBoxItemProps) => ReactNode
@@ -103,11 +103,10 @@ export const Select = <T extends object>({
 			</Text>
 		) : null}
 		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
-		{/* gs content: cream fill, 8px radius, shadow-lg, NO border; viewport pads
-		    20px vertical / 0 horizontal (items own their 20px side padding) with a
-		    12px gap between items. */}
+		{/* Cream fill, 8px radius, shadow-lg, NO border. 4px inset so each option's
+		    highlight sits as a padded pill; small gap for an even list rhythm. */}
 		<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
-			<ListBox className="flex flex-col gap-3 py-5 outline-none">{children}</ListBox>
+			<ListBox className="flex flex-col gap-0.5 p-1 outline-none">{children}</ListBox>
 		</Popover>
 	</RACSelect>
 )

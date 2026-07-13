@@ -44,7 +44,7 @@ export const ComboBoxItem = uic(ListBoxItem, {
 	displayName: 'ComboBoxItem',
 	// Matches SelectItem so the two dropdowns are indistinguishable.
 	baseClass:
-		'flex cursor-pointer select-none items-center rounded-md px-5 py-1 text-sm text-fg outline-none ' +
+		'flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-sm text-fg outline-none ' +
 		'data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 }) as (props: ListBoxItemProps) => ReactNode
@@ -86,8 +86,8 @@ export const ComboBox = <T extends object>({
 		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
 		<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
 			<ListBox
-				className="flex max-h-64 flex-col gap-3 overflow-auto py-5 outline-none"
-				renderEmptyState={() => <div className="px-5 py-1 text-sm text-fg-muted">No results</div>}
+				className="flex max-h-64 flex-col gap-0.5 overflow-auto p-1 outline-none"
+				renderEmptyState={() => <div className="px-3 py-2 text-sm text-fg-muted">No results</div>}
 			>
 				{children}
 			</ListBox>

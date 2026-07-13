@@ -44,7 +44,7 @@ const MultiSelectItem = uic(ListBoxItem, {
 	displayName: 'MultiSelectItem',
 	// `group` so the leading Check can react to this item's data-selected.
 	baseClass:
-		'group flex cursor-pointer select-none items-center gap-2 rounded-md px-5 py-1 text-sm text-fg outline-none ' +
+		'group flex cursor-pointer select-none items-center gap-2 rounded-md px-3 py-2 text-sm text-fg outline-none ' +
 		'data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 }) as (props: ListBoxItemProps) => ReactNode
@@ -131,7 +131,7 @@ export const MultiSelect = ({
 					selectionMode="multiple"
 					selectedKeys={selected}
 					onSelectionChange={handleChange}
-					className="flex max-h-64 flex-col gap-3 overflow-auto py-5 outline-none"
+					className="flex max-h-64 flex-col gap-0.5 overflow-auto p-1 outline-none"
 				>
 					{options.map((o) => (
 						<MultiSelectItem key={o.id} id={o.id} textValue={o.label} isDisabled={o.isDisabled}>
