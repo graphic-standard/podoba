@@ -1,6 +1,6 @@
 {
 	"name": "@podoba/react",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"type": "module",
 	"description": "podoba React components — React Aria Components + Tailwind primitives + layout, built with uic.",
 	"repository": {
