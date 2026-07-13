@@ -5,7 +5,7 @@
 	"packageManager": "bun@1.3.14",
 	"description": "podoba — the universal design system. React Aria Components + Tailwind, seeded from graphic-standard's @app/ui. App-agnostic: consumed by GS, pramen, and everything future.",
 	"workspaces": {
-		"packages": ["packages/*"],
+		"packages": ["packages/*", "apps/*"],
 		"catalog": {
 			"typescript": "^5.9.3",
 			"@types/bun": "^1.3.3"
@@ -28,6 +28,7 @@
 	},
 	"scripts": {
 		"typecheck": "tsc --build",
+		"gallery": "bun --filter=@podoba/gallery dev",
 		"version:bump": "bun scripts/version.ts",
 		"publish:packages": "bun scripts/publish.ts"
 	},

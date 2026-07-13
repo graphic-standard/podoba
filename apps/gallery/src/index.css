@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* The token variables (imported in main.tsx) drive --font-sans etc. */
+html {
+	font-family: var(--font-sans);
+	background: var(--color-surface);
+	color: var(--color-fg);
+}
