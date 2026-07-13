@@ -368,6 +368,24 @@ const SECTIONS: SectionDef[] = [
 						]}
 					/>
 				</div>
+				<div className="w-72">
+					<MultiSelect
+						label="Searchable (combobox multi)"
+						placeholder="Pick countries"
+						searchable
+						options={[
+							{ id: "cz", label: "Czechia" },
+							{ id: "sk", label: "Slovakia" },
+							{ id: "pl", label: "Poland" },
+							{ id: "de", label: "Germany" },
+							{ id: "at", label: "Austria" },
+							{ id: "hu", label: "Hungary" },
+							{ id: "fr", label: "France" },
+							{ id: "es", label: "Spain" },
+							{ id: "it", label: "Italy" },
+						]}
+					/>
+				</div>
 			</Demo>
 		),
 	},
