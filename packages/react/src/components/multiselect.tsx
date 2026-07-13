@@ -1,0 +1,146 @@
+import { type ReactNode, useId, useRef, useState } from 'react'
+import {
+	Button as RACButton,
+	Label,
+	ListBox,
+	ListBoxItem,
+	type ListBoxItemProps,
+	Popover,
+	type Selection,
+	Text,
+} from 'react-aria-components'
+import { clsx } from 'clsx'
+import { uic } from '../utils/uic'
+
+/**
+ * MultiSelect — a dropdown that selects several options at once.
+ *
+ * React Aria Components ships no multi-select control at 1.x, so this composes
+ * one from primitives: a `Select`-styled trigger (white filled field) plus a
+ * controlled `Popover` + `ListBox selectionMode="multiple"` (RAC gives the
+ * listbox ARIA + keyboard multi-selection). The trigger summarises the choice —
+ * up to two labels, then an "N selected" count. Options come as `{ id, label }`
+ * data (not children) because the trigger needs the value→label map. Selection
+ * is uncontrolled by default; pass `selectedKeys` + `onChange` to control it.
+ */
+const Chevron = () => (
+	<svg width="9.5" height="9.5" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="shrink-0 text-fg">
+		<path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
+)
+
+const Check = () => (
+	<svg
+		viewBox="0 0 16 16"
+		fill="none"
+		aria-hidden="true"
+		className="h-4 w-4 shrink-0 text-fg opacity-0 group-data-[selected]:opacity-100"
+	>
+		<path d="M3.5 8.5l3 3 6-6.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+	</svg>
+)
+
+const MultiSelectItem = uic(ListBoxItem, {
+	displayName: 'MultiSelectItem',
+	// `group` so the leading Check can react to this item's data-selected.
+	baseClass:
+		'group flex cursor-pointer select-none items-center gap-2 rounded-md px-5 py-1 text-sm text-fg outline-none ' +
+		'data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
+		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
+}) as (props: ListBoxItemProps) => ReactNode
+
+export type MultiSelectOption = { id: string; label: string; isDisabled?: boolean }
+
+export type MultiSelectProps = {
+	/** Visible label (required for accessibility). */
+	label: ReactNode
+	description?: ReactNode
+	errorMessage?: string
+	/** Shown in the trigger when nothing is selected. */
+	placeholder: string
+	options: MultiSelectOption[]
+	/** Controlled selected ids. Omit for uncontrolled (see `defaultSelectedKeys`). */
+	selectedKeys?: Set<string>
+	/** Initial selection when uncontrolled. */
+	defaultSelectedKeys?: Iterable<string>
+	/** Fired with the full set of selected ids after each toggle. */
+	onChange?: (ids: Set<string>) => void
+	isDisabled?: boolean
+	isInvalid?: boolean
+	className?: string
+}
+
+export const MultiSelect = ({
+	label,
+	description,
+	errorMessage,
+	placeholder,
+	options,
+	selectedKeys,
+	defaultSelectedKeys,
+	onChange,
+	isDisabled,
+	isInvalid,
+	className,
+}: MultiSelectProps) => {
+	const labelId = useId()
+	const triggerRef = useRef<HTMLButtonElement>(null)
+	const [open, setOpen] = useState(false)
+	const [internal, setInternal] = useState<Set<string>>(() => new Set(defaultSelectedKeys ?? []))
+	const selected = selectedKeys ?? internal
+
+	const handleChange = (keys: Selection) => {
+		const next = keys === 'all' ? new Set(options.map((o) => o.id)) : new Set([...keys].map(String))
+		if (selectedKeys === undefined) setInternal(next)
+		onChange?.(next)
+	}
+
+	const chosen = options.filter((o) => selected.has(o.id)).map((o) => o.label)
+	const summary = chosen.length === 0 ? placeholder : chosen.length <= 2 ? chosen.join(', ') : `${chosen.length} selected`
+
+	return (
+		<div className={clsx('flex flex-col gap-2', className)}>
+			<span id={labelId} className="text-heading5 font-medium text-fg">
+				{label}
+			</span>
+			<RACButton
+				ref={triggerRef}
+				aria-labelledby={labelId}
+				isDisabled={isDisabled}
+				onPress={() => setOpen(true)}
+				className={clsx(
+					'flex min-h-[58px] w-full items-center justify-between gap-2.5 rounded-lg border bg-surface p-5 text-sm outline-none transition-colors',
+					'data-[hovered]:border-fg-subtle data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
+					'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
+					isInvalid ? 'border-danger ring-2 ring-danger' : 'border-border',
+				)}
+			>
+				<span className={clsx('truncate', chosen.length === 0 && 'text-fg-muted')}>{summary}</span>
+				<Chevron />
+			</RACButton>
+			{description ? <span className="text-xs text-fg-muted">{description}</span> : null}
+			{isInvalid && errorMessage ? <span className="text-xs text-danger">{errorMessage}</span> : null}
+			<Popover
+				triggerRef={triggerRef}
+				isOpen={open}
+				onOpenChange={setOpen}
+				className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg"
+			>
+				<ListBox
+					aria-labelledby={labelId}
+					selectionMode="multiple"
+					selectedKeys={selected}
+					onSelectionChange={handleChange}
+					className="flex max-h-64 flex-col gap-3 overflow-auto py-5 outline-none"
+				>
+					{options.map((o) => (
+						<MultiSelectItem key={o.id} id={o.id} textValue={o.label} isDisabled={o.isDisabled}>
+							<Check />
+							<span>{o.label}</span>
+						</MultiSelectItem>
+					))}
+				</ListBox>
+			</Popover>
+		</div>
+	)
+}

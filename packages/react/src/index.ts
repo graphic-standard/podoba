@@ -16,6 +16,8 @@ export * from "./components/checkbox";
 export * from "./components/radio";
 export * from "./components/switch";
 export * from "./components/select";
+export * from "./components/combobox";
+export * from "./components/multiselect";
 export * from "./components/dialog";
 export * from "./components/dropdown-menu";
 export * from "./components/context-menu";
