@@ -4,6 +4,8 @@ import {
 	Checkbox,
 	ComboBox,
 	ComboBoxItem,
+	DateField,
+	DatePicker,
 	Dialog,
 	DialogTrigger,
 	Disclosure,
@@ -12,17 +14,24 @@ import {
 	DropdownMenuItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
+	FileUpload,
 	Heading,
 	Input,
 	MultiSelect,
+	NumberField,
 	Radio,
 	RadioGroup,
 	RichTextEditor,
+	SearchField,
 	Select,
 	SelectItem,
 	Separator,
 	SectionTabs,
+	Slider,
 	Switch,
+	Tag,
+	TagGroup,
+	TimeField,
 	Tab,
 	TabList,
 	TabPanel,
@@ -93,6 +102,28 @@ function RichTextDemo() {
 			value={html}
 			onChange={setHtml}
 		/>
+	);
+}
+
+function TagGroupDemo() {
+	const [tags, setTags] = useState([
+		{ id: "brand", name: "Brand" },
+		{ id: "print", name: "Print" },
+		{ id: "social", name: "Social" },
+		{ id: "web", name: "Web" },
+	]);
+	return (
+		<TagGroup
+			label="Tags"
+			description="Roving focus; press ✕ or Backspace to remove."
+			onRemove={(keys) => setTags((prev) => prev.filter((t) => !keys.has(t.id)))}
+		>
+			{tags.map((t) => (
+				<Tag key={t.id} id={t.id}>
+					{t.name}
+				</Tag>
+			))}
+		</TagGroup>
 	);
 }
 
@@ -398,6 +429,117 @@ const SECTIONS: SectionDef[] = [
 			<Demo label="Editor">
 				<div className="w-full max-w-xl">
 					<RichTextDemo />
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "number-field",
+		group: "Forms",
+		title: "Number field",
+		subtitle: "Numeric input with steppers, min/max, and formatting.",
+		content: (
+			<Demo label="Plain · currency">
+				<div className="w-72">
+					<NumberField label="Quantity" defaultValue={1} minValue={0} placeholder="0" />
+				</div>
+				<div className="w-72">
+					<NumberField
+						label="Price"
+						defaultValue={19.99}
+						minValue={0}
+						formatOptions={{ style: "currency", currency: "EUR" }}
+					/>
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "search-field",
+		group: "Forms",
+		title: "Search field",
+		subtitle: "Search input with a clear button (Esc clears).",
+		content: (
+			<Demo label="Default">
+				<div className="w-72">
+					<SearchField label="Search" placeholder="Search assets…" />
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "slider",
+		group: "Forms",
+		title: "Slider",
+		subtitle: "Single value or a range (two-number value).",
+		content: (
+			<Demo label="Single · range">
+				<div className="w-72">
+					<Slider label="Opacity" defaultValue={70} maxValue={100} />
+				</div>
+				<div className="w-72">
+					<Slider label="Price range" defaultValue={[20, 80]} maxValue={100} />
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "tags",
+		group: "Forms",
+		title: "Tag group",
+		subtitle: "Chips / removable tag input with roving focus.",
+		content: (
+			<Demo label="Removable">
+				<div className="w-full max-w-md">
+					<TagGroupDemo />
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "file-upload",
+		group: "Forms",
+		title: "File upload",
+		subtitle: "Drop zone + picker (drag-and-drop, keyboard accessible).",
+		content: (
+			<Demo label="Single · multiple">
+				<div className="w-72">
+					<FileUpload label="Cover image" accept={["image/*"]} />
+				</div>
+				<div className="w-72">
+					<FileUpload label="Attachments" allowsMultiple />
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "date-picker",
+		group: "Date & time",
+		title: "Date picker",
+		subtitle: "Segmented field + calendar popover. Set granularity=\"minute\" for datetime.",
+		content: (
+			<Demo label="Date · datetime">
+				<div className="w-72">
+					<DatePicker label="Publish date" />
+				</div>
+				<div className="w-72">
+					<DatePicker label="Publish at" granularity="minute" />
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "date-field",
+		group: "Date & time",
+		title: "Date & time fields",
+		subtitle: "Segmented, keyboard-first entry — no calendar.",
+		content: (
+			<Demo label="DateField · TimeField">
+				<div className="w-72">
+					<DateField label="Due date" />
+				</div>
+				<div className="w-72">
+					<TimeField label="Reminder" />
 				</div>
 			</Demo>
 		),
@@ -740,7 +882,7 @@ const SECTIONS: SectionDef[] = [
 	},
 ];
 
-const GROUP_ORDER = ["Forms", "Modals", "Actions", "Overlays", "Navigation", "Content", "Tokens"];
+const GROUP_ORDER = ["Forms", "Date & time", "Modals", "Actions", "Overlays", "Navigation", "Content", "Tokens"];
 
 // Canvas background options — the surfaces a component realistically sits on.
 // (No dark option: the tokens are light-only, so a dark canvas would render
