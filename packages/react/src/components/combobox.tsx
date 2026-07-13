@@ -45,7 +45,7 @@ export const ComboBoxItem = uic(ListBoxItem, {
 	// Matches SelectItem so the two dropdowns are indistinguishable.
 	baseClass:
 		'flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-sm text-fg outline-none ' +
-		'data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
+		'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 }) as (props: ListBoxItemProps) => ReactNode
 

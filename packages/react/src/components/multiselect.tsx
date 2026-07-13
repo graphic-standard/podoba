@@ -1,13 +1,15 @@
 import { type ReactNode, useId, useRef, useState } from 'react'
 import {
+	Autocomplete,
 	Button as RACButton,
-	Label,
+	Input as RACInput,
 	ListBox,
 	ListBoxItem,
 	type ListBoxItemProps,
 	Popover,
+	SearchField,
 	type Selection,
-	Text,
+	useFilter,
 } from 'react-aria-components'
 import { clsx } from 'clsx'
 import { uic } from '../utils/uic'
@@ -22,6 +24,10 @@ import { uic } from '../utils/uic'
  * up to two labels, then an "N selected" count. Options come as `{ id, label }`
  * data (not children) because the trigger needs the value→label map. Selection
  * is uncontrolled by default; pass `selectedKeys` + `onChange` to control it.
+ *
+ * Pass `searchable` to make it a filterable "combobox multi": RAC `Autocomplete`
+ * wires a search field to the listbox (type to filter, arrow keys into the list,
+ * Enter/click to toggle). Handy once the option list gets long.
  */
 const Chevron = () => (
 	<svg width="9.5" height="9.5" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="shrink-0 text-fg">
@@ -45,7 +51,7 @@ const MultiSelectItem = uic(ListBoxItem, {
 	// `group` so the leading Check can react to this item's data-selected.
 	baseClass:
 		'group flex cursor-pointer select-none items-center gap-2 rounded-md px-3 py-2 text-sm text-fg outline-none ' +
-		'data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
+		'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 }) as (props: ListBoxItemProps) => ReactNode
 
@@ -65,6 +71,8 @@ export type MultiSelectProps = {
 	defaultSelectedKeys?: Iterable<string>
 	/** Fired with the full set of selected ids after each toggle. */
 	onChange?: (ids: Set<string>) => void
+	/** Add a search field to filter options — a filterable "combobox multi". */
+	searchable?: boolean
 	isDisabled?: boolean
 	isInvalid?: boolean
 	className?: string
@@ -79,6 +87,7 @@ export const MultiSelect = ({
 	selectedKeys,
 	defaultSelectedKeys,
 	onChange,
+	searchable,
 	isDisabled,
 	isInvalid,
 	className,
@@ -86,6 +95,7 @@ export const MultiSelect = ({
 	const labelId = useId()
 	const triggerRef = useRef<HTMLButtonElement>(null)
 	const [open, setOpen] = useState(false)
+	const { contains } = useFilter({ sensitivity: 'base' })
 	const [internal, setInternal] = useState<Set<string>>(() => new Set(defaultSelectedKeys ?? []))
 	const selected = selectedKeys ?? internal
 
@@ -97,6 +107,24 @@ export const MultiSelect = ({
 
 	const chosen = options.filter((o) => selected.has(o.id)).map((o) => o.label)
 	const summary = chosen.length === 0 ? placeholder : chosen.length <= 2 ? chosen.join(', ') : `${chosen.length} selected`
+
+	const list = (
+		<ListBox
+			aria-labelledby={labelId}
+			selectionMode="multiple"
+			selectedKeys={selected}
+			onSelectionChange={handleChange}
+			renderEmptyState={() => <div className="px-3 py-2 text-sm text-fg-muted">No matches</div>}
+			className="flex max-h-64 flex-col gap-0.5 overflow-auto p-1 outline-none"
+		>
+			{options.map((o) => (
+				<MultiSelectItem key={o.id} id={o.id} textValue={o.label} isDisabled={o.isDisabled}>
+					<Check />
+					<span>{o.label}</span>
+				</MultiSelectItem>
+			))}
+		</ListBox>
+	)
 
 	return (
 		<div className={clsx('flex flex-col gap-2', className)}>
@@ -126,20 +154,19 @@ export const MultiSelect = ({
 				onOpenChange={setOpen}
 				className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg"
 			>
-				<ListBox
-					aria-labelledby={labelId}
-					selectionMode="multiple"
-					selectedKeys={selected}
-					onSelectionChange={handleChange}
-					className="flex max-h-64 flex-col gap-0.5 overflow-auto p-1 outline-none"
-				>
-					{options.map((o) => (
-						<MultiSelectItem key={o.id} id={o.id} textValue={o.label} isDisabled={o.isDisabled}>
-							<Check />
-							<span>{o.label}</span>
-						</MultiSelectItem>
-					))}
-				</ListBox>
+				{searchable ? (
+					<Autocomplete filter={contains}>
+						<SearchField aria-label="Filter options" autoFocus className="border-b border-border p-1">
+							<RACInput
+								placeholder="Search…"
+								className="w-full rounded-md bg-surface px-3 py-2 text-sm text-fg outline-none placeholder:text-fg-muted"
+							/>
+						</SearchField>
+						{list}
+					</Autocomplete>
+				) : (
+					list
+				)}
 			</Popover>
 		</div>
 	)
