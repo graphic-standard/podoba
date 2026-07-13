@@ -12,6 +12,7 @@ export { uic, uiconfig, type ConfigVariants, type NoInfer } from "./utils/uic";
 export * from "./components/button";
 export * from "./components/input";
 export * from "./components/textarea";
+export * from "./components/rich-text-editor";
 export * from "./components/checkbox";
 export * from "./components/radio";
 export * from "./components/switch";
