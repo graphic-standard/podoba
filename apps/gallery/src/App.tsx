@@ -40,9 +40,9 @@ import { createElement, type ReactNode, useEffect, useMemo, useRef, useState } f
 
 function Demo({ label, children }: { label: string; children: ReactNode }) {
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex flex-col gap-3">
 			<span className="text-micro font-medium uppercase tracking-wide text-fg-subtle">{label}</span>
-			<div className="flex flex-wrap items-start gap-4">{children}</div>
+			<div className="flex flex-wrap items-start gap-6">{children}</div>
 		</div>
 	);
 }
@@ -742,15 +742,15 @@ export function App() {
 					className="relative flex-1 overflow-y-auto transition-colors"
 					style={{ background: `var(--color-${bg})` }}
 				>
-					<div className="mx-auto flex max-w-5xl flex-col gap-12 px-8 py-12">
+					<div className="mx-auto flex max-w-5xl flex-col gap-24 px-10 py-16">
 						{SECTIONS.map((s) => (
-							<section key={s.id} id={s.id} data-section className="flex scroll-mt-6 flex-col gap-5">
-								<div className="flex flex-col gap-1">
+							<section key={s.id} id={s.id} data-section className="flex scroll-mt-8 flex-col gap-8">
+								<div className="flex flex-col gap-1.5">
 									<span className="text-micro font-semibold uppercase tracking-wider text-fg-subtle">{s.group}</span>
 									<h2 className="text-heading3 font-semibold text-fg">{s.title}</h2>
-									{s.subtitle ? <p className="max-w-2xl text-sm text-fg-muted">{s.subtitle}</p> : null}
+									{s.subtitle ? <p className="max-w-2xl text-sm leading-relaxed text-fg-muted">{s.subtitle}</p> : null}
 								</div>
-								<div className="flex flex-col gap-6">{s.content}</div>
+								<div className="flex flex-col gap-12">{s.content}</div>
 							</section>
 						))}
 					</div>
