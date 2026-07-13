@@ -22,7 +22,7 @@ export type SliderProps<T extends number | number[]> = RACSliderProps<T> & {
 
 export const Slider = <T extends number | number[]>({ label, hideOutput, ...props }: SliderProps<T>) => (
 	<RACSlider {...props} className="flex flex-col gap-2 data-[disabled]:opacity-50">
-		<div className="flex items-center justify-between">
+		<div className="flex items-baseline justify-between gap-4">
 			<Label className="text-heading5 font-medium text-fg">{label}</Label>
 			{hideOutput ? null : <SliderOutput className="text-sm tabular-nums text-fg-muted" />}
 		</div>
