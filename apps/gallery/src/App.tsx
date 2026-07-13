@@ -2,6 +2,8 @@ import {
 	Button,
 	Card,
 	Checkbox,
+	ComboBox,
+	ComboBoxItem,
 	Dialog,
 	DialogTrigger,
 	Disclosure,
@@ -12,6 +14,7 @@ import {
 	DropdownMenuTrigger,
 	Heading,
 	Input,
+	MultiSelect,
 	Radio,
 	RadioGroup,
 	Select,
@@ -295,6 +298,62 @@ const SECTIONS: SectionDef[] = [
 					<Select label="Disabled" placeholder="Unavailable" isDisabled>
 						<SelectItem id="a">A</SelectItem>
 					</Select>
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "combobox",
+		group: "Forms",
+		title: "Combobox",
+		subtitle: "Filterable single-select — type to narrow the list.",
+		content: (
+			<Demo label="Filter as you type">
+				<div className="w-72">
+					<ComboBox label="Country" placeholder="Search…">
+						<ComboBoxItem id="cz">Czechia</ComboBoxItem>
+						<ComboBoxItem id="sk">Slovakia</ComboBoxItem>
+						<ComboBoxItem id="pl">Poland</ComboBoxItem>
+						<ComboBoxItem id="de">Germany</ComboBoxItem>
+						<ComboBoxItem id="at">Austria</ComboBoxItem>
+						<ComboBoxItem id="hu">Hungary</ComboBoxItem>
+					</ComboBox>
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "multi-select",
+		group: "Forms",
+		title: "Multi-select",
+		subtitle: "Choose several options; the trigger summarises the selection.",
+		content: (
+			<Demo label="Empty · preselected">
+				<div className="w-72">
+					<MultiSelect
+						label="Tags"
+						placeholder="Pick tags"
+						options={[
+							{ id: "brand", label: "Brand" },
+							{ id: "print", label: "Print" },
+							{ id: "social", label: "Social" },
+							{ id: "web", label: "Web" },
+							{ id: "motion", label: "Motion" },
+						]}
+					/>
+				</div>
+				<div className="w-72">
+					<MultiSelect
+						label="Preselected"
+						placeholder="Pick tags"
+						defaultSelectedKeys={["brand", "web", "social"]}
+						options={[
+							{ id: "brand", label: "Brand" },
+							{ id: "print", label: "Print" },
+							{ id: "social", label: "Social" },
+							{ id: "web", label: "Web" },
+						]}
+					/>
 				</div>
 			</Demo>
 		),
