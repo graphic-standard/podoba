@@ -67,7 +67,9 @@ export const ComboBox = <T extends object>({
 	children,
 	...props
 }: ComboBoxProps<T>) => (
-	<RACComboBox {...props} className="group flex flex-col gap-2">
+	// `menuTrigger="focus"` opens the list on focus/click (not only on typing), so
+	// the options are always one interaction away. Consumers can override via props.
+	<RACComboBox menuTrigger="focus" {...props} className="group flex flex-col gap-2">
 		<Label className="text-heading5 font-medium text-fg">{label}</Label>
 		<div className="relative">
 			<ComboBoxInput placeholder={placeholder} />
