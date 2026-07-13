@@ -86,7 +86,7 @@ export const ComboBox = <T extends object>({
 		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
 		<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
 			<ListBox
-				className="flex max-h-64 flex-col gap-0.5 overflow-auto p-1 outline-none"
+				className="flex max-h-64 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"
 				renderEmptyState={() => <div className="px-3 py-2 text-sm text-fg-muted">No results</div>}
 			>
 				{children}

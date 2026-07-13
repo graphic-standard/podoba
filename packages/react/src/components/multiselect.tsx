@@ -115,7 +115,7 @@ export const MultiSelect = ({
 			selectedKeys={selected}
 			onSelectionChange={handleChange}
 			renderEmptyState={() => <div className="px-3 py-2 text-sm text-fg-muted">No matches</div>}
-			className="flex max-h-64 flex-col gap-0.5 overflow-auto p-1 outline-none"
+			className="flex max-h-64 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"
 		>
 			{options.map((o) => (
 				<MultiSelectItem key={o.id} id={o.id} textValue={o.label} isDisabled={o.isDisabled}>

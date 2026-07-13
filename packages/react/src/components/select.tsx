@@ -106,7 +106,9 @@ export const Select = <T extends object>({
 		{/* Cream fill, 8px radius, shadow-lg, NO border. 4px inset so each option's
 		    highlight sits as a padded pill; small gap for an even list rhythm. */}
 		<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
-			<ListBox className="flex flex-col gap-0.5 p-1 outline-none">{children}</ListBox>
+			<ListBox className="flex max-h-64 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none">
+				{children}
+			</ListBox>
 		</Popover>
 	</RACSelect>
 )
