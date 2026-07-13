@@ -15,6 +15,8 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 	FileUpload,
+	FocusField,
+	FocusFields,
 	Heading,
 	Input,
 	MultiSelect,
@@ -102,6 +104,27 @@ function RichTextDemo() {
 			value={html}
 			onChange={setHtml}
 		/>
+	);
+}
+
+function FocusFieldsDemo() {
+	const [headline, setHeadline] = useState("adsadsads");
+	const [sub, setSub] = useState("");
+	const [tag, setTag] = useState("");
+	return (
+		<FocusFields className="w-full max-w-xl">
+			<div className="divide-y divide-border overflow-hidden rounded-lg border border-border">
+				<FocusField icon="T" label="Headline (blank for default)" preview={headline} placeholder="Headline (blank for default)">
+					<input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Headline (blank for default)" />
+				</FocusField>
+				<FocusField icon="T" label="Subheadline (blank for default)" preview={sub} placeholder="Subheadline (blank for default)">
+					<textarea value={sub} onChange={(e) => setSub(e.target.value)} placeholder="Subheadline (blank for default)" />
+				</FocusField>
+				<FocusField icon="#" label="Event tag" preview={tag} placeholder="Add a tag">
+					<input value={tag} onChange={(e) => setTag(e.target.value)} placeholder="Add a tag" />
+				</FocusField>
+			</div>
+		</FocusFields>
 	);
 }
 
@@ -545,6 +568,18 @@ const SECTIONS: SectionDef[] = [
 		),
 	},
 	{
+		id: "focus-field",
+		group: "Focus fields",
+		title: "Focus field (full-screen)",
+		subtitle:
+			"Click a field: it takes over the form at a large size while the rest blurs and dims behind. Esc or a click outside closes it.",
+		content: (
+			<Demo label="Immersive editing">
+				<FocusFieldsDemo />
+			</Demo>
+		),
+	},
+	{
 		id: "selection-controls",
 		group: "Forms",
 		title: "Selection controls",
@@ -882,7 +917,7 @@ const SECTIONS: SectionDef[] = [
 	},
 ];
 
-const GROUP_ORDER = ["Forms", "Date & time", "Modals", "Actions", "Overlays", "Navigation", "Content", "Tokens"];
+const GROUP_ORDER = ["Forms", "Date & time", "Focus fields", "Modals", "Actions", "Overlays", "Navigation", "Content", "Tokens"];
 
 // Canvas background options — the surfaces a component realistically sits on.
 // (No dark option: the tokens are light-only, so a dark canvas would render
