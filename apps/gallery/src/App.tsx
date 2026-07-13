@@ -17,6 +17,7 @@ import {
 	MultiSelect,
 	Radio,
 	RadioGroup,
+	RichTextEditor,
 	Select,
 	SelectItem,
 	Separator,
@@ -79,6 +80,18 @@ function ViewToggleDemo() {
 				{ id: "grid", label: "Grid", icon: <GridIcon /> },
 				{ id: "list", label: "List", icon: <ListIcon /> },
 			]}
+		/>
+	);
+}
+
+function RichTextDemo() {
+	const [html, setHtml] = useState("<h2>Rich text</h2><p>A dependency-free WYSIWYG. Try <b>bold</b>, <i>italic</i>, lists, and links.</p><ul><li>Emits an HTML string</li><li>Pastes as plain text</li></ul>");
+	return (
+		<RichTextEditor
+			label="Body"
+			description="Formatting round-trips as an HTML string."
+			value={html}
+			onChange={setHtml}
 		/>
 	);
 }
@@ -354,6 +367,19 @@ const SECTIONS: SectionDef[] = [
 							{ id: "web", label: "Web" },
 						]}
 					/>
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "rich-text",
+		group: "Forms",
+		title: "Rich text",
+		subtitle: "Dependency-free contentEditable WYSIWYG (ported from the CMS). Emits an HTML string.",
+		content: (
+			<Demo label="Editor">
+				<div className="w-full max-w-xl">
+					<RichTextDemo />
 				</div>
 			</Demo>
 		),
