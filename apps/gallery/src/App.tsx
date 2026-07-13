@@ -620,9 +620,12 @@ export function App() {
 						</div>
 					</div>
 				</header>
+				{/* `relative` establishes a containing block so react-aria's hidden
+				    position:absolute field sentinels anchor here and are clipped by
+				    overflow — otherwise they anchor to <html> and inflate page scroll. */}
 				<div
 					ref={canvasRef}
-					className="flex-1 overflow-y-auto transition-colors"
+					className="relative flex-1 overflow-y-auto transition-colors"
 					style={{ background: `var(--color-${bg})` }}
 				>
 					<div className="mx-auto flex max-w-5xl flex-col gap-12 px-8 py-12">
