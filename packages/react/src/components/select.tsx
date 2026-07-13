@@ -30,18 +30,17 @@ import { uic } from '../utils/uic'
 const SelectTrigger = uic(RACButton, {
 	displayName: 'SelectTrigger',
 	// gs trigger: min-h 58px, 20px padding (p-5), 10px text↔chevron gap (gap-2.5),
-	// 8px radius, NO border (filled fill only). We keep a focus-visible ring for
-	// WCAG (a borderless trigger that still shows a visible focus indicator is the
-	// correct a11y adaptation of gs's borderless look). Error → 2px danger ring
-	// (gs uses a box-shadow ring since the trigger has no border to colour); the
-	// ring is driven off the RACSelect root's `data-invalid` via `group-`.
+	// 8px radius. gs was borderless cream, but — like input/textarea — that made the
+	// trigger vanish inside a Card (also surface-card) and read as disabled. Matched
+	// to the text fields: white fill + border, hover darkens the border. Error → 2px
+	// danger ring driven off the RACSelect root's `data-invalid` via `group-`.
 	baseClass:
-		'flex min-h-[58px] w-full items-center justify-between gap-2.5 rounded-lg bg-surface-card p-5 ' +
+		'flex min-h-[58px] w-full items-center justify-between gap-2.5 rounded-lg border border-border bg-surface p-5 ' +
 		'text-sm text-fg outline-none transition-colors ' +
-		'data-[hovered]:bg-surface-muted ' +
+		'data-[hovered]:border-fg-subtle ' +
 		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
-		'group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
-		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
+		'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
+		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
 })
 
 export const SelectItem = uic(ListBoxItem, {

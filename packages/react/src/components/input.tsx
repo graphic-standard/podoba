@@ -20,17 +20,20 @@ import { uic } from '../utils/uic'
  */
 const StyledInput = uic(RACInput, {
 	displayName: 'InputControl',
-	// gs token map: bg #f7f6f2 → surface-card · border #eceae1 → border · hover
-	// #aba89c → fg-subtle · focus #75e7b8 → brand-green · error → danger.
+	// White fill so the field reads as editable. The gs original used a cream
+	// (#f7f6f2 → surface-card) fill, but our Card surface is ALSO surface-card, so
+	// a filled field inside a card vanished and read as disabled. Inverted: active
+	// = white (surface), disabled = the muted cream. border #eceae1 → border ·
+	// hover #aba89c → fg-subtle · focus #75e7b8 → brand-green · error → danger.
 	// Identical to textarea.tsx's filled-field skin; `fieldSize` adds the
 	// single-line height (gs sizes the field via padding only).
 	baseClass:
-		'w-full rounded-lg border border-border bg-surface-card px-4 text-sm text-fg ' +
+		'w-full rounded-lg border border-border bg-surface px-4 text-sm text-fg ' +
 		'outline-none transition-colors duration-200 placeholder:text-fg-muted ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
 		'data-[invalid]:border-danger data-[invalid]:ring-danger ' +
-		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
+		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
 	variants: {
 		// `fieldSize` (not `size`) to avoid colliding with the native <input size>
 		// attribute, which RAC's Input inherits (a numeric prop).

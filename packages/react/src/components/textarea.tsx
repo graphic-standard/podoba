@@ -20,17 +20,19 @@ import { uic } from '../utils/uic'
  */
 const StyledTextArea = uic(RACTextArea, {
 	displayName: 'TextAreaControl',
-	// gs token map: bg #f7f6f2 → surface-card · border #eceae1 → border · hover
-	// #aba89c → fg-subtle · focus #75e7b8 → brand-green · error → danger.
-	// min-h-[120px] is a control dimension (not a design token) — gs uses a literal
-	// 120px here too; there is no spacing token for it.
+	// White fill so the field reads as editable — matches input.tsx. The gs
+	// original used cream (surface-card), but our Card surface is also surface-card,
+	// so a field inside a card vanished / looked disabled. Inverted: active = white
+	// (surface), disabled = muted cream. border #eceae1 → border · hover #aba89c →
+	// fg-subtle · focus #75e7b8 → brand-green · error → danger. min-h-[120px] is a
+	// control dimension (not a design token) — gs uses a literal 120px here too.
 	baseClass:
-		'min-h-[120px] w-full resize-y rounded-lg border border-border bg-surface-card px-4 py-3 text-sm text-fg ' +
+		'min-h-[120px] w-full resize-y rounded-lg border border-border bg-surface px-4 py-3 text-sm text-fg ' +
 		'outline-none transition-colors duration-200 placeholder:text-fg-muted ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
 		'data-[invalid]:border-danger data-[invalid]:ring-danger ' +
-		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
+		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
 })
 
 export type TextareaProps = TextFieldProps & {
