@@ -109,7 +109,7 @@ export const MultiSelect = ({
 				isDisabled={isDisabled}
 				onPress={() => setOpen(true)}
 				className={clsx(
-					'flex min-h-[58px] w-full items-center justify-between gap-2.5 rounded-lg border bg-surface p-5 text-sm outline-none transition-colors',
+					'flex h-12 w-full items-center justify-between gap-2.5 rounded-lg border bg-surface px-4 text-sm text-fg outline-none transition-colors',
 					'data-[hovered]:border-fg-subtle data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
 					'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
 					isInvalid ? 'border-danger ring-2 ring-danger' : 'border-border',

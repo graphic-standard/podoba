@@ -29,13 +29,12 @@ import { uic } from '../utils/uic'
  */
 const SelectTrigger = uic(RACButton, {
 	displayName: 'SelectTrigger',
-	// gs trigger: min-h 58px, 20px padding (p-5), 10px text↔chevron gap (gap-2.5),
-	// 8px radius. gs was borderless cream, but — like input/textarea — that made the
-	// trigger vanish inside a Card (also surface-card) and read as disabled. Matched
-	// to the text fields: white fill + border, hover darkens the border. Error → 2px
-	// danger ring driven off the RACSelect root's `data-invalid` via `group-`.
+	// Sized to match the other form fields (Input / ComboBox): h-12, 16px side
+	// padding, 8px radius. White fill + border so the trigger doesn't vanish inside
+	// a Card (also surface-card) and read as disabled; hover darkens the border.
+	// Error → 2px danger ring driven off the RACSelect root's `data-invalid`.
 	baseClass:
-		'flex min-h-[58px] w-full items-center justify-between gap-2.5 rounded-lg border border-border bg-surface p-5 ' +
+		'flex h-12 w-full items-center justify-between gap-2.5 rounded-lg border border-border bg-surface px-4 ' +
 		'text-sm text-fg outline-none transition-colors ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
@@ -49,7 +48,7 @@ export const SelectItem = uic(ListBoxItem, {
 	// medium weight. We add a `surface-muted` focus background (gs highlights with
 	// weight only) so keyboard focus stays clearly visible on the cream content.
 	baseClass:
-		'flex cursor-pointer select-none items-center rounded-md px-5 text-sm text-fg outline-none ' +
+		'flex cursor-pointer select-none items-center rounded-md px-5 py-1 text-sm text-fg outline-none ' +
 		'data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 }) as (props: ListBoxItemProps) => ReactNode
