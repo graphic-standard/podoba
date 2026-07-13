@@ -31,7 +31,7 @@ import {
 	TooltipTrigger,
 	ViewToggle,
 } from "@podoba/react";
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 // ── gallery chrome ──────────────────────────────────────────────────────────
 // A tiny local framework: a SECTIONS registry (grouped) drives both the sidebar
@@ -93,6 +93,135 @@ function SectionTabsDemo() {
 				{ key: "trash", label: "Trash", disabled: true },
 			]}
 		/>
+	);
+}
+
+// ── typography showcase ──────────────────────────────────────────────────────
+// The <Text> UI ramp (font-size only, largest → smallest) and the <Heading>
+// semantic ramp (levels carry a line-height). px values mirror @podoba/tokens.
+const TEXT_SIZES = [
+	{ name: "display", meta: "1.75rem · 28px" },
+	{ name: "headline", meta: "1.375rem · 22px" },
+	{ name: "title", meta: "1.25rem · 20px" },
+	{ name: "subtitle", meta: "1.125rem · 18px" },
+	{ name: "body", meta: "1rem · 16px" },
+	{ name: "callout", meta: "0.9375rem · 15px" },
+	{ name: "compact", meta: "0.8125rem · 13px" },
+	{ name: "label", meta: "0.75rem · 12px" },
+	{ name: "caption", meta: "0.6875rem · 11px" },
+	{ name: "micro", meta: "0.625rem · 10px" },
+] as const;
+
+const HEADINGS = [
+	{ level: "1", meta: "heading1 · 28px" },
+	{ level: "2", meta: "heading2 · 22px" },
+	{ level: "3", meta: "heading3 · 20px" },
+	{ level: "4", meta: "heading4 · 18px" },
+	{ level: "5", meta: "heading5 · 16px" },
+] as const;
+
+const SPECIMEN = "The quick brown fox";
+
+function RampRow({ meta, children }: { meta: string; children: ReactNode }) {
+	return (
+		<div className="flex items-baseline gap-4 border-b border-border/60 py-2 last:border-0">
+			<span className="w-32 shrink-0 font-mono text-micro text-fg-subtle">{meta}</span>
+			<div className="min-w-0 flex-1">{children}</div>
+		</div>
+	);
+}
+
+function TypographyShowcase() {
+	return (
+		<>
+			<Demo label="Heading ramp (semantic — carries line-height)">
+				<div className="flex w-full max-w-2xl flex-col">
+					{HEADINGS.map((h) => (
+						<RampRow key={h.level} meta={h.meta}>
+							<Heading asChild level={h.level}>
+								{createElement(`h${h.level}`, null, `Heading level ${h.level}`)}
+							</Heading>
+						</RampRow>
+					))}
+				</div>
+			</Demo>
+
+			<Demo label="Text ramp (UI — font-size only)">
+				<div className="flex w-full max-w-2xl flex-col">
+					{TEXT_SIZES.map((s) => (
+						<RampRow key={s.name} meta={`${s.name} · ${s.meta.split(" · ")[1]}`}>
+							<Text size={s.name}>{SPECIMEN}</Text>
+						</RampRow>
+					))}
+				</div>
+			</Demo>
+
+			<Demo label="Weights (regular · medium · semibold · bold)">
+				<Text size="title" weight="regular">
+					Regular
+				</Text>
+				<Text size="title" weight="medium">
+					Medium
+				</Text>
+				<Text size="title" weight="semibold">
+					Semibold
+				</Text>
+				<Text size="title" weight="bold">
+					Bold
+				</Text>
+			</Demo>
+
+			<Demo label="Tones">
+				<Text tone="default">Default</Text>
+				<Text tone="muted">Muted</Text>
+				<Text tone="subtle">Subtle</Text>
+				<span className="rounded-md bg-surface-inverted px-2.5 py-1">
+					<Text tone="inverted">Inverted</Text>
+				</span>
+			</Demo>
+
+			<Demo label="Combinations">
+				{/* Article header */}
+				<div className="flex w-64 flex-col gap-2">
+					<Text size="label" weight="medium" tone="muted" className="uppercase tracking-wide">
+						Case study
+					</Text>
+					<Heading asChild level="2">
+						<h3>Rebranding Acme for a global launch</h3>
+					</Heading>
+					<Text size="subtitle" tone="muted">
+						How we rebuilt the identity system in six weeks.
+					</Text>
+				</div>
+				{/* Stat */}
+				<div className="flex w-40 flex-col gap-1">
+					<Text size="display" weight="bold">
+						128
+					</Text>
+					<Text size="caption" tone="muted" className="uppercase tracking-wide">
+						Assets delivered
+					</Text>
+				</div>
+				{/* Definition pair */}
+				<div className="flex w-40 flex-col gap-0.5">
+					<Text size="caption" tone="subtle" className="uppercase tracking-wide">
+						Status
+					</Text>
+					<Text size="callout" weight="medium">
+						In review
+					</Text>
+				</div>
+				{/* Body paragraph */}
+				<div className="flex w-72 flex-col gap-2">
+					<Text size="body" weight="semibold">
+						Body copy
+					</Text>
+					<Text size="body" tone="muted" className="leading-relaxed">
+						Pack my box with five dozen liquor jugs — a pangram to preview the body copy at its natural leading.
+					</Text>
+				</div>
+			</Demo>
+		</>
 	);
 }
 
@@ -419,24 +548,9 @@ const SECTIONS: SectionDef[] = [
 		id: "typography",
 		group: "Content",
 		title: "Typography",
-		subtitle: "The Text / Heading type ramp.",
-		content: (
-			<>
-				<Demo label="Text sizes">
-					<div className="flex flex-col gap-1">
-						<Text size="display">Display</Text>
-						<Text size="title">Title</Text>
-						<Text size="body">Body</Text>
-						<Text size="caption" tone="muted">
-							Caption · muted
-						</Text>
-					</div>
-				</Demo>
-				<Demo label="Heading">
-					<Heading>Section heading</Heading>
-				</Demo>
-			</>
-		),
+		subtitle:
+			"Two ramps: <Heading> is the semantic scale (levels 1–5, each with a line-height); <Text> is the size-only UI scale. Plus weights, tones, and how they compose.",
+		content: <TypographyShowcase />,
 	},
 	{
 		id: "card",
