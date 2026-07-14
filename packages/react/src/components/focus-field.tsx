@@ -11,6 +11,7 @@ import {
 } from 'react'
 import { createPortal } from 'react-dom'
 import { clsx } from 'clsx'
+import { FocusOverlayContext } from './focus-context'
 
 /**
  * FocusFields + FocusField — immersive focus-mode field editing.
@@ -187,18 +188,22 @@ export function FocusField({
 									<path d="M6 6l12 12M18 6 6 18" />
 								</svg>
 							</button>
-							{editor === 'control' ? (
-								// Self-labelled field component — render it as-is.
-								<div className="max-w-md pr-10">{children}</div>
-							) : (
-								<div className="flex items-start gap-3">
-									{icon ? <IconBadge icon={icon} /> : null}
-									<div className="min-w-0 flex-1 pr-10">
-										<div className="text-sm text-fg-muted">{label}</div>
-										<div className={OVERLAY_EDITOR}>{children}</div>
+							{/* Tell field components they're in a focus overlay so they can
+							    render an enhanced view (e.g. an inline open calendar). */}
+							<FocusOverlayContext.Provider value={true}>
+								{editor === 'control' ? (
+									// Self-labelled field component — render it as-is (enhanced by context).
+									<div className="max-w-md pr-10">{children}</div>
+								) : (
+									<div className="flex items-start gap-3">
+										{icon ? <IconBadge icon={icon} /> : null}
+										<div className="min-w-0 flex-1 pr-10">
+											<div className="text-sm text-fg-muted">{label}</div>
+											<div className={OVERLAY_EDITOR}>{children}</div>
+										</div>
 									</div>
-								</div>
-							)}
+								)}
+							</FocusOverlayContext.Provider>
 						</div>,
 						ctx.host,
 					)
