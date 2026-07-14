@@ -13,7 +13,7 @@ import { createPortal } from 'react-dom'
 import { clsx } from 'clsx'
 
 /**
- * FocusFields + FocusField — immersive "full-screen" field editing.
+ * FocusFields + FocusField — immersive focus-mode field editing.
  *
  * Ported from gs-platform's FormWithPreview overlay pattern. Wrap a form in
  * `<FocusFields>`; each `<FocusField>` renders as a compact card (icon · label ·

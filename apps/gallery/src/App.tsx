@@ -577,7 +577,7 @@ const SECTIONS: SectionDef[] = [
 	{
 		id: "focus-field",
 		group: "Focus fields",
-		title: "Focus field (full-screen)",
+		title: "Focus field (focus mode)",
 		subtitle:
 			"Click a field: it takes over the form at a large size while the rest blurs and dims behind. Esc or a click outside closes it.",
 		content: (
