@@ -1,9 +1,10 @@
 // @podoba/react — the universal component library.
 //
 // React Aria Components + Tailwind, composed with `uic`. Seeded from graphic-standard's
-// @app/ui — atomic primitives + layout ONLY. Product-specific components (schema
-// renderer, delivery/approval modals, brand headers) stay in GS and consume this.
-// See ../../EXTRACTION.md.
+// @app/ui — atomic primitives + layout, PLUS the label-driven product patterns
+// (delivery/approval modals, brand header, stats/dashboard). Podoba is the single
+// source of truth for UI. Only GS-DOMAIN-coupled UI (the @app/schema-driven component
+// renderer) stays in GS and consumes this. See ../../EXTRACTION.md.
 
 // --- factory ---
 export { uic, uiconfig, type ConfigVariants, type NoInfer } from "./utils/uic";
@@ -47,3 +48,14 @@ export * from "./layout/page-container";
 export * from "./layout/app-shell";
 export * from "./layout/topbar";
 export * from "./layout/persistent-page-shell";
+
+// --- product patterns (label-driven; no domain coupling) ---
+export * from "./components/brand-page-header";
+export * from "./components/stats-card";
+export * from "./components/dashboard-grid";
+export * from "./components/task-approval-modal";
+export * from "./components/request-changes-modal";
+export * from "./components/delivery/download-modal";
+export * from "./components/delivery/send-to-print-modal";
+export * from "./components/delivery/publish-modal";
+export * from "./components/delivery/delivery-status-module";
