@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "@podoba/tokens/variables.css";
+import "@podoba/tokens/fonts.css";
 import "./index.css";
 import { App } from "./App";
 

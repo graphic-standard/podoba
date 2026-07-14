@@ -15,6 +15,7 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./variables.css": "./src/variables.css",
+		"./fonts.css": "./src/fonts.css",
 		"./tokens.json": "./src/tokens.json"
 	},
 	"files": ["src"],
