@@ -1,0 +1,139 @@
+/* @podoba/tailwind — shared Tailwind v4 theme for the design system.
+ *
+ * Binds @podoba/tokens' CSS custom properties (see @podoba/tokens/variables.css)
+ * to Tailwind's theme, so primitives reference `bg-surface` / `text-fg-muted` /
+ * `text-heading2` / `rounded-panel` and resolve to `var(--…)`.
+ *
+ * Consume it AFTER `@import "tailwindcss"` and the token variables:
+ *
+ *   @import "tailwindcss";
+ *   @import "@podoba/tokens/variables.css";
+ *   @import "@podoba/tailwind";
+ *
+ * This is CONTENT-LESS on purpose: a shared theme must not hardcode source
+ * globs. Each consuming app declares its own `@source` directives.
+ *
+ * `@theme inline` is REQUIRED here: the theme keys share names with the tokens
+ * (e.g. theme `--color-surface` ← token `--color-surface`). `inline` makes the
+ * utilities emit `var(--color-surface)` directly instead of re-declaring a
+ * self-referential theme variable, so they resolve against @podoba/tokens.
+ *
+ * NOTE: custom scale keys here (`--text-micro`…`--text-display`/`--text-heading1-5`,
+ * `--spacing-nav-x`, `--radius-panel`) are mirrored in @podoba/react's uic
+ * tailwind-merge config so conflicting utilities dedupe correctly. Keep in sync.
+ */
+
+@plugin "@tailwindcss/typography";
+
+@theme inline {
+	/* colors */
+	--color-brand: var(--color-brand-primary);
+	--color-brand-primary: var(--color-brand-primary);
+	--color-brand-secondary: var(--color-brand-secondary);
+	--color-brand-green: var(--color-brand-green);
+
+	--color-surface: var(--color-surface);
+	--color-surface-muted: var(--color-surface-muted);
+	--color-surface-card: var(--color-surface-card);
+	--color-surface-inverted: var(--color-surface-inverted);
+	--color-surface-placeholder: var(--color-surface-placeholder);
+
+	--color-fg: var(--color-fg);
+	--color-fg-muted: var(--color-fg-muted);
+	--color-fg-subtle: var(--color-fg-subtle);
+	--color-fg-inverted: var(--color-fg-inverted);
+
+	--color-accent-strong: var(--color-accent-strong);
+	--color-accent-yellow: var(--color-accent-yellow);
+	--color-accent-mint: var(--color-accent-mint);
+	--color-accent-green-light: var(--color-accent-green-light);
+	--color-accent-pink: var(--color-accent-pink);
+
+	--color-neutral-600: var(--color-neutral-600);
+
+	--color-border: var(--color-border);
+
+	--color-danger: var(--color-danger);
+	--color-danger-fg: var(--color-danger-fg);
+
+	--color-success: var(--color-success);
+	--color-success-fg: var(--color-success-fg);
+
+	--color-ring: var(--color-ring);
+
+	/* border radius */
+	--radius-sm: var(--radius-sm);
+	--radius-md: var(--radius-md);
+	--radius-lg: var(--radius-lg);
+	--radius-xl: var(--radius-xl);
+	--radius-2xl: var(--radius-2xl);
+	--radius-panel: var(--radius-panel);
+
+	/* spacing (named keys; the numeric p-4/gap-2 scale is untouched) */
+	--spacing-xs: var(--space-xs);
+	--spacing-sm: var(--space-sm);
+	--spacing-md: var(--space-md);
+	--spacing-lg: var(--space-lg);
+	--spacing-xl: var(--space-xl);
+	--spacing-nav-x: var(--space-nav-x);
+
+	/* font families */
+	--font-sans: var(--font-sans);
+	--font-mono: var(--font-mono);
+
+	/* font sizes — size-only ramp */
+	--text-micro: var(--font-size-micro);
+	--text-caption: var(--font-size-caption);
+	--text-label: var(--font-size-label);
+	--text-compact: var(--font-size-compact);
+	--text-callout: var(--font-size-callout);
+	--text-body: var(--font-size-body);
+	--text-subtitle: var(--font-size-subtitle);
+	--text-title: var(--font-size-title);
+	--text-headline: var(--font-size-headline);
+	--text-display: var(--font-size-display);
+
+	/* font sizes — heading ramp (size + paired line-height) */
+	--text-heading1: var(--font-size-heading1);
+	--text-heading1--line-height: var(--line-height-heading1);
+	--text-heading2: var(--font-size-heading2);
+	--text-heading2--line-height: var(--line-height-heading2);
+	--text-heading3: var(--font-size-heading3);
+	--text-heading3--line-height: var(--line-height-heading3);
+	--text-heading4: var(--font-size-heading4);
+	--text-heading4--line-height: var(--line-height-heading4);
+	--text-heading5: var(--font-size-heading5);
+	--text-heading5--line-height: var(--line-height-heading5);
+
+	/* letter spacing */
+	--tracking-tight: var(--tracking-tight);
+	--tracking-normal: var(--tracking-normal);
+	--tracking-wide: var(--tracking-wide);
+	--tracking-wider: var(--tracking-wider);
+
+	/* animations */
+	--animate-expand-cta: expand-cta 220ms cubic-bezier(0.16, 1, 0.3, 1);
+	--animate-lightbox-in: lightbox-in 0.3s ease-out;
+}
+
+@keyframes expand-cta {
+	from {
+		opacity: 0;
+		transform: translateY(-2px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes lightbox-in {
+	from {
+		opacity: 0;
+		transform: translateX(24%);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}

@@ -2,7 +2,7 @@
 	"name": "@podoba/tailwind",
 	"version": "0.0.11",
 	"type": "module",
-	"description": "podoba Tailwind preset — binds @podoba/tokens CSS custom properties to theme.extend.",
+	"description": "podoba Tailwind v4 theme — binds @podoba/tokens CSS custom properties to Tailwind's @theme. Import after `@import \"tailwindcss\"`.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/graphic-standard/podoba.git",
@@ -10,27 +10,19 @@
 	},
 	"homepage": "https://github.com/graphic-standard/podoba#readme",
 	"bugs": "https://github.com/graphic-standard/podoba/issues",
-	"main": "./src/index.ts",
-	"types": "./src/index.ts",
+	"style": "./src/theme.css",
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/theme.css",
+		"./theme.css": "./src/theme.css"
 	},
 	"files": ["src"],
 	"publishConfig": {
 		"access": "public"
 	},
-	"scripts": {
-		"typecheck": "tsc --build"
-	},
 	"dependencies": {
 		"@tailwindcss/typography": "catalog:ui"
 	},
 	"peerDependencies": {
-		"tailwindcss": "^3.4.0"
-	},
-	"devDependencies": {
-		"tailwindcss": "catalog:ui",
-		"typescript": "catalog:",
-		"@types/bun": "catalog:"
+		"tailwindcss": "^4.0.0"
 	}
 }

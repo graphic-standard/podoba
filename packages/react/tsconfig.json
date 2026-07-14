@@ -5,8 +5,7 @@
 		"rootDir": "src"
 	},
 	"references": [
-		{ "path": "../tokens" },
-		{ "path": "../tailwind" }
+		{ "path": "../tokens" }
 	],
 	"include": ["src"]
 }

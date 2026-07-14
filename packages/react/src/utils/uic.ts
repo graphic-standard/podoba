@@ -41,7 +41,7 @@ import {
 } from 'react'
 import { extendTailwindMerge } from 'tailwind-merge'
 
-// tailwind-merge configured for OUR theme extensions (packages/ui/tailwind.config.ts).
+// tailwind-merge configured for OUR theme extensions (@podoba/tailwind's theme.css).
 // Default tailwind-merge only recognises stock scale keys — without this,
 // `text-compact` (custom fontSize) would be classified as a text COLOR and
 // wrongly deduped against `text-fg-*`, and `px-nav-x` (custom spacing) would

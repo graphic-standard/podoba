@@ -1,8 +1,12 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@import "@podoba/tokens/variables.css";
+@import "@podoba/tailwind";
 
-/* The token variables (imported in main.tsx) drive --font-sans etc. */
+/* The @podoba/react utility classes live in a sibling workspace package, which
+   v4's automatic source detection won't scan (it skips node_modules). Point
+   Tailwind at the library source so those classes get generated. */
+@source "../../../packages/react/src/**/*.{ts,tsx}";
+
 html {
 	font-family: var(--font-sans);
 	background: var(--color-surface);

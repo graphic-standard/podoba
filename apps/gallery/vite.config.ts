@@ -1,3 +1,4 @@
+import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
@@ -5,6 +6,6 @@ import { defineConfig } from "vite";
 // (its package `main` points at src/index.ts), so Vite transpiles the library
 // live — no build step, edits to components hot-reload here.
 export default defineConfig({
-	plugins: [react()],
+	plugins: [react(), tailwindcss()],
 	server: { port: 5273 },
 });
