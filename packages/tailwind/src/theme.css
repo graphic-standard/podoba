@@ -69,12 +69,14 @@
 	--radius-2xl: var(--radius-2xl);
 	--radius-panel: var(--radius-panel);
 
-	/* spacing (named keys; the numeric p-4/gap-2 scale is untouched) */
-	--spacing-xs: var(--space-xs);
-	--spacing-sm: var(--space-sm);
-	--spacing-md: var(--space-md);
-	--spacing-lg: var(--space-lg);
-	--spacing-xl: var(--space-xl);
+	/* spacing — only the off-grid `nav-x` (13px). We deliberately do NOT map
+	 * xs/sm/md/lg/xl into --spacing-*: in v4 that namespace also feeds the
+	 * sizing utilities (max-w/min-w/w/h/size/basis), where xs…xl are the
+	 * `--container-*` t-shirt scale (max-w-md = 28rem). Naming spacing keys
+	 * xs…xl shadows those (max-w-md would collapse to 1rem). And they'd be
+	 * redundant anyway — the token values are exactly the numeric scale
+	 * (--space-md 1rem = p-4, sm = p-2, lg = p-6, xl = p-8, xs = p-1), so use
+	 * the numeric utilities for spacing and leave xs…xl to sizing. */
 	--spacing-nav-x: var(--space-nav-x);
 
 	/* font families */

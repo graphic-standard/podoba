@@ -25,8 +25,8 @@ import {
  *   - `1px solid --color-border`     (#eceae1) → `border border-border`
  *   - `--radius-lg` (8px)                      → `rounded-lg`
  *   - `--shadow-lg`                            → `shadow-lg`
- *   - `--spacing-4` (16px) padding            → `p-md`
- *   - `--spacing-2` (8px) gap between toasts  → `gap-sm`
+ *   - `--spacing-4` (16px) padding            → `p-4`
+ *   - `--spacing-2` (8px) gap between toasts  → `gap-2`
  *   - title  heading-5 / weight-medium / text-primary  → `text-heading5 font-medium text-fg`
  *   - desc   base / text-secondary                     → `text-body text-fg-muted`
  *   - close  24px / radius-md / text-tertiary→primary  → `h-6 w-6 rounded-md text-fg-subtle hover:text-fg`
@@ -126,7 +126,7 @@ export const ToastRegion = ({
 		<RACToastRegion
 			queue={toastQueue}
 			aria-label={ariaLabel}
-			className="fixed bottom-0 right-0 z-[1070] m-0 flex w-[390px] max-w-[100vw] list-none flex-col gap-sm p-md outline-none"
+			className="fixed bottom-0 right-0 z-[1070] m-0 flex w-[390px] max-w-[100vw] list-none flex-col gap-2 p-4 outline-none"
 		>
 			{({ toast: t }) => {
 				const variant = t.content.variant ?? 'default'
@@ -138,7 +138,7 @@ export const ToastRegion = ({
 							animation: 'gsToastSlideIn 300ms cubic-bezier(0.16, 1, 0.3, 1)',
 							willChange: 'transform, opacity',
 						}}
-						className="relative flex items-start gap-sm rounded-lg border border-border bg-surface-card p-md shadow-lg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
+						className="relative flex items-start gap-2 rounded-lg border border-border bg-surface-card p-4 shadow-lg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
 					>
 						{dot ? (
 							<span
