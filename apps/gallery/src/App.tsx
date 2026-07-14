@@ -107,22 +107,31 @@ function RichTextDemo() {
 	);
 }
 
+const FOCUS_DEMO_FIELDS: { key: string; icon: string; label: string; multiline?: boolean }[] = [
+	{ key: "quote", icon: "T", label: "Quote", multiline: true },
+	{ key: "name", icon: "T", label: "Name, surname" },
+	{ key: "job", icon: "T", label: "Job, location (opt for 2 rows)" },
+	{ key: "headline", icon: "T", label: "Headline (blank for default)" },
+	{ key: "subheadline", icon: "T", label: "Subheadline (blank for default)", multiline: true },
+	{ key: "cta", icon: "T", label: "CTA text" },
+	{ key: "tag", icon: "#", label: "Event tag" },
+];
+
 function FocusFieldsDemo() {
-	const [headline, setHeadline] = useState("adsadsads");
-	const [sub, setSub] = useState("");
-	const [tag, setTag] = useState("");
+	const [vals, setVals] = useState<Record<string, string>>({ quote: "Zkouška", headline: "adsadsads" });
+	const set = (k: string) => (e: { target: { value: string } }) => setVals((v) => ({ ...v, [k]: e.target.value }));
 	return (
 		<FocusFields className="w-full max-w-xl">
 			<div className="divide-y divide-border overflow-hidden rounded-lg border border-border">
-				<FocusField icon="T" label="Headline (blank for default)" preview={headline} placeholder="Headline (blank for default)">
-					<input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Headline (blank for default)" />
-				</FocusField>
-				<FocusField icon="T" label="Subheadline (blank for default)" preview={sub} placeholder="Subheadline (blank for default)">
-					<textarea value={sub} onChange={(e) => setSub(e.target.value)} placeholder="Subheadline (blank for default)" />
-				</FocusField>
-				<FocusField icon="#" label="Event tag" preview={tag} placeholder="Add a tag">
-					<input value={tag} onChange={(e) => setTag(e.target.value)} placeholder="Add a tag" />
-				</FocusField>
+				{FOCUS_DEMO_FIELDS.map((f) => (
+					<FocusField key={f.key} icon={f.icon} label={f.label} preview={vals[f.key]} placeholder={f.label}>
+						{f.multiline ? (
+							<textarea value={vals[f.key] ?? ""} onChange={set(f.key)} placeholder={f.label} />
+						) : (
+							<input value={vals[f.key] ?? ""} onChange={set(f.key)} placeholder={f.label} />
+						)}
+					</FocusField>
+				))}
 			</div>
 		</FocusFields>
 	);
