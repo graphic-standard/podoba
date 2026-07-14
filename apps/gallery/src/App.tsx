@@ -2,6 +2,7 @@ import {
 	Button,
 	Card,
 	Checkbox,
+	CollapsibleCard,
 	ComboBox,
 	ComboBoxItem,
 	DateField,
@@ -921,6 +922,27 @@ const SECTIONS: SectionDef[] = [
 						</Text>
 					</DisclosurePanel>
 				</Disclosure>
+			</Demo>
+		),
+	},
+	{
+		id: "collapsible-card",
+		group: "Navigation",
+		title: "Collapsible card",
+		subtitle: "Titled card with a description and chevron, expanding to reveal a body.",
+		content: (
+			<Demo label="Expand / collapse">
+				<CollapsibleCard
+					title="Variables"
+					description="Shared variables applied across this template."
+					className="w-96"
+				>
+					<Select label="Color theme" placeholder="White">
+						<SelectItem id="white">White</SelectItem>
+						<SelectItem id="cream">Cream</SelectItem>
+						<SelectItem id="charcoal">Charcoal</SelectItem>
+					</Select>
+				</CollapsibleCard>
 			</Demo>
 		),
 	},

@@ -35,6 +35,7 @@ export * from "./components/context-menu";
 export * from "./components/tooltip";
 export * from "./components/toast";
 export * from "./components/disclosure";
+export * from "./components/collapsible-card";
 export * from "./components/tabs";
 export * from "./components/section-tabs";
 export * from "./components/separator";
