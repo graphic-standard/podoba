@@ -86,11 +86,17 @@ export const podobaPreset: Omit<Config, "content"> = {
 				sans: "var(--font-sans)",
 				mono: "var(--font-mono)",
 			},
-			// NC Fontina reads best light: `font-medium` is remapped from Tailwind's
-			// default 500 down to 400, so the system's primary weight (used ~everywhere)
-			// renders at 400. `font-normal` stays 400 too — they coincide by design.
+			// NC Fontina reads best light, so the whole weight scale is shifted down one
+			// step (-100 from Tailwind's defaults): light 300→200, normal 400→300,
+			// medium 500→400, semibold 600→500, bold 700→600. Every value stays inside
+			// NC Fontina's 200–700 wght axis. The unused extremes (thin/extralight/
+			// extrabold/black) are left at Tailwind defaults — they fall outside the axis.
 			fontWeight: {
+				light: "200",
+				normal: "300",
 				medium: "400",
+				semibold: "500",
+				bold: "600",
 			},
 			fontSize: {
 				micro: "var(--font-size-micro)",
