@@ -16,6 +16,7 @@
 // config so conflicting utilities dedupe correctly. Keep the two in sync.
 
 import typography from "@tailwindcss/typography";
+import plugin from "tailwindcss/plugin";
 import type { Config } from "tailwindcss";
 
 export const podobaPreset: Omit<Config, "content"> = {
@@ -137,7 +138,15 @@ export const podobaPreset: Omit<Config, "content"> = {
 			},
 		},
 	},
-	plugins: [typography],
+	plugins: [
+		typography,
+		// Base body weight follows `font-normal` (300) so UNSTYLED text (no explicit
+		// weight class) renders at 300 rather than the browser default 400. Tied to
+		// the token via theme('fontWeight.normal') so it can't drift from the scale.
+		plugin(({ addBase, theme }) => {
+			addBase({ html: { fontWeight: theme("fontWeight.normal") } });
+		}),
+	],
 };
 
 export default podobaPreset;
