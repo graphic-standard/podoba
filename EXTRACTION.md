@@ -70,24 +70,23 @@ Plus `components.test.tsx`, `layout.test.tsx` → alongside.
 
 ---
 
-## 4. What STAYS in `@app/ui` (GS product-specific → becomes a podoba consumer)
+## 4. What STAYS in `@app/ui` (GS-DOMAIN-coupled → a podoba consumer)
 
-These are **not** universal primitives. They stay in graphic-standard and import from
-`@podoba/react`:
+Only UI that couples to a GS domain package stays in graphic-standard:
 
-- **Schema renderer:** `component-registry.ts`, `map-schema-to-props.ts`, `component-renderer.tsx` (+ examples/test), `schema-mapper.test.ts`
+- **Schema renderer:** `component-registry.ts`, `map-schema-to-props.ts`, `component-renderer.tsx` (+ examples/test), `schema-mapper.test.ts` — imports `@app/schema`, so it can't ship in a package published to npm.
+
+`@app/ui` re-exports podoba (`export * from "@podoba/react"`) so its consumers keep their
+imports; it now defines only the schema renderer locally.
+
+### PROMOTED to podoba in v0.0.8 (2026-07-14)
+
+The label-driven product patterns — no domain coupling, all take labels as props — moved
+into `@podoba/react`, making podoba the single source of truth for UI. Their
+`*.examples.tsx` stay in GS's dev gallery (repointed to `@podoba/react`):
+
 - **Product modals:** `task-approval-modal.tsx`, `request-changes-modal.tsx`, `delivery/download-modal.tsx`, `delivery/send-to-print-modal.tsx`, `delivery/publish-modal.tsx`, `delivery/delivery-status-module.tsx`
-- **Brand patterns:** `brand-page-header.tsx`
-
-After extraction, `@app/ui` re-exports podoba (`export * from "@podoba/react"`) so its
-consumers don't all change imports at once — a compatibility shim we can delete later.
-
-### Borderline — flagged, default = STAY in GS, promote to podoba on a 2nd real consumer
-
-| Component | Why borderline |
-|---|---|
-| `stats-card.tsx` | generic KPI card, but a dashboard/product pattern |
-| `dashboard-grid.tsx` | generic grid, but "ported from gs-platform", product-shaped |
+- **Brand patterns:** `brand-page-header.tsx`, `stats-card.tsx`, `dashboard-grid.tsx`
 
 ---
 
