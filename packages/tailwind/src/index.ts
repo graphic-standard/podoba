@@ -16,7 +16,6 @@
 // config so conflicting utilities dedupe correctly. Keep the two in sync.
 
 import typography from "@tailwindcss/typography";
-import plugin from "tailwindcss/plugin";
 import type { Config } from "tailwindcss";
 
 export const podobaPreset: Omit<Config, "content"> = {
@@ -87,18 +86,6 @@ export const podobaPreset: Omit<Config, "content"> = {
 				sans: "var(--font-sans)",
 				mono: "var(--font-mono)",
 			},
-			// NC Fontina reads best light, so the whole weight scale is shifted down one
-			// step (-100 from Tailwind's defaults): light 300→200, normal 400→300,
-			// medium 500→400, semibold 600→500, bold 700→600. Every value stays inside
-			// NC Fontina's 200–700 wght axis. The unused extremes (thin/extralight/
-			// extrabold/black) are left at Tailwind defaults — they fall outside the axis.
-			fontWeight: {
-				light: "200",
-				normal: "300",
-				medium: "400",
-				semibold: "500",
-				bold: "600",
-			},
 			fontSize: {
 				micro: "var(--font-size-micro)",
 				caption: "var(--font-size-caption)",
@@ -138,15 +125,7 @@ export const podobaPreset: Omit<Config, "content"> = {
 			},
 		},
 	},
-	plugins: [
-		typography,
-		// Base body weight follows `font-normal` (300) so UNSTYLED text (no explicit
-		// weight class) renders at 300 rather than the browser default 400. Tied to
-		// the token via theme('fontWeight.normal') so it can't drift from the scale.
-		plugin(({ addBase, theme }) => {
-			addBase({ html: { fontWeight: theme("fontWeight.normal") } });
-		}),
-	],
+	plugins: [typography],
 };
 
 export default podobaPreset;
