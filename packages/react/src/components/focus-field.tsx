@@ -104,12 +104,28 @@ export type FocusFieldProps = {
 	preview?: ReactNode
 	/** Shown on the card when there's no value. */
 	placeholder?: ReactNode
-	/** The editor, shown large in the overlay when focused. Pass a label-less control. */
+	/** The editor, shown in the overlay when focused. */
 	children: ReactNode
+	/**
+	 * How the editor is presented in the overlay:
+	 * - `"text"` (default): treat `children` as a bare text control and enlarge it
+	 *   to a headline; FocusField supplies the label.
+	 * - `"control"`: render `children` (a self-labelled field component) as-is, with
+	 *   no enlargement and no FocusField label (the control provides its own).
+	 */
+	editor?: 'text' | 'control'
 	className?: string
 }
 
-export function FocusField({ label, icon, preview, placeholder, children, className }: FocusFieldProps) {
+export function FocusField({
+	label,
+	icon,
+	preview,
+	placeholder,
+	children,
+	editor = 'text',
+	className,
+}: FocusFieldProps) {
 	const ctx = useFocusFields()
 	const id = useId()
 	const active = ctx.activeId === id
@@ -171,13 +187,18 @@ export function FocusField({ label, icon, preview, placeholder, children, classN
 									<path d="M6 6l12 12M18 6 6 18" />
 								</svg>
 							</button>
-							<div className="flex items-start gap-3">
-								{icon ? <IconBadge icon={icon} /> : null}
-								<div className="min-w-0 flex-1 pr-10">
-									<div className="text-sm text-fg-muted">{label}</div>
-									<div className={OVERLAY_EDITOR}>{children}</div>
+							{editor === 'control' ? (
+								// Self-labelled field component — render it as-is.
+								<div className="max-w-md pr-10">{children}</div>
+							) : (
+								<div className="flex items-start gap-3">
+									{icon ? <IconBadge icon={icon} /> : null}
+									<div className="min-w-0 flex-1 pr-10">
+										<div className="text-sm text-fg-muted">{label}</div>
+										<div className={OVERLAY_EDITOR}>{children}</div>
+									</div>
 								</div>
-							</div>
+							)}
 						</div>,
 						ctx.host,
 					)
