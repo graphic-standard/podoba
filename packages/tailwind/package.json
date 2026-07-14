@@ -1,6 +1,6 @@
 {
 	"name": "@podoba/tailwind",
-	"version": "0.0.9",
+	"version": "0.0.10",
 	"type": "module",
 	"description": "podoba Tailwind preset — binds @podoba/tokens CSS custom properties to theme.extend.",
 	"repository": {
