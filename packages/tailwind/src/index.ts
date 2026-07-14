@@ -86,6 +86,12 @@ export const podobaPreset: Omit<Config, "content"> = {
 				sans: "var(--font-sans)",
 				mono: "var(--font-mono)",
 			},
+			// NC Fontina reads best light: `font-medium` is remapped from Tailwind's
+			// default 500 down to 400, so the system's primary weight (used ~everywhere)
+			// renders at 400. `font-normal` stays 400 too — they coincide by design.
+			fontWeight: {
+				medium: "400",
+			},
 			fontSize: {
 				micro: "var(--font-size-micro)",
 				caption: "var(--font-size-caption)",
