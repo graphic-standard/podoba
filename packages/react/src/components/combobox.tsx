@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import {
+	Autocomplete,
 	Button as RACButton,
 	ComboBox as RACComboBox,
 	type ComboBoxProps as RACComboBoxProps,
@@ -10,9 +11,12 @@ import {
 	ListBoxItem,
 	type ListBoxItemProps,
 	Popover,
+	SearchField,
 	Text,
+	useFilter,
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
+import { useInFocusOverlay } from './focus-context'
 
 /**
  * ComboBox — a filterable single-select: a text input that narrows a listbox as
@@ -65,32 +69,78 @@ export const ComboBox = <T extends object>({
 	errorMessage,
 	placeholder,
 	children,
+	selectedKey,
+	onSelectionChange,
 	...props
-}: ComboBoxProps<T>) => (
-	// `menuTrigger="focus"` opens the list on focus/click (not only on typing), so
-	// the options are always one interaction away. Consumers can override via props.
-	<RACComboBox menuTrigger="focus" {...props} className="group flex flex-col gap-2">
-		<Label className="text-heading5 font-medium text-fg">{label}</Label>
-		<div className="relative">
-			<ComboBoxInput placeholder={placeholder} />
-			{/* RAC uses this Button to toggle the listbox open/closed. */}
-			<RACButton className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
-				<Chevron />
-			</RACButton>
-		</div>
-		{description ? (
-			<Text slot="description" className="text-xs text-fg-muted">
-				{description}
-			</Text>
-		) : null}
-		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
-		<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
-			<ListBox
-				className="flex max-h-64 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"
-				renderEmptyState={() => <div className="px-3 py-2 text-sm text-fg-muted">No results</div>}
-			>
-				{children}
-			</ListBox>
-		</Popover>
-	</RACComboBox>
-)
+}: ComboBoxProps<T>) => {
+	const inFocus = useInFocusOverlay()
+	const { contains } = useFilter({ sensitivity: 'base' })
+	const desc = description ? (
+		<Text slot="description" className="text-xs text-fg-muted">
+			{description}
+		</Text>
+	) : null
+
+	// Focus overlay: a bare search input + an inline filtered list (RAC ComboBox
+	// only fills its listbox while open, so compose Autocomplete + ListBox here).
+	if (inFocus) {
+		return (
+			<div className="flex flex-col gap-2">
+				<span className="text-heading5 font-medium text-fg">{label}</span>
+				<Autocomplete filter={contains}>
+					<SearchField aria-label={typeof label === 'string' ? label : 'Search'}>
+						<RACInput
+							placeholder={placeholder}
+							className="w-full border-0 bg-transparent p-0 text-3xl font-medium text-fg outline-none placeholder:text-fg-subtle"
+						/>
+					</SearchField>
+					<ListBox
+						selectionMode="single"
+						selectedKeys={selectedKey != null ? new Set([selectedKey]) : new Set()}
+						onSelectionChange={(keys) => {
+							const k = keys === 'all' ? undefined : [...keys][0]
+							onSelectionChange?.(k ?? null)
+						}}
+						renderEmptyState={() => <div className="px-3 py-2 text-sm text-fg-muted">No results</div>}
+						className="mt-2 flex max-h-72 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"
+					>
+						{children}
+					</ListBox>
+				</Autocomplete>
+				{desc}
+				{errorMessage ? <span className="text-xs text-danger">{errorMessage}</span> : null}
+			</div>
+		)
+	}
+
+	return (
+		// `menuTrigger="focus"` opens the list on focus/click (not only on typing), so
+		// the options are always one interaction away. Consumers can override via props.
+		<RACComboBox
+			menuTrigger="focus"
+			selectedKey={selectedKey}
+			onSelectionChange={onSelectionChange}
+			{...props}
+			className="group flex flex-col gap-2"
+		>
+			<Label className="text-heading5 font-medium text-fg">{label}</Label>
+			<div className="relative">
+				<ComboBoxInput placeholder={placeholder} />
+				{/* RAC uses this Button to toggle the listbox open/closed. */}
+				<RACButton className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
+					<Chevron />
+				</RACButton>
+			</div>
+			{desc}
+			<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+			<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
+				<ListBox
+					className="flex max-h-72 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"
+					renderEmptyState={() => <div className="px-3 py-2 text-sm text-fg-muted">No results</div>}
+				>
+					{children}
+				</ListBox>
+			</Popover>
+		</RACComboBox>
+	)
+}

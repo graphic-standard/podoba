@@ -13,6 +13,7 @@ import {
 	Text,
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
+import { useInFocusOverlay } from './focus-context'
 
 /**
  * Select — accessible dropdown built on React Aria Components `Select`.
@@ -74,41 +75,55 @@ export const Select = <T extends object>({
 	placeholder,
 	children,
 	...props
-}: SelectProps<T>) => (
-	<RACSelect {...props} placeholder={placeholder} className="group flex flex-col gap-2">
-		<Label className="text-heading5 font-medium text-fg">{label}</Label>
-		<SelectTrigger>
-			<SelectValue className="data-[placeholder]:text-fg-muted" />
-			{/* gs chevron: 9.5px caret, dark (neutral-400 → fg), non-interactive. */}
-			<svg
-				width="9.5"
-				height="9.5"
-				viewBox="0 0 12 12"
-				fill="none"
-				aria-hidden="true"
-				className="pointer-events-none shrink-0 text-fg"
-			>
-				<path
-					d="M3 4.5L6 7.5L9 4.5"
-					stroke="currentColor"
-					strokeWidth="1.5"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-				/>
-			</svg>
-		</SelectTrigger>
-		{description ? (
-			<Text slot="description" className="text-xs text-fg-muted">
-				{description}
-			</Text>
-		) : null}
-		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
-		{/* Cream fill, 8px radius, shadow-lg, NO border. 4px inset so each option's
-		    highlight sits as a padded pill; small gap for an even list rhythm. */}
-		<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
-			<ListBox className="flex max-h-64 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none">
-				{children}
-			</ListBox>
-		</Popover>
-	</RACSelect>
-)
+}: SelectProps<T>) => {
+	// In a focus overlay, show the options inline (seamless) instead of a popover.
+	const inFocus = useInFocusOverlay()
+	const listbox = (
+		<ListBox className="flex max-h-72 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none">
+			{children}
+		</ListBox>
+	)
+	const desc = description ? (
+		<Text slot="description" className="text-xs text-fg-muted">
+			{description}
+		</Text>
+	) : null
+	const err = <FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+
+	return (
+		<RACSelect {...props} placeholder={placeholder} className="group flex flex-col gap-2">
+			<Label className="text-heading5 font-medium text-fg">{label}</Label>
+			{inFocus ? (
+				<>
+					{listbox}
+					{desc}
+					{err}
+				</>
+			) : (
+				<>
+					<SelectTrigger>
+						<SelectValue className="data-[placeholder]:text-fg-muted" />
+						{/* gs chevron: 9.5px caret, dark (neutral-400 → fg), non-interactive. */}
+						<svg
+							width="9.5"
+							height="9.5"
+							viewBox="0 0 12 12"
+							fill="none"
+							aria-hidden="true"
+							className="pointer-events-none shrink-0 text-fg"
+						>
+							<path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+						</svg>
+					</SelectTrigger>
+					{desc}
+					{err}
+					{/* Cream fill, 8px radius, shadow-lg, NO border. 4px inset so each option's
+					    highlight sits as a padded pill; small gap for an even list rhythm. */}
+					<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
+						{listbox}
+					</Popover>
+				</>
+			)}
+		</RACSelect>
+	)
+}

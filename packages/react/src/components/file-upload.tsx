@@ -1,6 +1,7 @@
 import { type ReactNode, useState } from 'react'
 import { DropZone, FileTrigger, Text } from 'react-aria-components'
 import { Button } from './button'
+import { useInFocusOverlay } from './focus-context'
 
 /**
  * FileUpload — a drop zone + "choose file" trigger over React Aria Components
@@ -21,6 +22,7 @@ export type FileUploadProps = {
 
 export const FileUpload = ({ label, description, accept, allowsMultiple, onFiles, className }: FileUploadProps) => {
 	const [names, setNames] = useState<string[]>([])
+	const inFocus = useInFocusOverlay()
 
 	const handle = (files: File[]) => {
 		if (files.length === 0) return
@@ -38,7 +40,8 @@ export const FileUpload = ({ label, description, accept, allowsMultiple, onFiles
 					handle(allowsMultiple ? files : files.slice(0, 1))
 				}}
 				className={
-					'flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-surface p-6 text-center outline-none transition-colors ' +
+					'flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-surface text-center outline-none transition-colors ' +
+					(inFocus ? 'min-h-64 p-12 ' : 'p-6 ') +
 					'data-[hovered]:border-fg-subtle ' +
 					'data-[drop-target]:border-brand-green data-[drop-target]:bg-surface-card ' +
 					'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring'

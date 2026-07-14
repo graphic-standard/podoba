@@ -1,5 +1,6 @@
 import { type ClipboardEvent as ReactClipboardEvent, type ReactNode, useEffect, useRef } from 'react'
 import { clsx } from 'clsx'
+import { useInFocusOverlay } from './focus-context'
 
 /**
  * RichTextEditor — a dependency-free contentEditable WYSIWYG that emits an HTML
@@ -85,6 +86,9 @@ export function RichTextEditor({
 }: RichTextEditorProps) {
 	const ref = useRef<HTMLDivElement>(null)
 	const last = useRef<string>('')
+	// In a focus overlay, give the body more room to write in.
+	const inFocus = useInFocusOverlay()
+	const bodyMinHeight = inFocus ? Math.max(minHeight, 360) : minHeight
 
 	// Sync only EXTERNAL value changes into the DOM — never on our own keystrokes,
 	// or the caret would jump to the start on every character.
@@ -142,7 +146,7 @@ export function RichTextEditor({
 				<div
 					ref={ref}
 					className="prose prose-sm max-w-none px-4 py-3.5 text-sm leading-relaxed text-fg outline-none empty:before:text-fg-subtle empty:before:content-[attr(data-placeholder)]"
-					style={{ minHeight }}
+					style={{ minHeight: bodyMinHeight }}
 					contentEditable
 					suppressContentEditableWarning
 					data-placeholder={placeholder}

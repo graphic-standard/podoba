@@ -13,6 +13,7 @@ import {
 } from 'react-aria-components'
 import { clsx } from 'clsx'
 import { uic } from '../utils/uic'
+import { useInFocusOverlay } from './focus-context'
 
 /**
  * MultiSelect — a dropdown that selects several options at once.
@@ -96,6 +97,7 @@ export const MultiSelect = ({
 	const triggerRef = useRef<HTMLButtonElement>(null)
 	const [open, setOpen] = useState(false)
 	const { contains } = useFilter({ sensitivity: 'base' })
+	const inFocus = useInFocusOverlay()
 	const [internal, setInternal] = useState<Set<string>>(() => new Set(defaultSelectedKeys ?? []))
 	const selected = selectedKeys ?? internal
 
@@ -126,48 +128,64 @@ export const MultiSelect = ({
 		</ListBox>
 	)
 
+	const listContent = searchable ? (
+		<Autocomplete filter={contains}>
+			<SearchField aria-label="Filter options" autoFocus className="border-b border-border p-1">
+				<RACInput
+					placeholder="Search…"
+					className="w-full rounded-md bg-surface px-3 py-2 text-sm text-fg outline-none placeholder:text-fg-muted"
+				/>
+			</SearchField>
+			{list}
+		</Autocomplete>
+	) : (
+		list
+	)
+
+	const desc = description ? <span className="text-xs text-fg-muted">{description}</span> : null
+	const err = isInvalid && errorMessage ? <span className="text-xs text-danger">{errorMessage}</span> : null
+
 	return (
 		<div className={clsx('flex flex-col gap-2', className)}>
 			<span id={labelId} className="text-heading5 font-medium text-fg">
 				{label}
 			</span>
-			<RACButton
-				ref={triggerRef}
-				aria-labelledby={labelId}
-				isDisabled={isDisabled}
-				onPress={() => setOpen(true)}
-				className={clsx(
-					'flex h-12 w-full items-center justify-between gap-2.5 rounded-lg border bg-surface px-4 text-sm text-fg outline-none transition-colors',
-					'data-[hovered]:border-fg-subtle data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
-					'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
-					isInvalid ? 'border-danger ring-2 ring-danger' : 'border-border',
-				)}
-			>
-				<span className={clsx('truncate', chosen.length === 0 && 'text-fg-muted')}>{summary}</span>
-				<Chevron />
-			</RACButton>
-			{description ? <span className="text-xs text-fg-muted">{description}</span> : null}
-			{isInvalid && errorMessage ? <span className="text-xs text-danger">{errorMessage}</span> : null}
-			<Popover
-				triggerRef={triggerRef}
-				isOpen={open}
-				onOpenChange={setOpen}
-				className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg"
-			>
-				{searchable ? (
-					<Autocomplete filter={contains}>
-						<SearchField aria-label="Filter options" autoFocus className="border-b border-border p-1">
-							<RACInput
-								placeholder="Search…"
-								className="w-full rounded-md bg-surface px-3 py-2 text-sm text-fg outline-none placeholder:text-fg-muted"
-							/>
-						</SearchField>
-						{list}
-					</Autocomplete>
-				) : (
-					list
-				)}
-			</Popover>
+			{inFocus ? (
+				// Seamless: no trigger/popover — the checklist sits inline on the panel.
+				<>
+					{listContent}
+					{desc}
+					{err}
+				</>
+			) : (
+				<>
+					<RACButton
+						ref={triggerRef}
+						aria-labelledby={labelId}
+						isDisabled={isDisabled}
+						onPress={() => setOpen(true)}
+						className={clsx(
+							'flex h-12 w-full items-center justify-between gap-2.5 rounded-lg border bg-surface px-4 text-sm text-fg outline-none transition-colors',
+							'data-[hovered]:border-fg-subtle data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
+							'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
+							isInvalid ? 'border-danger ring-2 ring-danger' : 'border-border',
+						)}
+					>
+						<span className={clsx('truncate', chosen.length === 0 && 'text-fg-muted')}>{summary}</span>
+						<Chevron />
+					</RACButton>
+					{desc}
+					{err}
+					<Popover
+						triggerRef={triggerRef}
+						isOpen={open}
+						onOpenChange={setOpen}
+						className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg"
+					>
+						{listContent}
+					</Popover>
+				</>
+			)}
 		</div>
 	)
 }

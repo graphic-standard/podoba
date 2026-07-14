@@ -20,6 +20,7 @@ import {
 	Popover,
 	Text,
 } from 'react-aria-components'
+import { clsx } from 'clsx'
 import { dateInputClass, segmentClass } from './date-field'
 import { useInFocusOverlay } from './focus-context'
 
@@ -84,8 +85,10 @@ export const DatePicker = <T extends DateValue>({ label, description, errorMessa
 	return (
 		<RACDatePicker {...props} className="group flex flex-col gap-2">
 			<Label className="text-heading5 font-medium text-fg">{label}</Label>
-			<Group className={`${dateInputClass} pr-2`}>
-				<DateInput className="flex flex-1 items-center gap-0.5">
+			{/* In focus mode the field is bare + large and the calendar is borderless,
+			    so field + calendar read as one seamless editor rather than boxes. */}
+			<Group className={inFocus ? 'flex w-full items-center' : `${dateInputClass} pr-2`}>
+				<DateInput className={clsx('flex flex-1 items-center gap-0.5', inFocus && 'text-3xl font-medium')}>
 					{(segment) => <DateSegment segment={segment} className={segmentClass} />}
 				</DateInput>
 				{inFocus ? null : (
@@ -107,7 +110,7 @@ export const DatePicker = <T extends DateValue>({ label, description, errorMessa
 			) : null}
 			<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
 			{inFocus ? (
-				<div className="mt-3 w-fit rounded-lg border border-border bg-surface p-4">
+				<div className="mt-2 -ml-2">
 					<CalendarBody />
 				</div>
 			) : (
