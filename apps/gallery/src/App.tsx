@@ -107,30 +107,103 @@ function RichTextDemo() {
 	);
 }
 
-const FOCUS_DEMO_FIELDS: { key: string; icon: string; label: string; multiline?: boolean }[] = [
-	{ key: "quote", icon: "T", label: "Quote", multiline: true },
-	{ key: "name", icon: "T", label: "Name, surname" },
-	{ key: "job", icon: "T", label: "Job, location (opt for 2 rows)" },
-	{ key: "headline", icon: "T", label: "Headline (blank for default)" },
-	{ key: "subheadline", icon: "T", label: "Subheadline (blank for default)", multiline: true },
-	{ key: "cta", icon: "T", label: "CTA text" },
-	{ key: "tag", icon: "#", label: "Event tag" },
+const FF_CATEGORIES = [
+	{ id: "event", label: "Event" },
+	{ id: "campaign", label: "Campaign" },
+	{ id: "social", label: "Social" },
 ];
+const FF_COUNTRIES = [
+	{ id: "cz", label: "Czechia" },
+	{ id: "sk", label: "Slovakia" },
+	{ id: "pl", label: "Poland" },
+	{ id: "de", label: "Germany" },
+];
+const FF_TAGS = [
+	{ id: "brand", label: "Brand" },
+	{ id: "print", label: "Print" },
+	{ id: "web", label: "Web" },
+	{ id: "social", label: "Social" },
+];
+const stripHtml = (h: string) => h.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
 function FocusFieldsDemo() {
-	const [vals, setVals] = useState<Record<string, string>>({ quote: "Zkouška", headline: "adsadsads" });
-	const set = (k: string) => (e: { target: { value: string } }) => setVals((v) => ({ ...v, [k]: e.target.value }));
+	const [headline, setHeadline] = useState("adsadsads");
+	const [body, setBody] = useState("");
+	const [bio, setBio] = useState("<p>Short <b>bio</b> in rich text…</p>");
+	const [qty, setQty] = useState(1);
+	const [cat, setCat] = useState<string | null>("event");
+	const [country, setCountry] = useState<string | null>(null);
+	const [tags, setTags] = useState<Set<string>>(new Set(["brand"]));
+	const [labels, setLabels] = useState([
+		{ id: "q4", name: "Q4" },
+		{ id: "prio", name: "Priority" },
+	]);
+	const [featured, setFeatured] = useState(true);
+	const [priority, setPriority] = useState(60);
+
+	const tagPreview = [...tags].map((id) => FF_TAGS.find((t) => t.id === id)?.label).filter(Boolean).join(", ");
+
 	return (
 		<FocusFields className="w-full max-w-xl">
-			{FOCUS_DEMO_FIELDS.map((f) => (
-				<FocusField key={f.key} icon={f.icon} label={f.label} preview={vals[f.key]} placeholder={f.label}>
-					{f.multiline ? (
-						<textarea value={vals[f.key] ?? ""} onChange={set(f.key)} placeholder={f.label} />
-					) : (
-						<input value={vals[f.key] ?? ""} onChange={set(f.key)} placeholder={f.label} />
-					)}
-				</FocusField>
-			))}
+			{/* text — bare, enlarged headline */}
+			<FocusField icon="T" label="Headline" preview={headline} placeholder="Headline">
+				<input value={headline} onChange={(e) => setHeadline(e.target.value)} placeholder="Headline" />
+			</FocusField>
+			<FocusField icon="T" label="Body" preview={body} placeholder="Body copy">
+				<textarea value={body} onChange={(e) => setBody(e.target.value)} placeholder="Body copy" />
+			</FocusField>
+
+			{/* everything else — self-labelled controls, editor="control" */}
+			<FocusField icon="¶" label="Bio" preview={stripHtml(bio)} placeholder="Rich text" editor="control">
+				<RichTextEditor label="Bio" value={bio} onChange={setBio} />
+			</FocusField>
+			<FocusField icon="#" label="Quantity" preview={String(qty)} editor="control">
+				<NumberField label="Quantity" value={qty} onChange={setQty} minValue={0} />
+			</FocusField>
+			<FocusField icon="▾" label="Category" preview={FF_CATEGORIES.find((c) => c.id === cat)?.label} placeholder="Choose…" editor="control">
+				<Select label="Category" placeholder="Choose…" selectedKey={cat} onSelectionChange={(k) => setCat(String(k))}>
+					{FF_CATEGORIES.map((c) => (
+						<SelectItem key={c.id} id={c.id}>
+							{c.label}
+						</SelectItem>
+					))}
+				</Select>
+			</FocusField>
+			<FocusField icon="⌕" label="Country" preview={FF_COUNTRIES.find((c) => c.id === country)?.label} placeholder="Search…" editor="control">
+				<ComboBox label="Country" placeholder="Search…" selectedKey={country} onSelectionChange={(k) => setCountry(k == null ? null : String(k))}>
+					{FF_COUNTRIES.map((c) => (
+						<ComboBoxItem key={c.id} id={c.id}>
+							{c.label}
+						</ComboBoxItem>
+					))}
+				</ComboBox>
+			</FocusField>
+			<FocusField icon="✦" label="Tags" preview={tagPreview} placeholder="Pick tags" editor="control">
+				<MultiSelect label="Tags" placeholder="Pick tags" options={FF_TAGS} selectedKeys={tags} onChange={setTags} searchable />
+			</FocusField>
+			<FocusField icon="📅" label="Publish date" placeholder="Pick a date" editor="control">
+				<DatePicker label="Publish date" />
+			</FocusField>
+			<FocusField icon="⌗" label="Labels" preview={labels.map((l) => l.name).join(", ")} placeholder="Add labels" editor="control">
+				<TagGroup label="Labels" onRemove={(keys) => setLabels((p) => p.filter((l) => !keys.has(l.id)))}>
+					{labels.map((l) => (
+						<Tag key={l.id} id={l.id}>
+							{l.name}
+						</Tag>
+					))}
+				</TagGroup>
+			</FocusField>
+			<FocusField icon="◐" label="Featured" preview={featured ? "Yes" : "No"} editor="control">
+				<Switch isSelected={featured} onChange={setFeatured}>
+					Featured
+				</Switch>
+			</FocusField>
+			<FocusField icon="⇔" label="Priority" preview={String(priority)} editor="control">
+				<Slider label="Priority" value={priority} onChange={setPriority} maxValue={100} />
+			</FocusField>
+			<FocusField icon="⇪" label="Attachment" placeholder="Choose a file" editor="control">
+				<FileUpload label="Attachment" accept={["image/*"]} />
+			</FocusField>
 		</FocusFields>
 	);
 }
