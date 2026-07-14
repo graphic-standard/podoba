@@ -34,7 +34,12 @@
  * Because fonts.css is imported after variables.css, this :root rule wins the
  * cascade. The fallback stack mirrors the generated --font-sans so metrics stay
  * close before NC Fontina loads / if it fails.
+ *
+ * font-feature-settings turns on NC Fontina's stylistic sets ss02–ss05 (the
+ * default letterforms the brand uses: jy/at/g ligatures and the @ alternate).
+ * It's an inherited property, so declaring it on :root cascades to every element.
  */
 :root {
 	--font-sans: 'NC Fontina', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	font-feature-settings: 'ss02' 1, 'ss03' 1, 'ss04' 1, 'ss05' 1;
 }
