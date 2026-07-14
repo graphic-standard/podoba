@@ -1072,7 +1072,7 @@ export function App() {
 			<aside className="flex w-64 shrink-0 flex-col border-r border-border bg-surface-card">
 				<div className="flex flex-col gap-3 border-b border-border p-4">
 					<div className="flex flex-col">
-						<span className="text-heading5 font-semibold text-fg">podoba</span>
+						<span className="text-heading5 font-medium text-fg">podoba</span>
 						<span className="text-micro uppercase tracking-wide text-fg-subtle">component gallery</span>
 					</div>
 					<input
@@ -1085,7 +1085,7 @@ export function App() {
 				<nav className="flex flex-1 flex-col gap-4 overflow-y-auto p-3">
 					{groups.map((g) => (
 						<div key={g.group} className="flex flex-col gap-0.5">
-							<span className="px-3 pb-1 text-micro font-semibold uppercase tracking-wider text-fg-subtle">
+							<span className="px-3 pb-1 text-micro font-medium uppercase tracking-wider text-fg-subtle">
 								{g.group}
 							</span>
 							{g.items.map((s) => (
@@ -1150,8 +1150,8 @@ export function App() {
 						{SECTIONS.map((s) => (
 							<section key={s.id} id={s.id} data-section className="flex scroll-mt-8 flex-col gap-8">
 								<div className="flex flex-col gap-1.5">
-									<span className="text-micro font-semibold uppercase tracking-wider text-fg-subtle">{s.group}</span>
-									<h2 className="text-heading3 font-semibold text-fg">{s.title}</h2>
+									<span className="text-micro font-medium uppercase tracking-wider text-fg-subtle">{s.group}</span>
+									<h2 className="text-heading3 font-medium text-fg">{s.title}</h2>
 									{s.subtitle ? <p className="max-w-2xl text-sm leading-relaxed text-fg-muted">{s.subtitle}</p> : null}
 								</div>
 								<div className="flex flex-col gap-12">{s.content}</div>

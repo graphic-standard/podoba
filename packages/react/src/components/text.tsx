@@ -36,11 +36,15 @@ export const Text = uic('span', {
 			headline: 'text-headline',
 			display: 'text-display',
 		},
+		// NC Fontina caps at medium (500) as the heaviest weight in the system, so
+		// `semibold` and `bold` are kept as API-compatible aliases that render
+		// medium rather than going heavier. Keeping the keys avoids a breaking
+		// change for consumers already passing weight="semibold" / "bold".
 		weight: {
 			regular: 'font-normal',
 			medium: 'font-medium',
-			semibold: 'font-semibold',
-			bold: 'font-bold',
+			semibold: 'font-medium',
+			bold: 'font-medium',
 		},
 		tone: {
 			default: 'text-fg',

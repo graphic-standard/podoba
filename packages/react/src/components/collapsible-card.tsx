@@ -20,7 +20,7 @@ import type { ReactNode } from 'react'
  * Token mapping (Tailwind + `@podoba/tokens` CSS vars — no SCSS, hard rule #3):
  *   - surface → `bg-surface-card` (#f7f6f2), 1px `border-border`, `rounded-lg`
  *     (8px) — same skin as `Card` / `StatsCard`.
- *   - title → `text-heading4` (1.125rem) `font-semibold text-fg`.
+ *   - title → `text-heading4` (1.125rem) `font-medium text-fg`.
  *   - description → `text-body text-fg-muted`.
  *
  * Presentational only (hard rule #1): all copy via props, no API/i18n.
@@ -108,7 +108,7 @@ export function CollapsibleCard({
 				}
 			>
 				<span className="flex flex-col gap-1">
-					<span className="text-heading4 font-semibold leading-tight text-fg">{title}</span>
+					<span className="text-heading4 font-medium leading-tight text-fg">{title}</span>
 					{description ? (
 						<span className="text-body leading-snug text-fg-muted">{description}</span>
 					) : null}
