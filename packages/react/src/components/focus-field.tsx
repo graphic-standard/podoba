@@ -139,7 +139,8 @@ export function FocusField({ label, icon, preview, placeholder, children, classN
 					}
 				}}
 				className={clsx(
-					'flex w-full cursor-text items-start gap-3 rounded-lg p-3 text-left outline-none transition-colors',
+					// Field-group divider: a bottom border on each row, none on the last.
+					'flex w-full cursor-text items-start gap-3 border-b border-border p-3 text-left outline-none transition-colors last:border-b-0',
 					'hover:bg-surface-card focus-visible:ring-2 focus-visible:ring-ring',
 					className,
 				)}
