@@ -122,17 +122,15 @@ function FocusFieldsDemo() {
 	const set = (k: string) => (e: { target: { value: string } }) => setVals((v) => ({ ...v, [k]: e.target.value }));
 	return (
 		<FocusFields className="w-full max-w-xl">
-			<div className="divide-y divide-border overflow-hidden rounded-lg border border-border">
-				{FOCUS_DEMO_FIELDS.map((f) => (
-					<FocusField key={f.key} icon={f.icon} label={f.label} preview={vals[f.key]} placeholder={f.label}>
-						{f.multiline ? (
-							<textarea value={vals[f.key] ?? ""} onChange={set(f.key)} placeholder={f.label} />
-						) : (
-							<input value={vals[f.key] ?? ""} onChange={set(f.key)} placeholder={f.label} />
-						)}
-					</FocusField>
-				))}
-			</div>
+			{FOCUS_DEMO_FIELDS.map((f) => (
+				<FocusField key={f.key} icon={f.icon} label={f.label} preview={vals[f.key]} placeholder={f.label}>
+					{f.multiline ? (
+						<textarea value={vals[f.key] ?? ""} onChange={set(f.key)} placeholder={f.label} />
+					) : (
+						<input value={vals[f.key] ?? ""} onChange={set(f.key)} placeholder={f.label} />
+					)}
+				</FocusField>
+			))}
 		</FocusFields>
 	);
 }
