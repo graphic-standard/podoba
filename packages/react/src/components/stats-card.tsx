@@ -98,7 +98,7 @@ function StatsCardBody({
 			 * `-0.02em` (`AssetsTile.module.scss .count`).
 			 */}
 			<span
-				className={`flex ${isTop ? 'items-start pt-6' : 'flex-1 items-center'} text-display font-medium leading-[2rem] ${dark ? 'tracking-normal' : 'tracking-wide'} ${valueTone}`}
+				className={`flex ${isTop ? 'items-start pt-5' : 'flex-1 items-center'} text-display font-medium leading-[2rem] ${dark ? 'tracking-normal' : 'tracking-wide'} ${valueTone}`}
 			>
 				{/*
 				 * Inner wrapper is deliberate: the band is a flex container, and flex
