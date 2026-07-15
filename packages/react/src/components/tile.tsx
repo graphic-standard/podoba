@@ -64,7 +64,7 @@ function TileBody({ head, children, tail }: Pick<TileProps, 'head' | 'children' 
 	)
 }
 
-const baseSurface = 'flex h-full min-h-[200px] flex-col gap-6 rounded-panel p-6'
+const baseSurface = 'flex h-full min-h-[200px] flex-col gap-6 rounded-lg p-6'
 
 export function Tile({ theme = 'light', head, children, tail, link, className }: TileProps) {
 	const surface = [baseSurface, THEME[theme], className].filter(Boolean).join(' ')

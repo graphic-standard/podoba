@@ -126,7 +126,7 @@ const MenuItem = uic(RACMenuItem, {
 // gs `.panel`: 258px, radius 12px, 8px/6px padding, 180deg #242424→#1f1f1f
 // gradient, 0 12px 28px rgba(0,0,0,.22) shadow. No token covers the gradient/shadow.
 const panelClass =
-	'w-[258px] max-w-[calc(100vw-16px)] rounded-xl bg-gradient-to-b from-[#242424] to-[#1f1f1f] ' +
+	'w-[258px] max-w-[calc(100vw-16px)] rounded-lg bg-gradient-to-b from-[#242424] to-[#1f1f1f] ' +
 	'px-1.5 py-2 shadow-[0_12px_28px_rgba(0,0,0,0.22)] outline-none'
 const menuClass = 'grid max-h-[calc(100vh-16px)] gap-0.5 overflow-y-auto outline-none'
 

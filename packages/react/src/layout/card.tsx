@@ -4,9 +4,8 @@ import { uic } from '../utils/uic'
  * Card — surface panel (port of gs-manager's `Card`).
  *
  * gs SCSS → our tokens (Tailwind + `@app/tokens` CSS vars, no SCSS — hard rule #3):
- *   - `--radius-lg` (8px) → `rounded-lg` (our `--radius-lg` is 0.5rem = 8px). NB the
- *     `rounded-panel` token is 1.1rem (~17.6px), NOT the 8px card radius — gs's Card
- *     used `--radius-lg`, so this maps to `rounded-lg`.
+ *   - `rounded-lg` (`--radius-lg` = 0.5rem = 8px) — the single unified card/panel
+ *     radius across the design system (the old 1.1rem soft-panel radius was retired).
  *   - `--color-background-secondary` (the light card fill) → `bg-surface-card`
  *     (our `--color-surface-card` = #f7f6f2).
  *   - `outlined` → 1px `--color-border` (#eceae1) → `border border-border`.
