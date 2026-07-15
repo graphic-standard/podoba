@@ -40,6 +40,15 @@ export type StatsCardProps = {
 	children?: ReactNode
 	/** Dark/inverted surface (gs's dark "Cloud" tile). */
 	dark?: boolean
+	/**
+	 * Vertical placement of the value band. `center` (default) is gs's
+	 * `contentAlign="center"` hero-count tile (value fills + centres, footer pinned
+	 * bottom). `top` sits the value directly under the eyebrow (gs's dark "Summary"
+	 * data tile) with the footer pushed to the bottom.
+	 */
+	align?: 'center' | 'top'
+	/** Mute the value colour (gs's Summary tile — a descriptive title, not a hero count). */
+	subtleValue?: boolean
 	/** Accessible label for the clickable card (defaults to nothing — title is read). */
 	'aria-label'?: string
 	className?: string
@@ -61,7 +70,11 @@ function StatsCardBody({
 	badge,
 	description,
 	dark,
-}: Pick<StatsCardProps, 'title' | 'value' | 'footer' | 'badge' | 'description' | 'dark'>) {
+	align = 'center',
+	subtleValue = false,
+}: Pick<StatsCardProps, 'title' | 'value' | 'footer' | 'badge' | 'description' | 'dark' | 'align' | 'subtleValue'>) {
+	const isTop = align === 'top'
+	const valueTone = dark ? (subtleValue ? 'text-white/60' : 'text-white') : subtleValue ? 'text-fg-muted' : 'text-fg'
 	return (
 		<>
 			<div className="flex items-center justify-between gap-2">
@@ -76,21 +89,27 @@ function StatsCardBody({
 				</span>
 			) : null}
 			{/*
-			 * gs Tile `contentAlign="center"`: the value sits in the CENTRE band of the
-			 * three-band tile (title top / value centred / footer bottom). The `flex-1`
-			 * band grows to fill the 208px tile and vertically centres the value, pushing
-			 * any footer to the bottom (no `mt-auto` needed). Value ramp = gs label-1
-			 * (1.875rem / 500 / 2rem line). Letter-spacing tracks gs 1:1: light tiles use
-			 * -0.56px via `tracking-wide`; the dark "Cloud" count tile uses gs's em-based
+			 * `center` (gs `contentAlign="center"`): the value sits in the CENTRE band —
+			 * `flex-1` grows to fill the tile and vertically centres it, pushing any footer
+			 * to the bottom. `top`: the value sits directly under the eyebrow (no grow) and
+			 * the footer takes `mt-auto` to stay pinned at the bottom. Value ramp = gs
+			 * label-1 (1.875rem / 500 / 2rem line). Letter-spacing tracks gs 1:1: light
+			 * tiles use -0.56px via `tracking-wide`; the dark count tile uses gs's em-based
 			 * `-0.02em` (`AssetsTile.module.scss .count`).
 			 */}
 			<span
-				className={`flex flex-1 items-center text-display font-medium leading-[2rem] ${dark ? 'tracking-normal text-white' : 'tracking-wide text-fg'}`}
+				className={`flex ${isTop ? 'items-start pt-6' : 'flex-1 items-center'} text-display font-medium leading-[2rem] ${dark ? 'tracking-normal' : 'tracking-wide'} ${valueTone}`}
 			>
-				{value}
+				{/*
+				 * Inner wrapper is deliberate: the band is a flex container, and flex
+				 * TRIMS the leading whitespace of an anonymous text run — so a value of
+				 * `<CountUp/> {' '} unit` collapses to "1version". Nesting the value in one
+				 * inline span makes it a single flex item, preserving the internal space.
+				 */}
+				<span>{value}</span>
 			</span>
 			{footer ? (
-				<span className={`pt-4 text-compact leading-4 ${dark ? 'text-white/50' : 'text-fg-muted'}`}>
+				<span className={`${isTop ? 'mt-auto ' : ''}pt-4 text-small leading-5 ${dark ? 'text-white/50' : 'text-fg-muted'}`}>
 					{footer}
 				</span>
 			) : null}
@@ -126,6 +145,8 @@ export function StatsCard({
 	asChild,
 	children,
 	dark,
+	align,
+	subtleValue,
 	className,
 	...rest
 }: StatsCardProps) {
@@ -136,7 +157,7 @@ export function StatsCard({
 		const cardClass = [baseSurface, dark ? darkSkin : lightSkin, anchorInteractive, child.props.className, className]
 			.filter(Boolean)
 			.join(' ')
-		return cloneElement(child, { className: cardClass } as { className: string }, <StatsCardBody title={title} value={value} footer={footer} badge={badge} description={description} dark={dark} />)
+		return cloneElement(child, { className: cardClass } as { className: string }, <StatsCardBody title={title} value={value} footer={footer} badge={badge} description={description} dark={dark} align={align} subtleValue={subtleValue} />)
 	}
 
 	if (onPress) {
@@ -148,13 +169,13 @@ export function StatsCard({
 				className={[dark ? darkSkin : '', className].filter(Boolean).join(' ')}
 				aria-label={rest['aria-label']}
 			>
-				<StatsCardBody title={title} value={value} footer={footer} badge={badge} description={description} dark={dark} />
+				<StatsCardBody title={title} value={value} footer={footer} badge={badge} description={description} dark={dark} align={align} subtleValue={subtleValue} />
 			</PressableCard>
 		)
 	}
 	return (
 		<div className={[baseSurface, dark ? darkSkin : lightSkin, className].filter(Boolean).join(' ')}>
-			<StatsCardBody title={title} value={value} footer={footer} badge={badge} description={description} dark={dark} />
+			<StatsCardBody title={title} value={value} footer={footer} badge={badge} description={description} dark={dark} align={align} subtleValue={subtleValue} />
 		</div>
 	)
 }
