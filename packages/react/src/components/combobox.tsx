@@ -36,7 +36,7 @@ const Chevron = () => (
 const ComboBoxInput = uic(RACInput, {
 	displayName: 'ComboBoxInput',
 	baseClass:
-		'h-12 w-full rounded-lg border border-border bg-surface pl-4 pr-11 text-sm text-fg ' +
+		'h-12 w-full rounded-lg border border-border bg-surface pl-4 pr-11 text-small text-fg ' +
 		'outline-none transition-colors placeholder:text-fg-muted ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
@@ -48,7 +48,7 @@ export const ComboBoxItem = uic(ListBoxItem, {
 	displayName: 'ComboBoxItem',
 	// Matches SelectItem so the two dropdowns are indistinguishable.
 	baseClass:
-		'flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-sm text-fg outline-none ' +
+		'flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-small text-fg outline-none ' +
 		'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 }) as (props: ListBoxItemProps) => ReactNode
@@ -76,7 +76,7 @@ export const ComboBox = <T extends object>({
 	const inFocus = useInFocusOverlay()
 	const { contains } = useFilter({ sensitivity: 'base' })
 	const desc = description ? (
-		<Text slot="description" className="text-xs text-fg-muted">
+		<Text slot="description" className="text-label text-fg-muted">
 			{description}
 		</Text>
 	) : null
@@ -101,14 +101,14 @@ export const ComboBox = <T extends object>({
 							const k = keys === 'all' ? undefined : [...keys][0]
 							onSelectionChange?.(k ?? null)
 						}}
-						renderEmptyState={() => <div className="px-3 py-2 text-sm text-fg-muted">No results</div>}
+						renderEmptyState={() => <div className="px-3 py-2 text-small text-fg-muted">No results</div>}
 						className="mt-2 flex max-h-72 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"
 					>
 						{children}
 					</ListBox>
 				</Autocomplete>
 				{desc}
-				{errorMessage ? <span className="text-xs text-danger">{errorMessage}</span> : null}
+				{errorMessage ? <span className="text-label text-danger">{errorMessage}</span> : null}
 			</div>
 		)
 	}
@@ -132,11 +132,11 @@ export const ComboBox = <T extends object>({
 				</RACButton>
 			</div>
 			{desc}
-			<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+			<FieldError className="text-label text-danger">{errorMessage}</FieldError>
 			<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
 				<ListBox
 					className="flex max-h-72 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"
-					renderEmptyState={() => <div className="px-3 py-2 text-sm text-fg-muted">No results</div>}
+					renderEmptyState={() => <div className="px-3 py-2 text-small text-fg-muted">No results</div>}
 				>
 					{children}
 				</ListBox>

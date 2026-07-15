@@ -44,7 +44,7 @@ export const SearchField = ({ label, description, placeholder, ...props }: Searc
 			<RACInput
 				placeholder={placeholder}
 				className={
-					'h-12 w-full rounded-lg border border-border bg-surface pl-10 pr-10 text-sm text-fg outline-none transition-colors ' +
+					'h-12 w-full rounded-lg border border-border bg-surface pl-10 pr-10 text-small text-fg outline-none transition-colors ' +
 					'placeholder:text-fg-muted data-[hovered]:border-fg-subtle ' +
 					'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
 					'[&::-webkit-search-cancel-button]:hidden'
@@ -58,7 +58,7 @@ export const SearchField = ({ label, description, placeholder, ...props }: Searc
 			</RACButton>
 		</div>
 		{description ? (
-			<Text slot="description" className="text-xs text-fg-muted">
+			<Text slot="description" className="text-label text-fg-muted">
 				{description}
 			</Text>
 		) : null}

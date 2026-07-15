@@ -75,13 +75,13 @@ export function DeliveryStatusModule({
 
 	return (
 		<DeliveryStatusModuleRoot data-testid={testId}>
-			<div className="flex items-center justify-between gap-4 text-sm font-medium">
+			<div className="flex items-center justify-between gap-4 text-small font-medium">
 				<span>{heading}</span>
 				{headingMeta != null ? <span>{headingMeta}</span> : null}
 			</div>
 
 			{statusText != null ? (
-				<p className="m-0 text-xs text-white/70">{statusText}</p>
+				<p className="m-0 text-label text-white/70">{statusText}</p>
 			) : null}
 
 			{hasProgress ? (
@@ -97,7 +97,7 @@ export function DeliveryStatusModule({
 			) : null}
 
 			{children != null ? (
-				<div className="flex flex-wrap items-center gap-2 text-xs text-white/80">
+				<div className="flex flex-wrap items-center gap-2 text-label text-white/80">
 					{children}
 				</div>
 			) : null}

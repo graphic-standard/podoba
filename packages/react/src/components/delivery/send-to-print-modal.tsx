@@ -149,7 +149,7 @@ export function SendToPrintModal({
 			onOpenChange={handleOpenChange}
 		>
 			<div className="flex flex-col gap-3">
-				<p className="text-sm text-fg-muted">{labels.body}</p>
+				<p className="text-small text-fg-muted">{labels.body}</p>
 
 				<Input
 					label={labels.sizeLabel}
@@ -185,7 +185,7 @@ export function SendToPrintModal({
 				/>
 
 				{error ? (
-					<p data-testid="delivery-print-error" role="alert" className="text-sm text-danger">
+					<p data-testid="delivery-print-error" role="alert" className="text-small text-danger">
 						{error}
 					</p>
 				) : null}

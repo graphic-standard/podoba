@@ -31,14 +31,14 @@ export type RadioGroupProps = RACRadioGroupProps & {
 
 export const RadioGroup = ({ label, description, errorMessage, children, ...props }: RadioGroupProps) => (
 	<RACRadioGroup {...props} className="flex flex-col gap-2">
-		{label ? <Label className="text-sm font-medium text-fg">{label}</Label> : null}
+		{label ? <Label className="text-small font-medium text-fg">{label}</Label> : null}
 		<div className="flex flex-col gap-3">{children}</div>
 		{description ? (
-			<Text slot="description" className="text-xs text-fg-muted">
+			<Text slot="description" className="text-label text-fg-muted">
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
 	</RACRadioGroup>
 )
 
@@ -50,7 +50,7 @@ export type RadioProps = Omit<RACRadioProps, 'children'> & {
 export const Radio = ({ children, ...props }: RadioProps) => (
 	<RACRadio
 		{...props}
-		className="group flex cursor-pointer select-none items-center gap-3 text-sm text-fg data-[disabled]:cursor-not-allowed"
+		className="group flex cursor-pointer select-none items-center gap-3 text-small text-fg data-[disabled]:cursor-not-allowed"
 	>
 		{/* gs token map: border #eceae1 → border · hover #aba89c → fg-subtle ·
 		    selected dot/border #0d0d0d → fg · error → danger. */}

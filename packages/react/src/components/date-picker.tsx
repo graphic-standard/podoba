@@ -41,7 +41,7 @@ const Chevron = ({ dir }: { dir: 'left' | 'right' }) => (
 )
 
 const calendarCellClass =
-	'flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-sm text-fg outline-none transition-colors ' +
+	'flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-small text-fg outline-none transition-colors ' +
 	'data-[outside-month]:text-fg-subtle data-[hovered]:bg-surface-muted ' +
 	'data-[selected]:bg-fg data-[selected]:text-fg-inverted data-[selected]:font-medium ' +
 	'data-[unavailable]:text-fg-subtle data-[unavailable]:line-through ' +
@@ -54,7 +54,7 @@ function CalendarBody() {
 				<RACButton slot="previous" className={navButton}>
 					<Chevron dir="left" />
 				</RACButton>
-				<Heading className="text-sm font-medium text-fg" />
+				<Heading className="text-small font-medium text-fg" />
 				<RACButton slot="next" className={navButton}>
 					<Chevron dir="right" />
 				</RACButton>
@@ -104,11 +104,11 @@ export const DatePicker = <T extends DateValue>({ label, description, errorMessa
 				)}
 			</Group>
 			{description ? (
-				<Text slot="description" className="text-xs text-fg-muted">
+				<Text slot="description" className="text-label text-fg-muted">
 					{description}
 				</Text>
 			) : null}
-			<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+			<FieldError className="text-label text-danger">{errorMessage}</FieldError>
 			{inFocus ? (
 				<div className="mt-2 -ml-2">
 					<CalendarBody />

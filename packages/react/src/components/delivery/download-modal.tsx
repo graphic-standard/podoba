@@ -109,11 +109,11 @@ export function DownloadModal({
 			onOpenChange={onOpenChange}
 		>
 			<div className="flex flex-col gap-3">
-				<p className="text-sm text-fg-muted">{labels.body}</p>
+				<p className="text-small text-fg-muted">{labels.body}</p>
 
 				{hasArtifact ? (
 					<>
-						<p data-testid="delivery-download-ready" role="status" className="text-sm text-fg">
+						<p data-testid="delivery-download-ready" role="status" className="text-small text-fg">
 							{labels.ready}
 						</p>
 						<div className="mt-2 flex justify-end gap-2">
@@ -126,7 +126,7 @@ export function DownloadModal({
 								data-testid="delivery-download-link"
 								href={artifactUrl ?? undefined}
 								download
-								className="inline-flex h-8 items-center justify-center gap-2 rounded-md bg-brand-primary px-3 text-sm font-medium text-fg-inverted no-underline outline-none transition-colors hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+								className="inline-flex h-8 items-center justify-center gap-2 rounded-md bg-brand-primary px-3 text-small font-medium text-fg-inverted no-underline outline-none transition-colors hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
 							>
 								{labels.download}
 							</a>
@@ -134,7 +134,7 @@ export function DownloadModal({
 					</>
 				) : isPreparing ? (
 					<>
-						<p data-testid="delivery-download-preparing" role="status" className="text-sm text-fg-muted">
+						<p data-testid="delivery-download-preparing" role="status" className="text-small text-fg-muted">
 							{labels.preparing}
 						</p>
 						<div className="mt-2 flex justify-end gap-2">
@@ -151,7 +151,7 @@ export function DownloadModal({
 							onChange={(value: string) => setFormat(value as DownloadFormat)}
 							className="flex flex-col gap-2"
 						>
-							<Label className="text-sm font-medium text-fg">{labels.formatLabel}</Label>
+							<Label className="text-small font-medium text-fg">{labels.formatLabel}</Label>
 							<div className="flex gap-2">
 								<DownloadFormatOption value="png" label={labels.formatPng} />
 								<DownloadFormatOption value="pdf" label={labels.formatPdf} />
@@ -159,7 +159,7 @@ export function DownloadModal({
 						</RadioGroup>
 
 						{error ? (
-							<p data-testid="delivery-download-error" role="alert" className="text-sm text-danger">
+							<p data-testid="delivery-download-error" role="alert" className="text-small text-danger">
 								{error}
 							</p>
 						) : null}
@@ -196,7 +196,7 @@ function DownloadFormatOption({ value, label }: { value: Key; label: string }): 
 	return (
 		<Radio
 			value={String(value)}
-			className="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[selected]:border-brand-primary data-[selected]:font-medium"
+			className="flex cursor-pointer items-center gap-2 rounded-md border border-border bg-surface px-3 py-2 text-small text-fg outline-none transition-colors data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[selected]:border-brand-primary data-[selected]:font-medium"
 		>
 			{label}
 		</Radio>

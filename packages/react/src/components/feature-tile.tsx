@@ -125,7 +125,7 @@ export function FeatureTile({
 					    or badge falls through to the play/press overlay; only `action`
 					    re-enables its own pointer events. */}
 					<div className="pointer-events-none absolute inset-x-6 bottom-6 z-10 flex flex-col gap-4">
-						<h2 className="max-w-md text-display-xl font-medium leading-tight text-white">
+						<h2 className="max-w-md text-display font-medium leading-tight text-white">
 							{title}
 						</h2>
 						<div className="flex items-center justify-between gap-4">

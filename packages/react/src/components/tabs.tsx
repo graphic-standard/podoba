@@ -26,7 +26,7 @@ export const TabList = uic(RACTabList, {
 export const Tab = uic(RACTab, {
 	displayName: 'Tab',
 	baseClass:
-		'cursor-pointer select-none border-b-2 border-transparent px-4 py-3 text-sm font-medium text-fg-muted ' +
+		'cursor-pointer select-none border-b-2 border-transparent px-4 py-3 text-small font-medium text-fg-muted ' +
 		'outline-none transition-colors ' +
 		'data-[hovered]:text-fg ' +
 		'data-[selected]:border-brand-primary data-[selected]:text-fg ' +
@@ -36,5 +36,5 @@ export const Tab = uic(RACTab, {
 
 export const TabPanel = uic(RACTabPanel, {
 	displayName: 'TabPanel',
-	baseClass: 'py-4 text-sm text-fg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
+	baseClass: 'py-4 text-small text-fg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
 }) as (props: TabPanelProps) => ReturnType<typeof RACTabPanel>

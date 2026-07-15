@@ -51,7 +51,7 @@ const MultiSelectItem = uic(ListBoxItem, {
 	displayName: 'MultiSelectItem',
 	// `group` so the leading Check can react to this item's data-selected.
 	baseClass:
-		'group flex cursor-pointer select-none items-center gap-2 rounded-md px-3 py-2 text-sm text-fg outline-none ' +
+		'group flex cursor-pointer select-none items-center gap-2 rounded-md px-3 py-2 text-small text-fg outline-none ' +
 		'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 }) as (props: ListBoxItemProps) => ReactNode
@@ -116,7 +116,7 @@ export const MultiSelect = ({
 			selectionMode="multiple"
 			selectedKeys={selected}
 			onSelectionChange={handleChange}
-			renderEmptyState={() => <div className="px-3 py-2 text-sm text-fg-muted">No matches</div>}
+			renderEmptyState={() => <div className="px-3 py-2 text-small text-fg-muted">No matches</div>}
 			className="flex max-h-64 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"
 		>
 			{options.map((o) => (
@@ -133,7 +133,7 @@ export const MultiSelect = ({
 			<SearchField aria-label="Filter options" autoFocus className="border-b border-border p-1">
 				<RACInput
 					placeholder="Search…"
-					className="w-full rounded-md bg-surface px-3 py-2 text-sm text-fg outline-none placeholder:text-fg-muted"
+					className="w-full rounded-md bg-surface px-3 py-2 text-small text-fg outline-none placeholder:text-fg-muted"
 				/>
 			</SearchField>
 			{list}
@@ -142,8 +142,8 @@ export const MultiSelect = ({
 		list
 	)
 
-	const desc = description ? <span className="text-xs text-fg-muted">{description}</span> : null
-	const err = isInvalid && errorMessage ? <span className="text-xs text-danger">{errorMessage}</span> : null
+	const desc = description ? <span className="text-label text-fg-muted">{description}</span> : null
+	const err = isInvalid && errorMessage ? <span className="text-label text-danger">{errorMessage}</span> : null
 
 	return (
 		<div className={clsx('flex flex-col gap-2', className)}>
@@ -165,7 +165,7 @@ export const MultiSelect = ({
 						isDisabled={isDisabled}
 						onPress={() => setOpen(true)}
 						className={clsx(
-							'flex h-12 w-full items-center justify-between gap-2.5 rounded-lg border bg-surface px-4 text-sm text-fg outline-none transition-colors',
+							'flex h-12 w-full items-center justify-between gap-2.5 rounded-lg border bg-surface px-4 text-small text-fg outline-none transition-colors',
 							'data-[hovered]:border-fg-subtle data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
 							'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
 							isInvalid ? 'border-danger ring-2 ring-danger' : 'border-border',

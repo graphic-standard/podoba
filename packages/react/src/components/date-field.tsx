@@ -28,7 +28,7 @@ export const segmentClass =
 	'data-[disabled]:opacity-50 data-[type=literal]:px-0 data-[type=literal]:text-fg-muted'
 
 export const dateInputClass =
-	'flex h-12 w-full items-center gap-0.5 rounded-lg border border-border bg-surface px-4 text-sm text-fg transition-colors ' +
+	'flex h-12 w-full items-center gap-0.5 rounded-lg border border-border bg-surface px-4 text-small text-fg transition-colors ' +
 	'hover:border-fg-subtle focus-within:border-brand-green focus-within:ring-2 focus-within:ring-ring ' +
 	'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger'
 
@@ -43,11 +43,11 @@ export const DateField = <T extends DateValue>({ label, description, errorMessag
 		<Label className="text-heading5 font-medium text-fg">{label}</Label>
 		<DateInput className={dateInputClass}>{(segment) => <DateSegment segment={segment} className={segmentClass} />}</DateInput>
 		{description ? (
-			<Text slot="description" className="text-xs text-fg-muted">
+			<Text slot="description" className="text-label text-fg-muted">
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
 	</RACDateField>
 )
 
@@ -62,10 +62,10 @@ export const TimeField = <T extends TimeValue>({ label, description, errorMessag
 		<Label className="text-heading5 font-medium text-fg">{label}</Label>
 		<DateInput className={dateInputClass}>{(segment) => <DateSegment segment={segment} className={segmentClass} />}</DateInput>
 		{description ? (
-			<Text slot="description" className="text-xs text-fg-muted">
+			<Text slot="description" className="text-label text-fg-muted">
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
 	</RACTimeField>
 )

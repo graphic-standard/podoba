@@ -115,7 +115,7 @@ export function PublishModal({
 			onOpenChange={handleOpenChange}
 		>
 			<div className="flex flex-col gap-3">
-				<p className="text-sm text-fg-muted">{labels.body}</p>
+				<p className="text-small text-fg-muted">{labels.body}</p>
 
 				<Input
 					label={labels.destinationLabel}
@@ -139,7 +139,7 @@ export function PublishModal({
 				</Select>
 
 				{error ? (
-					<p data-testid="delivery-publish-error" role="alert" className="text-sm text-danger">
+					<p data-testid="delivery-publish-error" role="alert" className="text-small text-danger">
 						{error}
 					</p>
 				) : null}

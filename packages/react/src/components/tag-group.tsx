@@ -26,7 +26,7 @@ export const TagGroup = ({ label, description, children, ...props }: TagGroupPro
 		{label ? <Label className="text-heading5 font-medium text-fg">{label}</Label> : null}
 		<TagList className="flex flex-wrap gap-2 outline-none">{children}</TagList>
 		{description ? (
-			<Text slot="description" className="text-xs text-fg-muted">
+			<Text slot="description" className="text-label text-fg-muted">
 				{description}
 			</Text>
 		) : null}
@@ -40,7 +40,7 @@ export const Tag = ({ children, textValue, ...props }: RACTagProps) => (
 		// the tag's text — derive it from a string child for accessibility.
 		textValue={textValue ?? (typeof children === 'string' ? children : undefined)}
 		className={
-			'inline-flex cursor-default select-none items-center gap-1.5 rounded-full border border-border bg-surface-card px-3 py-1 text-sm text-fg outline-none transition-colors ' +
+			'inline-flex cursor-default select-none items-center gap-1.5 rounded-full border border-border bg-surface-card px-3 py-1 text-small text-fg outline-none transition-colors ' +
 			'data-[hovered]:border-fg-subtle ' +
 			'data-[selected]:border-fg data-[selected]:bg-surface-muted ' +
 			'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +

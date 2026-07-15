@@ -37,7 +37,7 @@ export const Slider = <T extends number | number[]>({ label, hideValue, ...props
 								className="h-4 w-4 rounded-full border-2 border-fg bg-surface outline-none transition-transform data-[dragging]:scale-110 data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
 							>
 								{hideValue ? null : (
-									<span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium tabular-nums text-fg">
+									<span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-label font-medium tabular-nums text-fg">
 										{state.getThumbValueLabel(i)}
 									</span>
 								)}

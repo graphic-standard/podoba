@@ -138,11 +138,11 @@ export const WorkspaceSwitcher = ({
 	...props
 }: WorkspaceSwitcherProps) => (
 	<RACComboBox {...props} items={workspaces} className="flex flex-col gap-1">
-		<Label className={hideLabel ? 'sr-only' : 'text-sm font-medium text-fg'}>{label}</Label>
+		<Label className={hideLabel ? 'sr-only' : 'text-small font-medium text-fg'}>{label}</Label>
 		<div className="flex items-center">
 			<RACInput
 				className={
-					'h-9 w-48 rounded-md border border-border bg-surface px-3 text-sm text-fg outline-none ' +
+					'h-9 w-48 rounded-md border border-border bg-surface px-3 text-small text-fg outline-none ' +
 					'data-[focused]:ring-2 data-[focused]:ring-ring'
 				}
 			/>
@@ -162,7 +162,7 @@ export const WorkspaceSwitcher = ({
 const WorkspaceSwitcherItem = uic(ListBoxItem, {
 	displayName: 'WorkspaceSwitcher.Item',
 	baseClass:
-		'flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm text-fg outline-none ' +
+		'flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-small text-fg outline-none ' +
 		'data-[focused]:bg-surface-muted data-[selected]:font-medium',
 }) as (props: ListBoxItemProps) => ReactNode
 
@@ -190,7 +190,7 @@ export const UserMenu = ({ trigger, triggerLabel, onAction, children }: UserMenu
 		<RACButton
 			aria-label={triggerLabel}
 			className={
-				'flex h-9 items-center gap-2 rounded-md px-2 text-sm font-medium text-fg outline-none ' +
+				'flex h-9 items-center gap-2 rounded-md px-2 text-small font-medium text-fg outline-none ' +
 				'transition-colors hover:bg-surface-muted ' +
 				'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring'
 			}
@@ -208,7 +208,7 @@ export const UserMenu = ({ trigger, triggerLabel, onAction, children }: UserMenu
 export const UserMenuItem = uic(RACMenuItem, {
 	displayName: 'UserMenu.Item',
 	baseClass:
-		'flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-sm text-fg outline-none ' +
+		'flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-small text-fg outline-none ' +
 		'data-[focused]:bg-surface-muted data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 }) as (props: MenuItemProps) => ReactNode
 

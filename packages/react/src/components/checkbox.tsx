@@ -37,7 +37,7 @@ export type CheckboxProps = Omit<RACCheckboxProps, 'children'> & {
 export const Checkbox = ({ children, ...props }: CheckboxProps) => (
 	<RACCheckbox
 		{...props}
-		className="group flex cursor-pointer select-none items-center gap-3 text-sm text-fg data-[disabled]:cursor-not-allowed"
+		className="group flex cursor-pointer select-none items-center gap-3 text-small text-fg data-[disabled]:cursor-not-allowed"
 	>
 		{({ isSelected, isIndeterminate }) => (
 			<>
