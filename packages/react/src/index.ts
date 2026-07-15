@@ -52,6 +52,7 @@ export * from "./layout/persistent-page-shell";
 
 // --- product patterns (label-driven; no domain coupling) ---
 export * from "./components/brand-page-header";
+export * from "./components/cta-pill";
 export * from "./components/subtle";
 export * from "./components/stats-card";
 export * from "./components/tile";
