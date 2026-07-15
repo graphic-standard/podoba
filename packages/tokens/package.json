@@ -1,6 +1,6 @@
 {
 	"name": "@podoba/tokens",
-	"version": "0.0.16",
+	"version": "0.0.17",
 	"type": "module",
 	"description": "podoba design tokens — static DTCG tokens.json + generated CSS custom properties. Framework-agnostic.",
 	"repository": {
