@@ -25,6 +25,13 @@
 
 @plugin "@tailwindcss/typography";
 
+/* Dark theme. The token flip lives in @podoba/tokens' `variables.css`
+ * (`[data-theme="dark"]` re-points --color-surface / --color-fg / … ), so semantic
+ * utilities like `bg-surface` / `text-fg` go dark automatically inside a
+ * `[data-theme="dark"]` subtree — no `dark:` prefix needed. This variant is for the
+ * rare one-off that must diverge from the token flip (`dark:border-0`, etc.). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme inline {
 	/* colors */
 	--color-brand: var(--color-brand-primary);
@@ -47,14 +54,19 @@
 	--color-accent-yellow: var(--color-accent-yellow);
 	--color-accent-mint: var(--color-accent-mint);
 	--color-accent-green-light: var(--color-accent-green-light);
+	--color-accent-green-lighter: var(--color-accent-green-lighter);
 	--color-accent-pink: var(--color-accent-pink);
+	--color-accent-blue: var(--color-accent-blue);
 
+	--color-neutral-300: var(--color-neutral-300);
 	--color-neutral-600: var(--color-neutral-600);
 
 	--color-border: var(--color-border);
+	--color-border-muted: var(--color-border-muted);
 
 	--color-danger: var(--color-danger);
 	--color-danger-fg: var(--color-danger-fg);
+	--color-danger-light: var(--color-danger-light);
 
 	--color-success: var(--color-success);
 	--color-success-fg: var(--color-success-fg);

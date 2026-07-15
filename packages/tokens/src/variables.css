@@ -3,21 +3,26 @@
 /* Regenerate: bun --filter @tools/sync-tokens start */
 
 :root {
+	--color-accent-blue: #005ff9;
 	--color-accent-green-light: #b1fed4;
+	--color-accent-green-lighter: #96f6c2;
 	--color-accent-mint: #dff6ec;
 	--color-accent-pink: #ff69b4;
 	--color-accent-strong: #4bcf9f;
 	--color-accent-yellow: #ffcc6a;
 	--color-border: #eceae1;
+	--color-border-muted: #ddd9d0;
 	--color-brand-green: #75e7b8;
 	--color-brand-primary: #0d0d0d;
 	--color-brand-secondary: #6eddb1;
 	--color-danger: #dc2626;
 	--color-danger-fg: #ffffff;
+	--color-danger-light: #fee2e2;
 	--color-fg: #0d0d0d;
 	--color-fg-inverted: #ffffff;
 	--color-fg-muted: #7d786f;
-	--color-fg-subtle: #aba89c;
+	--color-fg-subtle: #b3b3b3;
+	--color-neutral-300: #b3b3b3;
 	--color-neutral-600: #333333;
 	--color-ring: #0d0d0d;
 	--color-success: #4bcf9f;
@@ -61,8 +66,24 @@
 	--space-sm: 0.5rem;
 	--space-xl: 2rem;
 	--space-xs: 0.25rem;
-	--tracking-normal: -0.13px;
-	--tracking-tight: -0.2px;
-	--tracking-wide: -0.56px;
-	--tracking-wider: -0.6px;
+	--tracking-normal: 0.01em;
+	--tracking-tight: 0em;
+	--tracking-wide: 0.02em;
+	--tracking-wider: 0.03em;
+}
+
+[data-theme="dark"] {
+	--color-border: #ffffff1a;
+	--color-border-muted: #ffffff33;
+	--color-brand-primary: #75e7b8;
+	--color-danger: #ef4444;
+	--color-danger-light: #ef444426;
+	--color-fg: #ffffff;
+	--color-fg-inverted: #0d0d0d;
+	--color-fg-muted: #aba89c;
+	--color-ring: #75e7b8;
+	--color-surface: #242423;
+	--color-surface-card: #242423;
+	--color-surface-inverted: #f7f6f2;
+	--color-surface-muted: #333333;
 }
