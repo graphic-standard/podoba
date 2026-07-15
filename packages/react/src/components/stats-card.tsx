@@ -22,6 +22,10 @@ export type StatsCardProps = {
 	value: ReactNode
 	/** Optional supporting footer line (e.g. "+3 this week"). */
 	footer?: ReactNode
+	/** Optional status pill shown at the end of the title row (e.g. a `<Badge>`). */
+	badge?: ReactNode
+	/** Optional muted line under the title (e.g. "Plan sections, tasks and outputs"). */
+	description?: ReactNode
 	/** When provided the card becomes a clickable React Aria Button. */
 	onPress?: () => void
 	/**
@@ -54,15 +58,23 @@ function StatsCardBody({
 	title,
 	value,
 	footer,
+	badge,
+	description,
 	dark,
-}: Pick<StatsCardProps, 'title' | 'value' | 'footer' | 'dark'>) {
+}: Pick<StatsCardProps, 'title' | 'value' | 'footer' | 'badge' | 'description' | 'dark'>) {
 	return (
 		<>
-			<span
-				className={`text-body font-medium leading-5 ${dark ? 'text-white' : 'text-fg'}`}
-			>
-				{title}
-			</span>
+			<div className="flex items-center justify-between gap-2">
+				<span className={`text-body font-medium leading-5 ${dark ? 'text-white' : 'text-fg'}`}>
+					{title}
+				</span>
+				{badge ?? null}
+			</div>
+			{description ? (
+				<span className={`text-compact leading-4 ${dark ? 'text-white/60' : 'text-fg-muted'}`}>
+					{description}
+				</span>
+			) : null}
 			{/*
 			 * gs Tile `contentAlign="center"`: the value sits in the CENTRE band of the
 			 * three-band tile (title top / value centred / footer bottom). The `flex-1`
@@ -108,6 +120,8 @@ export function StatsCard({
 	title,
 	value,
 	footer,
+	badge,
+	description,
 	onPress,
 	asChild,
 	children,
@@ -122,7 +136,7 @@ export function StatsCard({
 		const cardClass = [baseSurface, dark ? darkSkin : lightSkin, anchorInteractive, child.props.className, className]
 			.filter(Boolean)
 			.join(' ')
-		return cloneElement(child, { className: cardClass } as { className: string }, <StatsCardBody title={title} value={value} footer={footer} dark={dark} />)
+		return cloneElement(child, { className: cardClass } as { className: string }, <StatsCardBody title={title} value={value} footer={footer} badge={badge} description={description} dark={dark} />)
 	}
 
 	if (onPress) {
@@ -134,13 +148,13 @@ export function StatsCard({
 				className={[dark ? darkSkin : '', className].filter(Boolean).join(' ')}
 				aria-label={rest['aria-label']}
 			>
-				<StatsCardBody title={title} value={value} footer={footer} dark={dark} />
+				<StatsCardBody title={title} value={value} footer={footer} badge={badge} description={description} dark={dark} />
 			</PressableCard>
 		)
 	}
 	return (
 		<div className={[baseSurface, dark ? darkSkin : lightSkin, className].filter(Boolean).join(' ')}>
-			<StatsCardBody title={title} value={value} footer={footer} dark={dark} />
+			<StatsCardBody title={title} value={value} footer={footer} badge={badge} description={description} dark={dark} />
 		</div>
 	)
 }
