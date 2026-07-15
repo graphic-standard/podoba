@@ -46,8 +46,55 @@ import {
 	Tooltip,
 	TooltipTrigger,
 	ViewToggle,
+	// ── product patterns (label-driven) ──
+	Badge,
+	BrandPageHeader,
+	ContextMenu,
+	CtaPill,
+	DashboardGrid,
+	DashboardTile,
+	DeliveryStatusModule,
+	DeliveryStatusPill,
+	DownloadModal,
+	FeatureTile,
+	PublishModal,
+	RequestChangesModal,
+	SendToPrintModal,
+	StatsCard,
+	Subtle,
+	TaskApprovalModal,
+	Tile,
+	tileStatClass,
+	useContextMenu,
+	// ── icon set ──
+	ArrowRightIcon,
+	CalendarIcon,
+	CheckIcon,
+	ChevronDownIcon,
+	ChevronLeftIcon,
+	ChevronRightIcon,
+	ChevronUpIcon,
+	CloseIcon,
+	DownloadIcon,
+	ExpandIcon,
+	ExternalLinkIcon,
+	FileTextIcon,
+	FolderIcon,
+	ImageIcon,
+	MenuIcon,
+	MinusIcon,
+	MoonIcon,
+	PlayIcon,
+	PlusIcon,
+	SearchIcon,
+	StarIcon,
+	SunIcon,
+	TrashIcon,
+	UploadIcon,
+	UserIcon,
+	type IconProps,
 } from "@podoba/react";
-import { createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type ComponentType, createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 // ── gallery chrome ──────────────────────────────────────────────────────────
 // A tiny local framework: a SECTIONS registry (grouped) drives both the sidebar
@@ -372,6 +419,333 @@ function TypographyShowcase() {
 					</Text>
 				</div>
 			</Demo>
+		</>
+	);
+}
+
+// ── icon catalogue ────────────────────────────────────────────────────────────
+// One <XxxIcon> per glyph on a shared 24×24 grid; sized via className, coloured
+// via text-*. Mirrors the export order in components/icons.tsx.
+const ICONS: { name: string; Icon: ComponentType<IconProps> }[] = [
+	{ name: "ChevronDown", Icon: ChevronDownIcon },
+	{ name: "ChevronUp", Icon: ChevronUpIcon },
+	{ name: "ChevronRight", Icon: ChevronRightIcon },
+	{ name: "ChevronLeft", Icon: ChevronLeftIcon },
+	{ name: "ArrowRight", Icon: ArrowRightIcon },
+	{ name: "Close", Icon: CloseIcon },
+	{ name: "Check", Icon: CheckIcon },
+	{ name: "Plus", Icon: PlusIcon },
+	{ name: "Minus", Icon: MinusIcon },
+	{ name: "Search", Icon: SearchIcon },
+	{ name: "Play", Icon: PlayIcon },
+	{ name: "Menu", Icon: MenuIcon },
+	{ name: "ExternalLink", Icon: ExternalLinkIcon },
+	{ name: "Expand", Icon: ExpandIcon },
+	{ name: "Sun", Icon: SunIcon },
+	{ name: "Moon", Icon: MoonIcon },
+	{ name: "FileText", Icon: FileTextIcon },
+	{ name: "Folder", Icon: FolderIcon },
+	{ name: "Image", Icon: ImageIcon },
+	{ name: "Calendar", Icon: CalendarIcon },
+	{ name: "Trash", Icon: TrashIcon },
+	{ name: "Star", Icon: StarIcon },
+	{ name: "User", Icon: UserIcon },
+	{ name: "Upload", Icon: UploadIcon },
+	{ name: "Download", Icon: DownloadIcon },
+];
+
+function IconShowcase() {
+	return (
+		<>
+			<Demo label="The set (currentColor · 24×24 grid)">
+				<div className="grid w-full max-w-3xl grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-2">
+					{ICONS.map(({ name, Icon }) => (
+						<div
+							key={name}
+							className="flex flex-col items-center gap-2 rounded-lg border border-border p-3 text-fg"
+						>
+							<Icon className="h-6 w-6" />
+							<span className="text-micro text-fg-muted">{name}</span>
+						</div>
+					))}
+				</div>
+			</Demo>
+			<Demo label="Sizes (inherit via className)">
+				<div className="flex items-end gap-4 text-fg">
+					<StarIcon className="h-4 w-4" />
+					<StarIcon className="h-6 w-6" />
+					<StarIcon className="h-8 w-8" />
+					<StarIcon className="h-10 w-10" />
+				</div>
+			</Demo>
+			<Demo label="Colour (inherit via text-*)">
+				<PlayIcon className="h-6 w-6 text-fg" />
+				<CheckIcon className="h-6 w-6 text-success" />
+				<TrashIcon className="h-6 w-6 text-danger" />
+				<StarIcon className="h-6 w-6 text-fg-muted" />
+				<span className="inline-flex rounded-md bg-surface-inverted p-1.5">
+					<MoonIcon className="h-6 w-6 text-fg-inverted" />
+				</span>
+			</Demo>
+			<Demo label="In context">
+				<Button size="sm">
+					<PlusIcon className="h-4 w-4" /> New
+				</Button>
+				<Button variant="secondary" size="sm">
+					<DownloadIcon className="h-4 w-4" /> Export
+				</Button>
+				<Button variant="ghost" size="sm">
+					Learn more <ArrowRightIcon className="h-4 w-4" />
+				</Button>
+			</Demo>
+		</>
+	);
+}
+
+// ── context menu (right-click) ──────────────────────────────────────────────
+function ContextMenuDemo() {
+	const menu = useContextMenu();
+	return (
+		<>
+			<div
+				onContextMenu={menu.open}
+				className="flex h-40 w-full max-w-md items-center justify-center rounded-lg border border-dashed border-border bg-surface-muted text-sm text-fg-muted"
+			>
+				Right-click anywhere in this area
+			</div>
+			<ContextMenu
+				{...menu.props}
+				aria-label="Asset actions"
+				groups={[
+					{
+						id: "edit",
+						items: [
+							{ id: "open", label: "Open", icon: <ExternalLinkIcon className="h-3.5 w-3.5" /> },
+							{ id: "rename", label: "Rename", icon: <FileTextIcon className="h-3.5 w-3.5" /> },
+							{ id: "download", label: "Download", icon: <DownloadIcon className="h-3.5 w-3.5" /> },
+						],
+					},
+					{
+						id: "meta",
+						label: "More",
+						items: [
+							{ id: "star", label: "Add to favourites", icon: <StarIcon className="h-3.5 w-3.5" /> },
+							{ id: "soon", label: "Move to…", disabled: true },
+							{ id: "delete", label: "Delete", icon: <TrashIcon className="h-3.5 w-3.5" />, destructive: true },
+						],
+					},
+				]}
+			/>
+		</>
+	);
+}
+
+// ── dashboard (Tile · StatsCard · Badge · DashboardGrid) ────────────────────
+function DashboardDemo() {
+	return (
+		<DashboardGrid className="w-full max-w-4xl">
+			<DashboardTile span={3}>
+				<StatsCard title="Assets" value="128" footer="+12 this week" />
+			</DashboardTile>
+			<DashboardTile span={3}>
+				<StatsCard
+					title="In review"
+					value="7"
+					badge={<Badge label="Live" color="green" />}
+					description="Awaiting approval"
+				/>
+			</DashboardTile>
+			<DashboardTile span={3}>
+				<StatsCard dark title="Cloud" value="2.4k" footer="Rendered outputs" />
+			</DashboardTile>
+			<DashboardTile span={3}>
+				<Tile
+					theme="teal"
+					head={
+						<>
+							<span>Brand kit</span>
+							<Badge label="v3" color="dark" />
+						</>
+					}
+					tail={<span className="text-compact text-fg/70">Updated today</span>}
+				>
+					<span className={tileStatClass}>Ready</span>
+				</Tile>
+			</DashboardTile>
+			<DashboardTile span={6}>
+				<Tile theme="yellow" head={<span>Campaign</span>} tail={<span className="text-compact text-fg/70">6 channels</span>}>
+					<span className={tileStatClass}>Q4 launch</span>
+				</Tile>
+			</DashboardTile>
+			<DashboardTile span={6}>
+				<Tile theme="dark" head={<span>Storage</span>} tail={<span className="text-compact text-white/60">of 100 GB</span>}>
+					<span className={tileStatClass}>62 GB</span>
+				</Tile>
+			</DashboardTile>
+		</DashboardGrid>
+	);
+}
+
+function BrandPageHeaderDemo() {
+	return (
+		<div className="w-full max-w-4xl rounded-lg border border-border bg-surface p-6">
+			<BrandPageHeader
+				breadcrumbs={[{ label: "Workspace" }, { label: "Acme" }]}
+				greeting={
+					<>
+						<Subtle>Good afternoon,</Subtle> Jonas 👋
+					</>
+				}
+				cta={
+					<CtaPill lead="Let's" emphasis="create" tail="something">
+						<Button className="rounded-full bg-surface-inverted text-fg-inverted data-[hovered]:opacity-90">
+							<PlusIcon className="h-4 w-4" /> Create
+						</Button>
+					</CtaPill>
+				}
+			/>
+		</div>
+	);
+}
+
+// ── delivery + approval modals (controlled open state) ──────────────────────
+function DownloadModalDemo() {
+	const [open, setOpen] = useState(false);
+	return (
+		<>
+			<Button variant="secondary" onPress={() => setOpen(true)}>
+				<DownloadIcon className="h-4 w-4" /> Download
+			</Button>
+			<DownloadModal
+				isOpen={open}
+				onOpenChange={setOpen}
+				onConfirm={() => setOpen(false)}
+				labels={{
+					title: "Download asset",
+					body: "Choose a format to generate a downloadable file.",
+					formatLabel: "Format",
+					formatPng: "PNG (image)",
+					formatPdf: "PDF (print-ready)",
+					cancel: "Cancel",
+					confirm: "Generate",
+					submitting: "Generating…",
+					preparing: "Preparing your file…",
+					download: "Download",
+					ready: "Your file is ready.",
+				}}
+			/>
+		</>
+	);
+}
+
+function SendToPrintModalDemo() {
+	const [open, setOpen] = useState(false);
+	return (
+		<>
+			<Button variant="secondary" onPress={() => setOpen(true)}>
+				Send to print
+			</Button>
+			<SendToPrintModal
+				isOpen={open}
+				onOpenChange={setOpen}
+				onConfirm={() => setOpen(false)}
+				labels={{
+					title: "Send to print",
+					body: "Specify the print run for this artwork.",
+					sizeLabel: "Size",
+					sizePlaceholder: "A2",
+					materialLabel: "Material",
+					materialPlaceholder: "Matte 250g",
+					quantityLabel: "Quantity",
+					quantityPlaceholder: "100",
+					quantityError: "Enter a whole number greater than 0.",
+					addressLabel: "Delivery address",
+					addressPlaceholder: "Street, city, ZIP",
+					cancel: "Cancel",
+					confirm: "Send order",
+					submitting: "Sending…",
+				}}
+			/>
+		</>
+	);
+}
+
+function PublishModalDemo() {
+	const [open, setOpen] = useState(false);
+	return (
+		<>
+			<Button variant="secondary" onPress={() => setOpen(true)}>
+				Publish
+			</Button>
+			<PublishModal
+				isOpen={open}
+				onOpenChange={setOpen}
+				onConfirm={() => setOpen(false)}
+				labels={{
+					title: "Publish to channel",
+					body: "Pick a destination account and channel.",
+					destinationLabel: "Destination",
+					destinationPlaceholder: "@acme",
+					channelLabel: "Channel",
+					channelPlaceholder: "Choose a channel",
+					cancel: "Cancel",
+					confirm: "Publish",
+					submitting: "Publishing…",
+					channels: [
+						{ value: "instagram", label: "Instagram" },
+						{ value: "linkedin", label: "LinkedIn" },
+						{ value: "x", label: "X" },
+					],
+				}}
+			/>
+		</>
+	);
+}
+
+function TaskApprovalModalDemo() {
+	const [open, setOpen] = useState(false);
+	return (
+		<>
+			<Button onPress={() => setOpen(true)}>Approve</Button>
+			<TaskApprovalModal
+				isOpen={open}
+				onOpenChange={setOpen}
+				onConfirm={() => setOpen(false)}
+				labels={{
+					title: "Approve task?",
+					body: "Approving marks this task complete. You can leave an optional note.",
+					noteLabel: "Note (optional)",
+					notePlaceholder: "Looks great — shipping it.",
+					cancel: "Cancel",
+					confirm: "Approve",
+					submitting: "Approving…",
+				}}
+			/>
+		</>
+	);
+}
+
+function RequestChangesModalDemo() {
+	const [open, setOpen] = useState(false);
+	return (
+		<>
+			<Button variant="secondary" onPress={() => setOpen(true)}>
+				Request changes
+			</Button>
+			<RequestChangesModal
+				isOpen={open}
+				onOpenChange={setOpen}
+				onConfirm={() => setOpen(false)}
+				labels={{
+					title: "Request changes",
+					body: "Describe what needs to change. A note is required.",
+					noteLabel: "Note",
+					notePlaceholder: "Please tighten the headline and swap the hero image.",
+					cancel: "Cancel",
+					confirm: "Request changes",
+					submitting: "Sending…",
+				}}
+			/>
 		</>
 	);
 }
@@ -738,6 +1112,18 @@ const SECTIONS: SectionDef[] = [
 			</Demo>
 		),
 	},
+	{
+		id: "context-menu",
+		group: "Actions",
+		title: "Context menu",
+		subtitle:
+			"Right-click action menu on a dark panel (React Aria: roving focus, type-ahead, viewport-aware). Grouped items with icons, disabled and destructive states.",
+		content: (
+			<Demo label="Right-click the surface">
+				<ContextMenuDemo />
+			</Demo>
+		),
+	},
 
 	// ── Overlays ──
 	// ── Modals (a core Graphic Standard element) ──
@@ -989,6 +1375,196 @@ const SECTIONS: SectionDef[] = [
 		),
 	},
 
+	{
+		id: "subtle",
+		group: "Content",
+		title: "Two-tone text",
+		subtitle:
+			"<Subtle> wraps a run in the light fg-subtle grey; text outside it stays full-contrast. Compose it freely to two-tone any run of a line, in any word order — ideal for greetings and mid-line emphasis.",
+		content: (
+			<Demo label="Inline de-emphasis">
+				<h1 className="text-display font-medium leading-tight text-fg">
+					<Subtle>Good afternoon,</Subtle> Jonas 👋
+					<br />
+					<Subtle>You have</Subtle> 3 planned tasks <Subtle>today</Subtle>
+				</h1>
+			</Demo>
+		),
+	},
+
+	// ── Iconography ──
+	{
+		id: "icons",
+		group: "Iconography",
+		title: "Icons",
+		subtitle:
+			"The curated line-icon set — one <XxxIcon> per glyph on a shared 24×24 grid, 2px round stroke, currentColor. Size via className (h-5 w-5…), colour via text-*.",
+		content: <IconShowcase />,
+	},
+
+	// ── Product patterns (label-driven, ported from gs-platform) ──
+	{
+		id: "feature-tile",
+		group: "Product patterns",
+		title: "Feature tile",
+		subtitle:
+			"Full-width media hero — background image, eyebrow (top-left), title (bottom-left), plus an optional action and badge. Presentational; the whole tile is pressable.",
+		content: (
+			<Demo label="Media hero">
+				<div className="w-full max-w-2xl">
+					<FeatureTile
+						image="https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=1200&q=80"
+						imageAlt="Workspace"
+						eyebrow="Tutorial"
+						title="Start here — build your first brand system"
+						onPress={() => {}}
+						pressLabel="Open tutorial"
+						action={
+							<span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-fg">
+								<PlayIcon className="h-5 w-5" />
+							</span>
+						}
+						badge={
+							<span className="rounded-full bg-black/40 px-3 py-1 text-caption font-medium text-white">
+								4 min
+							</span>
+						}
+					/>
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "cta-pill",
+		group: "Product patterns",
+		title: "CTA pill",
+		subtitle:
+			"The Brand Core hero CTA — a teal bar with a three-fragment copy line (the middle word emphasised white) and an action control on the right.",
+		content: (
+			<Demo label="Hero CTA">
+				<CtaPill lead="Let's" emphasis="create" tail="something">
+					<Button className="rounded-full bg-surface-inverted text-fg-inverted data-[hovered]:opacity-90">
+						<PlusIcon className="h-4 w-4" /> Create
+					</Button>
+				</CtaPill>
+			</Demo>
+		),
+	},
+	{
+		id: "dashboard",
+		group: "Product patterns",
+		title: "Dashboard tiles",
+		subtitle:
+			"StatsCard (KPI), Tile (four themed dashboard cards), Badge (status pill) and DashboardGrid (responsive 12-col grid). All presentational, copy via props.",
+		content: (
+			<>
+				<Demo label="Stat cards (light · badged · dark)">
+					<div className="flex flex-wrap gap-4">
+						<div className="w-56">
+							<StatsCard title="Assets" value="128" footer="+12 this week" />
+						</div>
+						<div className="w-56">
+							<StatsCard
+								title="In review"
+								value="7"
+								badge={<Badge label="Live" color="green" />}
+								description="Awaiting approval"
+							/>
+						</div>
+						<div className="w-56">
+							<StatsCard dark title="Cloud" value="2.4k" footer="Rendered outputs" />
+						</div>
+					</div>
+				</Demo>
+				<Demo label="Tile themes (light · dark · teal · yellow)">
+					<div className="flex flex-wrap gap-4">
+						{(["light", "dark", "teal", "yellow"] as const).map((theme) => (
+							<div key={theme} className="w-48">
+								<Tile theme={theme} head={<span className="capitalize">{theme}</span>}>
+									<span className={tileStatClass}>Ready</span>
+								</Tile>
+							</div>
+						))}
+					</div>
+				</Demo>
+				<Demo label="Badges">
+					<Badge label="Green" color="green" />
+					<Badge label="Yellow" color="yellow" />
+					<Badge label="Grey" color="grey" />
+					<Badge label="Dark" color="dark" />
+				</Demo>
+				<Demo label="Responsive grid (3 · 3 · 3 · 3 · 6 · 6)">
+					<DashboardDemo />
+				</Demo>
+			</>
+		),
+	},
+	{
+		id: "brand-page-header",
+		group: "Product patterns",
+		title: "Brand page header",
+		subtitle:
+			"The brand-workspace page header — breadcrumbs, a large two-tone greeting, and a right-column CTA (here the CtaPill hero). Combines Subtle + CtaPill.",
+		content: (
+			<Demo label="Workspace header">
+				<BrandPageHeaderDemo />
+			</Demo>
+		),
+	},
+
+	// ── Delivery (the signature GS delivery UI + job modals) ──
+	{
+		id: "delivery-status",
+		group: "Delivery",
+		title: "Delivery status module",
+		subtitle:
+			"The signature black status surface — white-on-dark header, muted status line, an optional green progress track and trailing “ready” pills.",
+		content: (
+			<Demo label="Job status">
+				<div className="flex w-full max-w-md flex-col gap-4">
+					<DeliveryStatusModule
+						heading="Rendering outputs"
+						headingMeta="60 %"
+						statusText="Generating print-ready PDFs…"
+						progress={0.6}
+					/>
+					<DeliveryStatusModule heading="Files ready" headingMeta="3 ready" statusText="All outputs generated.">
+						<DeliveryStatusPill>PNG</DeliveryStatusPill>
+						<DeliveryStatusPill>PDF/X-4</DeliveryStatusPill>
+						<DeliveryStatusPill>ZIP</DeliveryStatusPill>
+					</DeliveryStatusModule>
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "delivery-modals",
+		group: "Delivery",
+		title: "Delivery modals",
+		subtitle:
+			"Presentational job modals — Download (PNG/PDF), Send to print (validated spec) and Publish (destination + channel). Controlled open state; strings via labels.",
+		content: (
+			<Demo label="Open a modal">
+				<DownloadModalDemo />
+				<SendToPrintModalDemo />
+				<PublishModalDemo />
+			</Demo>
+		),
+	},
+	{
+		id: "approval-modals",
+		group: "Delivery",
+		title: "Approval modals",
+		subtitle:
+			"Task approval (optional note) and Request changes (required note — confirm stays disabled until non-empty). Both delegate the action via onConfirm.",
+		content: (
+			<Demo label="Approve / request changes">
+				<TaskApprovalModalDemo />
+				<RequestChangesModalDemo />
+			</Demo>
+		),
+	},
+
 	// ── Tokens ──
 	{
 		id: "tokens",
@@ -1019,15 +1595,30 @@ const SECTIONS: SectionDef[] = [
 	},
 ];
 
-const GROUP_ORDER = ["Forms", "Date & time", "Focus fields", "Modals", "Actions", "Overlays", "Navigation", "Content", "Tokens"];
+const GROUP_ORDER = [
+	"Forms",
+	"Date & time",
+	"Focus fields",
+	"Modals",
+	"Actions",
+	"Overlays",
+	"Navigation",
+	"Content",
+	"Iconography",
+	"Product patterns",
+	"Delivery",
+	"Tokens",
+];
 
 // Canvas background options — the surfaces a component realistically sits on.
-// (No dark option: the tokens are light-only, so a dark canvas would render
-// text-fg invisible. Add it here once dark tokens land.)
+// "Dark" flips the whole page to the dark token set via [data-theme="dark"]
+// (landed with the dark theme block in @podoba/tokens), so `--color-surface` &
+// friends resolve to their dark values — including react-aria portals on <html>.
 const BACKGROUNDS = [
 	{ id: "surface", label: "White", v: "--color-surface" },
 	{ id: "surface-card", label: "Cream", v: "--color-surface-card" },
 	{ id: "surface-muted", label: "Muted", v: "--color-surface-muted" },
+	{ id: "dark", label: "Dark", v: "--color-surface" },
 ] as const;
 
 export function App() {
@@ -1035,6 +1626,17 @@ export function App() {
 	const [query, setQuery] = useState("");
 	const [active, setActive] = useState(SECTIONS[0].id);
 	const canvasRef = useRef<HTMLDivElement>(null);
+
+	// "Dark" flips the whole document (chrome + canvas + react-aria portals) to the
+	// dark token set; the other backgrounds stay on the light set.
+	useEffect(() => {
+		const root = document.documentElement;
+		if (bg === "dark") root.dataset.theme = "dark";
+		else delete root.dataset.theme;
+		return () => {
+			delete root.dataset.theme;
+		};
+	}, [bg]);
 
 	// Group the (filtered) sections for the sidebar, preserving GROUP_ORDER.
 	const groups = useMemo(() => {
