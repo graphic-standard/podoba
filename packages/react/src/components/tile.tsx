@@ -20,11 +20,14 @@ import { type ReactElement, type ReactNode, cloneElement, isValidElement } from 
  */
 export type TileTheme = 'light' | 'dark' | 'teal' | 'yellow'
 
+// Light tiles carry a visible hairline (border-border), matching StatsCard's
+// lightSkin; dark/colored tiles use a transparent border so every tile keeps the
+// same box size (no 1px layout shift between themes).
 const THEME: Record<TileTheme, string> = {
-	light: 'bg-surface-card text-fg',
-	dark: 'bg-surface-inverted text-white',
-	teal: 'bg-brand-secondary text-fg',
-	yellow: 'bg-accent-yellow text-fg',
+	light: 'border border-border bg-surface-card text-fg',
+	dark: 'border border-transparent bg-surface-inverted text-white',
+	teal: 'border border-transparent bg-brand-secondary text-fg',
+	yellow: 'border border-transparent bg-accent-yellow text-fg',
 }
 
 /** Hover-lift + focus ring applied only when the tile is a link. */
@@ -103,7 +106,9 @@ export const tileStatClass = 'text-display font-medium leading-[30px] tracking-w
 export type BadgeColor = 'green' | 'yellow' | 'grey' | 'dark'
 
 const BADGE: Record<BadgeColor, string> = {
-	green: 'bg-accent-mint text-fg',
+	// gs `GSTag` green = the brand green (not the pale accent-mint). One saturated
+	// brand green for every green tag (New, Active, Published), matching gs 1:1.
+	green: 'bg-brand-green text-fg',
 	yellow: 'bg-accent-yellow text-fg',
 	grey: 'bg-surface-muted text-fg-muted',
 	dark: 'bg-surface-inverted text-white',
