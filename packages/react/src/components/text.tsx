@@ -27,15 +27,15 @@ export const Text = uic('span', {
 		size: {
 			micro: 'text-micro',
 			caption: 'text-caption',
-			label: 'text-compact',
+			label: 'text-label',
 			compact: 'text-compact',
+			small: 'text-small',
 			callout: 'text-callout',
 			body: 'text-body',
-			subtitle: 'text-heading4',
-			title: 'text-heading3',
-			headline: 'text-heading2',
+			subtitle: 'text-subtitle',
+			title: 'text-title',
+			headline: 'text-headline',
 			display: 'text-display',
-			'display-xl': 'text-display-xl',
 		},
 		// NC Fontina caps at medium (500) as the heaviest weight in the system, so
 		// `semibold` and `bold` are kept as API-compatible aliases that render

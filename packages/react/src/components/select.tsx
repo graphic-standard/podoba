@@ -36,7 +36,7 @@ const SelectTrigger = uic(RACButton, {
 	// Error → 2px danger ring driven off the RACSelect root's `data-invalid`.
 	baseClass:
 		'flex h-12 w-full items-center justify-between gap-2.5 rounded-lg border border-border bg-surface px-4 ' +
-		'text-sm text-fg outline-none transition-colors ' +
+		'text-small text-fg outline-none transition-colors ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
 		'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
@@ -49,7 +49,7 @@ export const SelectItem = uic(ListBoxItem, {
 	// medium weight. We add a `surface-muted` focus background (gs highlights with
 	// weight only) so keyboard focus stays clearly visible on the cream content.
 	baseClass:
-		'flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-sm text-fg outline-none ' +
+		'flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-small text-fg outline-none ' +
 		'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 }) as (props: ListBoxItemProps) => ReactNode
@@ -84,11 +84,11 @@ export const Select = <T extends object>({
 		</ListBox>
 	)
 	const desc = description ? (
-		<Text slot="description" className="text-xs text-fg-muted">
+		<Text slot="description" className="text-label text-fg-muted">
 			{description}
 		</Text>
 	) : null
-	const err = <FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+	const err = <FieldError className="text-label text-danger">{errorMessage}</FieldError>
 
 	return (
 		<RACSelect {...props} placeholder={placeholder} className="group flex flex-col gap-2">

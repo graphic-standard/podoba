@@ -90,7 +90,7 @@ const OVERLAY_EDITOR =
 
 function IconBadge({ icon }: { icon: ReactNode }) {
 	return (
-		<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-surface-muted text-sm font-medium text-fg">
+		<div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-surface-muted text-small font-medium text-fg">
 			{icon}
 		</div>
 	)
@@ -164,8 +164,8 @@ export function FocusField({
 			>
 				{icon ? <IconBadge icon={icon} /> : null}
 				<div className="min-w-0 flex-1">
-					<div className="text-sm text-fg-muted">{label}</div>
-					<div className="mt-1 truncate text-base text-fg">
+					<div className="text-small text-fg-muted">{label}</div>
+					<div className="mt-1 truncate text-body text-fg">
 						{hasValue ? preview : <span className="text-fg-subtle">{placeholder}</span>}
 					</div>
 				</div>
@@ -198,7 +198,7 @@ export function FocusField({
 									<div className="flex items-start gap-3">
 										{icon ? <IconBadge icon={icon} /> : null}
 										<div className="min-w-0 flex-1 pr-10">
-											<div className="text-sm text-fg-muted">{label}</div>
+											<div className="text-small text-fg-muted">{label}</div>
 											<div className={OVERLAY_EDITOR}>{children}</div>
 										</div>
 									</div>

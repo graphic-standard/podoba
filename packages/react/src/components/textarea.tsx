@@ -27,7 +27,7 @@ const StyledTextArea = uic(RACTextArea, {
 	// fg-subtle · focus #75e7b8 → brand-green · error → danger. min-h-[120px] is a
 	// control dimension (not a design token) — gs uses a literal 120px here too.
 	baseClass:
-		'min-h-[120px] w-full resize-y rounded-lg border border-border bg-surface px-4 py-3 text-sm text-fg ' +
+		'min-h-[120px] w-full resize-y rounded-lg border border-border bg-surface px-4 py-3 text-small text-fg ' +
 		'outline-none transition-colors duration-200 placeholder:text-fg-muted ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
@@ -49,13 +49,13 @@ export type TextareaProps = TextFieldProps & {
 
 export const Textarea = ({ label, description, errorMessage, placeholder, rows, ...props }: TextareaProps) => (
 	<TextField {...props} className="flex w-full flex-col gap-2">
-		<Label className="text-sm font-medium text-fg">{label}</Label>
+		<Label className="text-small font-medium text-fg">{label}</Label>
 		<StyledTextArea placeholder={placeholder} rows={rows} />
 		{description ? (
-			<Text slot="description" className="text-xs text-fg-muted">
+			<Text slot="description" className="text-label text-fg-muted">
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
 	</TextField>
 )

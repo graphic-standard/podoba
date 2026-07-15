@@ -137,7 +137,7 @@ export function RichTextEditor({
 							title={t.title}
 							onMouseDown={(e) => e.preventDefault()}
 							onClick={() => t.run(exec)}
-							className="rounded border-0 bg-transparent px-2.5 py-0.5 text-xs text-fg-muted transition-colors hover:bg-surface hover:text-fg"
+							className="rounded border-0 bg-transparent px-2.5 py-0.5 text-label text-fg-muted transition-colors hover:bg-surface hover:text-fg"
 						>
 							{t.label}
 						</button>
@@ -145,7 +145,7 @@ export function RichTextEditor({
 				</div>
 				<div
 					ref={ref}
-					className="prose prose-sm max-w-none px-4 py-3.5 text-sm leading-relaxed text-fg outline-none empty:before:text-fg-subtle empty:before:content-[attr(data-placeholder)]"
+					className="prose prose-sm max-w-none px-4 py-3.5 text-small leading-relaxed text-fg outline-none empty:before:text-fg-subtle empty:before:content-[attr(data-placeholder)]"
 					style={{ minHeight: bodyMinHeight }}
 					contentEditable
 					suppressContentEditableWarning
@@ -155,8 +155,8 @@ export function RichTextEditor({
 					onPaste={onPaste}
 				/>
 			</div>
-			{description ? <span className="text-xs text-fg-muted">{description}</span> : null}
-			{isInvalid && errorMessage ? <span className="text-xs text-danger">{errorMessage}</span> : null}
+			{description ? <span className="text-label text-fg-muted">{description}</span> : null}
+			{isInvalid && errorMessage ? <span className="text-label text-danger">{errorMessage}</span> : null}
 		</div>
 	)
 }

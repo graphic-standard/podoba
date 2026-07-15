@@ -141,12 +141,12 @@ export function BrandPageHeader({
 								onPress={() => setExpanded(!expanded)}
 								aria-expanded={expanded}
 								aria-controls={PANEL_ID}
-								className="h-10 rounded-full bg-brand-secondary px-5 text-sm font-medium text-fg data-[hovered]:opacity-90 data-[pressed]:opacity-80"
+								className="h-10 rounded-full bg-brand-secondary px-5 text-small font-medium text-fg data-[hovered]:opacity-90 data-[pressed]:opacity-80"
 							>
 								{ctaLabel}
 							</Button>
 						) : (
-							<Button className="h-10 rounded-full bg-brand-secondary px-5 text-sm font-medium text-fg data-[hovered]:opacity-90 data-[pressed]:opacity-80">
+							<Button className="h-10 rounded-full bg-brand-secondary px-5 text-small font-medium text-fg data-[hovered]:opacity-90 data-[pressed]:opacity-80">
 								{ctaLabel}
 							</Button>
 						)}

@@ -47,7 +47,7 @@ export const FileUpload = ({ label, description, accept, allowsMultiple, onFiles
 					'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring'
 				}
 			>
-				<Text slot="label" className="text-sm text-fg-muted">
+				<Text slot="label" className="text-small text-fg-muted">
 					Drag &amp; drop {allowsMultiple ? 'files' : 'a file'} here, or
 				</Text>
 				<FileTrigger
@@ -59,9 +59,9 @@ export const FileUpload = ({ label, description, accept, allowsMultiple, onFiles
 						Choose {allowsMultiple ? 'files' : 'file'}
 					</Button>
 				</FileTrigger>
-				{names.length > 0 ? <span className="max-w-full truncate text-xs text-fg">{names.join(', ')}</span> : null}
+				{names.length > 0 ? <span className="max-w-full truncate text-label text-fg">{names.join(', ')}</span> : null}
 			</DropZone>
-			{description ? <span className="text-xs text-fg-muted">{description}</span> : null}
+			{description ? <span className="text-label text-fg-muted">{description}</span> : null}
 		</div>
 	)
 }

@@ -51,9 +51,9 @@ export type PersistentPageShellProps = {
 	title?: string
 }
 
-const defaultLoadingSlot = <div className="text-sm text-fg-muted">Loading…</div>
-const defaultEmptySlot = <div className="text-sm text-fg-muted">No content available.</div>
-const defaultErrorSlot = <div className="text-sm text-danger">Failed to load content.</div>
+const defaultLoadingSlot = <div className="text-small text-fg-muted">Loading…</div>
+const defaultEmptySlot = <div className="text-small text-fg-muted">No content available.</div>
+const defaultErrorSlot = <div className="text-small text-danger">Failed to load content.</div>
 
 const Header = uic('header', {
 	displayName: 'PersistentPageShell.Header',

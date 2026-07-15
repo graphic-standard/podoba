@@ -87,8 +87,8 @@ export function RequestChangesModal({
 			}}
 		>
 			<div className="flex flex-col gap-3">
-				<p className="text-sm text-fg-muted">{labels.body}</p>
-				<label htmlFor={noteId} className="text-sm font-medium text-fg">
+				<p className="text-small text-fg-muted">{labels.body}</p>
+				<label htmlFor={noteId} className="text-small font-medium text-fg">
 					{labels.noteLabel}
 				</label>
 				<textarea
@@ -101,10 +101,10 @@ export function RequestChangesModal({
 					required
 					aria-invalid={isEmpty ? true : undefined}
 					placeholder={labels.notePlaceholder}
-					className="w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-fg outline-none transition-colors placeholder:text-fg-muted focus-visible:ring-2 focus-visible:ring-ring"
+					className="w-full rounded-md border border-border bg-surface px-3 py-2 text-small text-fg outline-none transition-colors placeholder:text-fg-muted focus-visible:ring-2 focus-visible:ring-ring"
 				/>
 				{error ? (
-					<p data-testid="request-changes-error" role="alert" className="text-sm text-danger">
+					<p data-testid="request-changes-error" role="alert" className="text-small text-danger">
 						{error}
 					</p>
 				) : null}

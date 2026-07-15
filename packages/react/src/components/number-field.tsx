@@ -16,7 +16,7 @@ import {
  * Components `NumberField`; styled to match the other form fields.
  */
 const stepper =
-	'flex h-full w-9 shrink-0 items-center justify-center text-base text-fg-muted outline-none transition-colors ' +
+	'flex h-full w-9 shrink-0 items-center justify-center text-body text-fg-muted outline-none transition-colors ' +
 	'hover:bg-surface-muted hover:text-fg data-[pressed]:bg-surface-muted data-[disabled]:opacity-40'
 
 export type NumberFieldProps = RACNumberFieldProps & {
@@ -32,7 +32,7 @@ export const NumberField = ({ label, description, errorMessage, placeholder, ...
 		<Label className="text-heading5 font-medium text-fg">{label}</Label>
 		<Group
 			className={
-				'flex h-12 w-full items-center overflow-hidden rounded-lg border border-border bg-surface text-sm text-fg transition-colors ' +
+				'flex h-12 w-full items-center overflow-hidden rounded-lg border border-border bg-surface text-small text-fg transition-colors ' +
 				'data-[hovered]:border-fg-subtle ' +
 				'data-[focus-within]:border-brand-green data-[focus-within]:ring-2 data-[focus-within]:ring-ring ' +
 				'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
@@ -44,17 +44,17 @@ export const NumberField = ({ label, description, errorMessage, placeholder, ...
 			</RACButton>
 			<RACInput
 				placeholder={placeholder}
-				className="min-w-0 flex-1 bg-transparent px-4 text-sm tabular-nums text-fg outline-none placeholder:text-fg-muted"
+				className="min-w-0 flex-1 bg-transparent px-4 text-small tabular-nums text-fg outline-none placeholder:text-fg-muted"
 			/>
 			<RACButton slot="increment" className={`${stepper} border-l border-border`}>
 				+
 			</RACButton>
 		</Group>
 		{description ? (
-			<Text slot="description" className="text-xs text-fg-muted">
+			<Text slot="description" className="text-label text-fg-muted">
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
 	</RACNumberField>
 )

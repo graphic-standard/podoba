@@ -19,7 +19,7 @@ export type SwitchProps = Omit<RACSwitchProps, 'children'> & {
 export const Switch = ({ children, ...props }: SwitchProps) => (
 	<RACSwitch
 		{...props}
-		className="group flex cursor-pointer select-none items-center gap-3 text-sm text-fg data-[disabled]:cursor-not-allowed"
+		className="group flex cursor-pointer select-none items-center gap-3 text-small text-fg data-[disabled]:cursor-not-allowed"
 	>
 		{/* gs token map: off track #eceae1 → surface-muted · on track #0d0d0d → fg ·
 		    thumb #ffffff → surface. gs hovers the track at opacity .9 (not a border). */}

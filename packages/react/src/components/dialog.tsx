@@ -152,7 +152,7 @@ export const Dialog = ({
 													{title}
 												</Heading>
 												{badge ? (
-													<span className="inline-flex shrink-0 items-center rounded-full bg-surface-muted px-2 py-0.5 text-xs font-medium text-fg-muted">
+													<span className="inline-flex shrink-0 items-center rounded-full bg-surface-muted px-2 py-0.5 text-label font-medium text-fg-muted">
 														{badge}
 													</span>
 												) : null}

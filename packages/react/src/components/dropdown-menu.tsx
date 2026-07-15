@@ -57,13 +57,13 @@ export const DropdownMenuTrigger = RACMenuTrigger
 // gs `.item`: 12/16px padding, 6px radius, base text on white; hover/focus wash
 // `#f7f6f2` (→ surface-card). We light up both `data-[focused]` (keyboard) and
 // `data-[hovered]` (pointer) so keyboard focus stays clearly visible. Item text
-// size follows the house light Select (`text-sm`) rather than gs's 16px base so
+// size follows the house light Select (`text-small`) rather than gs's 16px base so
 // the two light dropdowns stay consistent.
 export const DropdownMenuItem = uic(RACMenuItem, {
 	displayName: 'DropdownMenuItem',
 	baseClass:
 		'flex cursor-pointer select-none items-center gap-2.5 rounded-md px-4 py-3 ' +
-		'text-sm text-fg outline-none ' +
+		'text-small text-fg outline-none ' +
 		'data-[focused]:bg-surface-card data-[hovered]:bg-surface-card ' +
 		'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
 	variants: {

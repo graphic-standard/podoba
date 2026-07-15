@@ -28,7 +28,7 @@ const StyledInput = uic(RACInput, {
 	// Identical to textarea.tsx's filled-field skin; `fieldSize` adds the
 	// single-line height (gs sizes the field via padding only).
 	baseClass:
-		'w-full rounded-lg border border-border bg-surface px-4 text-sm text-fg ' +
+		'w-full rounded-lg border border-border bg-surface px-4 text-small text-fg ' +
 		'outline-none transition-colors duration-200 placeholder:text-fg-muted ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
@@ -64,10 +64,10 @@ export const Input = ({ label, description, errorMessage, placeholder, size, ...
 		<Label className="text-heading5 font-medium text-fg">{label}</Label>
 		<StyledInput placeholder={placeholder} fieldSize={size} />
 		{description ? (
-			<Text slot="description" className="text-xs text-fg-muted">
+			<Text slot="description" className="text-label text-fg-muted">
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-xs text-danger">{errorMessage}</FieldError>
+		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
 	</TextField>
 )
