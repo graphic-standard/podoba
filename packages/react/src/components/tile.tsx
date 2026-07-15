@@ -117,7 +117,7 @@ const BADGE: Record<BadgeColor, string> = {
 export function Badge({ label, color = 'grey' }: { label: ReactNode; color?: BadgeColor }) {
 	return (
 		<span
-			className={`inline-flex items-center rounded-full px-2 py-0.5 text-caption font-medium leading-none ${BADGE[color]}`}
+			className={`inline-flex items-center rounded-full px-3 py-1 text-caption font-medium leading-none ${BADGE[color]}`}
 		>
 			{label}
 		</span>
