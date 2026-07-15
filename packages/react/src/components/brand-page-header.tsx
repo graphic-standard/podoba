@@ -116,7 +116,7 @@ export function BrandPageHeader({
 							))}
 						</nav>
 					) : null}
-					<h1 className="text-display font-medium leading-[1.12] tracking-[-0.56px] text-fg">
+					<h1 className="text-display font-medium leading-[1.12] tracking-wide text-fg">
 						{parentLink ? (
 							// gs "title to go back": muted clickable parent line above the title.
 							// `[&_a]` styles the nested router <Link> (anchor) without @app/ui

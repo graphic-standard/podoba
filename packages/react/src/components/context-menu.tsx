@@ -178,7 +178,7 @@ function ContextMenuBody({
 								<span className="min-w-0 flex-1 truncate">{item.label}</span>
 								{badge ? (
 									// gs `.badge`: 24px pill, #333437 bg / #c8c8ca text, 10px (text-micro).
-									<span className="ml-auto inline-flex h-6 items-center justify-center rounded-full bg-[#333437] px-3 py-0.5 text-micro font-medium leading-5 tracking-[-0.2px] text-[#c8c8ca]">
+									<span className="ml-auto inline-flex h-6 items-center justify-center rounded-full bg-[#333437] px-3 py-0.5 text-micro font-medium leading-5 tracking-tight text-[#c8c8ca]">
 										{badge}
 									</span>
 								) : null}
