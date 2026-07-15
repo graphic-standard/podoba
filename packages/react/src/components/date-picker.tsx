@@ -88,7 +88,7 @@ export const DatePicker = <T extends DateValue>({ label, description, errorMessa
 			{/* In focus mode the field is bare + large and the calendar is borderless,
 			    so field + calendar read as one seamless editor rather than boxes. */}
 			<Group className={inFocus ? 'flex w-full items-center' : `${dateInputClass} pr-2`}>
-				<DateInput className={clsx('flex flex-1 items-center gap-0.5', inFocus && 'text-3xl font-medium')}>
+				<DateInput className={clsx('flex flex-1 items-center gap-0.5', inFocus && 'text-display font-medium')}>
 					{(segment) => <DateSegment segment={segment} className={segmentClass} />}
 				</DateInput>
 				{inFocus ? null : (

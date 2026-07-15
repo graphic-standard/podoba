@@ -98,14 +98,11 @@
 	/* font sizes — size-only ramp */
 	--text-micro: var(--font-size-micro);
 	--text-caption: var(--font-size-caption);
-	--text-label: var(--font-size-label);
 	--text-compact: var(--font-size-compact);
 	--text-callout: var(--font-size-callout);
 	--text-body: var(--font-size-body);
-	--text-subtitle: var(--font-size-subtitle);
-	--text-title: var(--font-size-title);
-	--text-headline: var(--font-size-headline);
 	--text-display: var(--font-size-display);
+	--text-display-xl: var(--font-size-display-xl);
 
 	/* font sizes — heading ramp (size + paired line-height) */
 	--text-heading1: var(--font-size-heading1);

@@ -91,7 +91,7 @@ export const ComboBox = <T extends object>({
 					<SearchField aria-label={typeof label === 'string' ? label : 'Search'}>
 						<RACInput
 							placeholder={placeholder}
-							className="w-full border-0 bg-transparent p-0 text-3xl font-medium text-fg outline-none placeholder:text-fg-subtle"
+							className="w-full border-0 bg-transparent p-0 text-display font-medium text-fg outline-none placeholder:text-fg-subtle"
 						/>
 					</SearchField>
 					<ListBox
