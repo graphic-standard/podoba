@@ -27,7 +27,7 @@ export interface CtaPillProps {
 export function CtaPill({ lead, emphasis, tail, children }: CtaPillProps) {
 	return (
 		<div className="flex min-w-[560px] items-center justify-between gap-4 rounded-lg bg-brand-secondary px-6 py-4">
-			<p className="text-subtitle font-medium leading-[22px] tracking-normal text-fg">
+			<p className="text-heading4 font-medium leading-[22px] tracking-normal text-fg">
 				{lead} <span className="font-semibold text-white">{emphasis}</span> {tail}
 			</p>
 			<div className="shrink-0">{children}</div>

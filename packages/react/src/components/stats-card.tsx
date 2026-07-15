@@ -85,7 +85,7 @@ function StatsCardBody({
 			 * `-0.02em` (`AssetsTile.module.scss .count`).
 			 */}
 			<span
-				className={`flex flex-1 items-center text-[1.875rem] font-medium leading-[2rem] ${dark ? 'tracking-normal text-white' : 'tracking-wide text-fg'}`}
+				className={`flex flex-1 items-center text-display font-medium leading-[2rem] ${dark ? 'tracking-normal text-white' : 'tracking-wide text-fg'}`}
 			>
 				{value}
 			</span>
