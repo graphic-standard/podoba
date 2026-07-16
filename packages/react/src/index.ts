@@ -60,6 +60,7 @@ export * from "./components/icons";
 export * from "./components/subtle";
 export * from "./components/stats-card";
 export * from "./components/tile";
+export * from "./components/table";
 export * from "./components/dashboard-grid";
 export * from "./components/task-approval-modal";
 export * from "./components/request-changes-modal";
