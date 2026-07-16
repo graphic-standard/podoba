@@ -152,6 +152,10 @@ function TileBands({
 		)
 	}
 
+	// Footer defaults to 14px muted (gs supporting text); self-styled footer content
+	// (links, buttons) overrides both size and colour.
+	const footerTone = theme === 'dark' ? 'text-white/50' : theme === 'light' ? 'text-fg-muted' : 'text-fg/70'
+
 	return (
 		<>
 			{eyebrow != null || badge != null ? (
@@ -161,7 +165,7 @@ function TileBands({
 				</div>
 			) : null}
 			{content}
-			{footer != null ? <div className="min-w-0">{footer}</div> : null}
+			{footer != null ? <div className={`min-w-0 text-small leading-5 ${footerTone}`}>{footer}</div> : null}
 		</>
 	)
 }
