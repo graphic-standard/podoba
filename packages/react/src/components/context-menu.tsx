@@ -95,6 +95,34 @@ interface ContextMenuWrapperProps {
 	className?: string
 }
 
+/**
+ * Lock page scroll while the menu is open — an open action menu should pin the view
+ * (gs `ContextActionPanel` behaviour), not let the content scroll out from under the
+ * cursor-anchored panel. Wheel + touch scrolling is prevented everywhere EXCEPT inside
+ * `allowRef` (the panel itself, so a long/overflowing menu still scrolls). No dep on
+ * react-aria's `usePreventScroll` (not a direct dependency here).
+ */
+function useScrollLock(active: boolean, allowRef: React.RefObject<HTMLElement | null>): void {
+	useEffect(() => {
+		if (!active) {
+			return
+		}
+		const prevent = (e: Event) => {
+			const target = e.target as Node | null
+			if (target && allowRef.current?.contains(target)) {
+				return
+			}
+			e.preventDefault()
+		}
+		document.addEventListener('wheel', prevent, { passive: false })
+		document.addEventListener('touchmove', prevent, { passive: false })
+		return () => {
+			document.removeEventListener('wheel', prevent)
+			document.removeEventListener('touchmove', prevent)
+		}
+	}, [active, allowRef])
+}
+
 const itemId = (item: ContextMenuItem, fallback: number): string => item.id ?? item.key ?? String(fallback)
 const groupId = (group: ContextMenuGroup, fallback: number): string => group.id ?? group.key ?? String(fallback)
 
@@ -202,7 +230,10 @@ function ControlledContextMenu({
 	className,
 }: ContextMenuProps): React.JSX.Element | null {
 	const anchorRef = useRef<HTMLSpanElement>(null)
+	const popoverRef = useRef<HTMLElement>(null)
 	const visibleGroups = visibleGroupsOf(groups)
+	// Lock scroll while open (hook runs unconditionally — before the empty-groups return).
+	useScrollLock(isOpen && visibleGroups.length > 0, popoverRef)
 	if (visibleGroups.length === 0) {
 		return null
 	}
@@ -219,6 +250,7 @@ function ControlledContextMenu({
 			/>
 			<RACPopover
 				key={`${pos.x}:${pos.y}`}
+				ref={popoverRef}
 				isOpen={isOpen}
 				onOpenChange={(open) => {
 					if (!open) {
@@ -315,6 +347,8 @@ function WrapperContextMenu({
 
 	const sourceGroups = typeof groups === 'function' ? resolved : groups
 	const visibleGroups = visibleGroupsOf(sourceGroups)
+	// Lock scroll while the panel is open (still scrollable inside a long menu).
+	useScrollLock(isOpen && visibleGroups.length > 0, popoverRef)
 
 	return (
 		<div ref={wrapperRef} className={className} onContextMenu={onContextMenu}>
