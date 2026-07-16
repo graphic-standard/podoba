@@ -94,8 +94,8 @@ export function BrandPageHeader({
 				.filter(Boolean)
 				.join(' ')}
 		>
-			<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-				<div className="flex min-w-0 flex-col gap-1">
+			<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+				<div className="flex min-w-0 flex-1 flex-col gap-1">
 					{breadcrumbs && breadcrumbs.length > 0 ? (
 						<nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-compact text-fg-muted">
 							{breadcrumbs.map((crumb, i) => (
@@ -133,7 +133,8 @@ export function BrandPageHeader({
 				</div>
 
 				{cta ? (
-					<div className="w-full shrink-0 sm:w-auto sm:min-w-[360px]">{cta}</div>
+					// Hero CTA spans 4 of 12 columns (one third) — the greeting takes the rest.
+					<div className="w-full shrink-0 sm:w-1/3">{cta}</div>
 				) : ctaLabel ? (
 					<div className="shrink-0">
 						{hasExpandable ? (
