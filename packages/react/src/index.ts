@@ -54,7 +54,6 @@ export * from "./layout/persistent-page-shell";
 export * from "./components/brand-page-header";
 export * from "./components/count-up";
 export * from "./components/cta-pill";
-export * from "./components/feature-tile";
 export * from "./components/stat-stack";
 export * from "./components/icons";
 export * from "./components/subtle";
