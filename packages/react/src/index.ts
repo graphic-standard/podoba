@@ -51,6 +51,7 @@ export * from "./layout/topbar";
 export * from "./layout/persistent-page-shell";
 
 // --- product patterns (label-driven; no domain coupling) ---
+export * from "./components/avatar";
 export * from "./components/brand-page-header";
 export * from "./components/count-up";
 export * from "./components/cta-pill";
