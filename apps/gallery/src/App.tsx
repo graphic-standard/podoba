@@ -56,7 +56,6 @@ import {
 	DeliveryStatusModule,
 	DeliveryStatusPill,
 	DownloadModal,
-	FeatureTile,
 	PublishModal,
 	RequestChangesModal,
 	SendToPrintModal,
@@ -1408,18 +1407,19 @@ const SECTIONS: SectionDef[] = [
 		group: "Product patterns",
 		title: "Feature tile",
 		subtitle:
-			"Full-width media hero — background image, eyebrow (top-left), title (bottom-left), plus an optional action and badge. Presentational; the whole tile is pressable.",
+			"The unified Tile in media-hero mode — a full-width background image (or click-to-play video) with an eyebrow (top-left), title (bottom-left), plus an optional footer action and badge. Presentational; the whole tile is pressable.",
 		content: (
 			<Demo label="Media hero">
 				<div className="w-full max-w-2xl">
-					<FeatureTile
-						image="https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=1200&q=80"
+					<Tile
+						className="aspect-[2/1]"
+						backgroundImage="https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=1200&q=80"
 						imageAlt="Workspace"
 						eyebrow="Tutorial"
 						title="Start here — build your first brand system"
 						onPress={() => {}}
 						pressLabel="Open tutorial"
-						action={
+						footer={
 							<span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-fg">
 								<PlayIcon className="h-5 w-5" />
 							</span>
