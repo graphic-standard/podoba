@@ -30,6 +30,8 @@ export type BrandPageHeaderCrumb = {
 export type BrandPageHeaderProps = {
 	/** The large greeting / page-title slot (e.g. "Good morning Jonas 👋"). */
 	greeting: ReactNode
+	/** Semantic heading level. Use 2 or 3 when the header is nested below a page title. */
+	headingLevel?: 1 | 2 | 3
 	/**
 	 * gs-style "title to go back": a muted, clickable PARENT link rendered as the
 	 * line ABOVE the title (so the title reads "Parent ⏎ Current"). Pass a real
@@ -63,6 +65,7 @@ const PANEL_ID = 'brand-page-header-create-hub'
 
 export function BrandPageHeader({
 	greeting,
+	headingLevel = 1,
 	parentLink,
 	breadcrumbs,
 	cta,
@@ -78,6 +81,7 @@ export function BrandPageHeader({
 	const isControlled = expandedProp !== undefined
 	const expanded = isControlled ? expandedProp : internalExpanded
 	const hasExpandable = Boolean(createHub)
+	const Heading = `h${headingLevel}` as const
 
 	const setExpanded = (next: boolean) => {
 		if (!isControlled) setInternalExpanded(next)
@@ -116,7 +120,7 @@ export function BrandPageHeader({
 							))}
 						</nav>
 					) : null}
-					<h1 className="text-display font-medium leading-[1.12] tracking-wide text-fg">
+					<Heading className="text-display font-medium leading-[1.12] tracking-wide text-fg">
 						{parentLink ? (
 							// gs "title to go back": muted clickable parent line above the title.
 							// `[&_a]` styles the nested router <Link> (anchor) without @app/ui
@@ -129,7 +133,7 @@ export function BrandPageHeader({
 							</>
 						) : null}
 						{greeting}
-					</h1>
+					</Heading>
 				</div>
 
 				{cta ? (
