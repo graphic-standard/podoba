@@ -197,7 +197,7 @@ function MediaHero({
 
 	return (
 		<div
-			className={['relative isolate h-full min-h-[200px] w-full overflow-hidden rounded-lg bg-surface-inverted', className]
+			className={['@container relative isolate h-full min-h-[200px] w-full overflow-hidden rounded-lg bg-surface-inverted', className]
 				.filter(Boolean)
 				.join(' ')}
 		>
@@ -239,20 +239,36 @@ function MediaHero({
 						/>
 					) : null}
 
-					{eyebrow ? (
-						<span className="pointer-events-none absolute left-6 top-6 z-10 text-compact font-medium text-white">{eyebrow}</span>
-					) : null}
-
-					{/* Content is click-through so pressing the title/badge falls to the
-					    press overlay; only `footer` re-enables its own pointer events. */}
-					<div className="pointer-events-none absolute inset-x-6 bottom-6 z-10 flex flex-col gap-4">
-						{title ? <h2 className="max-w-md text-display font-medium leading-tight text-white">{title}</h2> : null}
-						{footer != null || badge != null ? (
-							<div className="flex items-center justify-between gap-4">
-								<span className="pointer-events-auto">{footer}</span>
-								<span>{badge}</span>
-							</div>
+					{/* Keep every text overlay in one flex flow. The old independent
+					    top eyebrow and bottom title bands could overlap when a long title
+					    wrapped on a narrow card. Compact mobile insets/type preserve the
+					    200px floor; the spacious composition returns when the card itself,
+					    rather than merely the viewport, is wide enough. */}
+					<div
+						data-slot="media-overlay"
+						className="pointer-events-none absolute inset-4 z-10 flex min-h-0 flex-col @sm:inset-6"
+					>
+						{eyebrow ? (
+							<span data-slot="media-eyebrow" className="shrink-0 text-compact font-medium text-white">
+								{eyebrow}
+							</span>
 						) : null}
+
+						{/* Content is click-through so pressing the title/badge falls to the
+						    press overlay; only `footer` re-enables its own pointer events. */}
+						<div data-slot="media-content" className="mt-auto flex min-h-0 flex-col gap-2 @sm:gap-4">
+							{title ? (
+								<h2 className="max-w-md text-title font-medium leading-tight text-white @sm:text-display">
+									{title}
+								</h2>
+							) : null}
+							{footer != null || badge != null ? (
+								<div className="flex items-center justify-between gap-3 @sm:gap-4">
+									<span className="pointer-events-auto">{footer}</span>
+									<span>{badge}</span>
+								</div>
+							) : null}
+						</div>
 					</div>
 				</>
 			)}
