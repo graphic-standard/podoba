@@ -1410,29 +1410,54 @@ const SECTIONS: SectionDef[] = [
 		subtitle:
 			"The unified Tile in media-hero mode — a full-width background image (or click-to-play video) with an eyebrow (top-left), title (bottom-left), plus an optional footer action and badge. Presentational; the whole tile is pressable.",
 		content: (
-			<Demo label="Media hero">
-				<div className="w-full max-w-2xl">
-					<Tile
-						className="aspect-[2/1]"
-						backgroundImage="https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=1200&q=80"
-						imageAlt="Workspace"
-						eyebrow="Tutorial"
-						title="Start here — build your first brand system"
-						onPress={() => {}}
-						pressLabel="Open tutorial"
-						footer={
-							<span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-fg">
-								<PlayIcon className="h-5 w-5" />
-							</span>
-						}
-						badge={
-							<span className="rounded-full bg-black/40 px-3 py-1 text-caption font-medium text-white">
-								4 min
-							</span>
-						}
-					/>
-				</div>
-			</Demo>
+			<div className="flex w-full flex-col gap-8">
+				<Demo label="Media hero">
+					<div className="w-full max-w-2xl">
+						<Tile
+							className="aspect-[2/1]"
+							backgroundImage="https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=1200&q=80"
+							imageAlt="Workspace"
+							eyebrow="Tutorial"
+							title="Start here — build your first brand system"
+							onPress={() => {}}
+							pressLabel="Open tutorial"
+							footer={
+								<span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-fg">
+									<PlayIcon className="h-5 w-5" />
+								</span>
+							}
+							badge={
+								<span className="rounded-full bg-black/40 px-3 py-1 text-caption font-medium text-white">
+									4 min
+								</span>
+							}
+						/>
+					</div>
+				</Demo>
+				<Demo label="Media hero — narrow card with a long title">
+					<div className="w-[342px] max-w-full">
+						<Tile
+							className="aspect-[342/200]"
+							backgroundImage="https://images.unsplash.com/photo-1522199755839-a2bacb67c546?w=1200&q=80"
+							imageAlt="Workspace"
+							eyebrow="Stories"
+							title="Start here: take your first guided tour of Graphic Standard"
+							onPress={() => {}}
+							pressLabel="Open tutorial"
+							footer={
+								<span className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-fg">
+									<PlayIcon className="h-5 w-5" />
+								</span>
+							}
+							badge={
+								<span className="rounded-full bg-black/40 px-3 py-1 text-caption font-medium text-white">
+									1 min
+								</span>
+							}
+						/>
+					</div>
+				</Demo>
+			</div>
 		),
 	},
 	{

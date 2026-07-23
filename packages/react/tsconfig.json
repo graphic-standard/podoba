@@ -7,5 +7,8 @@
 	"references": [
 		{ "path": "../tokens" }
 	],
-	"include": ["src"]
+	"include": ["src"],
+	// Tests run via `bun test` (no compile step) — keep them out of the build so
+	// dist/ never contains *.test.js copies for bun to double-discover.
+	"exclude": ["src/**/*.test.*"]
 }
