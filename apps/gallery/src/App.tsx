@@ -589,6 +589,7 @@ function BrandPageHeaderDemo() {
 	return (
 		<div className="w-full max-w-4xl rounded-lg border border-border bg-surface p-6">
 			<BrandPageHeader
+				headingLevel={2}
 				breadcrumbs={[{ label: "Workspace" }, { label: "Acme" }]}
 				greeting={
 					<>
