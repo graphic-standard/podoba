@@ -31,10 +31,14 @@ export type TileAlign = 'top' | 'center'
 const THEME: Record<TileTheme, string> = {
 	// Light tiles carry a visible hairline; dark/colored use a transparent border so
 	// every tile keeps the same box size (no 1px shift between themes).
+	// Every surface pairs with ITS semantic foreground (never raw white / bare fg):
+	// `surface-inverted` flips with the theme so it needs the flipping `fg-inverted`;
+	// teal/yellow are FIXED light surfaces so they need the stable `fg-on-brand` ink
+	// (theme-flipping `fg` went white-on-pastel in a dark shell).
 	light: 'border border-border bg-surface-card text-fg',
-	dark: 'border border-transparent bg-surface-inverted text-white',
-	teal: 'border border-transparent bg-brand-secondary text-fg',
-	yellow: 'border border-transparent bg-accent-yellow text-fg',
+	dark: 'border border-transparent bg-surface-inverted text-fg-inverted',
+	teal: 'border border-transparent bg-brand-secondary text-fg-on-brand',
+	yellow: 'border border-transparent bg-accent-yellow text-fg-on-brand',
 }
 
 // The shared inner for EVERY tile (gs `DashboardContentCard`): 16px padding
@@ -95,8 +99,21 @@ export type TileProps = {
 export const tileStatClass = 'text-display font-medium leading-[30px] tracking-wide'
 
 function titleTone(theme: TileTheme, subtle: boolean): string {
-	if (theme === 'dark') return subtle ? 'text-white/60' : 'text-white'
+	if (theme === 'dark') return subtle ? 'text-fg-inverted/60' : 'text-fg-inverted'
+	if (theme === 'teal' || theme === 'yellow') return subtle ? 'text-fg-on-brand/70' : 'text-fg-on-brand'
 	return subtle ? 'text-fg-muted' : 'text-fg'
+}
+
+/**
+ * Muted supporting text / footer tone per surface. `fg-muted` is tuned for white —
+ * on the colored surfaces it drops below AA, so those blend their own paired ink
+ * instead (/60 · /70 keep ≥4.5:1 in both themes — verified by the contrast test
+ * in @podoba/tokens).
+ */
+function mutedTone(theme: TileTheme): string {
+	if (theme === 'dark') return 'text-fg-inverted/60'
+	if (theme === 'teal' || theme === 'yellow') return 'text-fg-on-brand/70'
+	return 'text-fg-muted'
 }
 
 /** head / content / tail bands — the normal (non-media) layout. */
@@ -123,7 +140,7 @@ function TileBands({
 		) : null
 	const textNode =
 		text != null ? (
-			<p className={`text-small leading-4 ${theme === 'dark' ? 'text-white/60' : 'text-fg-muted'} ${title != null ? 'mt-3' : ''}`}>
+			<p className={`text-small leading-4 ${mutedTone(theme)} ${title != null ? 'mt-3' : ''}`}>
 				{text}
 			</p>
 		) : null
@@ -153,8 +170,9 @@ function TileBands({
 	}
 
 	// Footer defaults to 14px muted (gs supporting text); self-styled footer content
-	// (links, buttons) overrides both size and colour.
-	const footerTone = theme === 'dark' ? 'text-white/50' : theme === 'light' ? 'text-fg-muted' : 'text-fg/70'
+	// (links, buttons) overrides both size and colour. Shares `mutedTone` — the old
+	// white/50 (dark) and fg/70 (teal/yellow) both broke AA in a dark shell.
+	const footerTone = mutedTone(theme)
 
 	return (
 		<>
@@ -366,10 +384,14 @@ export type BadgeColor = 'green' | 'yellow' | 'grey' | 'dark'
 const BADGE: Record<BadgeColor, string> = {
 	// gs `GSTag` green = the brand green (not the pale accent-mint). One saturated
 	// brand green for every green tag (New, Active, Published), matching gs 1:1.
-	green: 'bg-brand-green text-fg',
-	yellow: 'bg-accent-yellow text-fg',
-	grey: 'bg-surface-muted text-fg-muted',
-	dark: 'bg-surface-inverted text-white',
+	// Pairing rule (same as Tile THEME): fixed light surfaces take the stable
+	// `fg-on-brand` ink, the flipping inverted surface takes `fg-inverted`, and grey
+	// takes full `fg` — `fg-muted` on `surface-muted` was ~3.7:1, under the 4.5:1
+	// AA floor for caption-size text.
+	green: 'bg-brand-green text-fg-on-brand',
+	yellow: 'bg-accent-yellow text-fg-on-brand',
+	grey: 'bg-surface-muted text-fg',
+	dark: 'bg-surface-inverted text-fg-inverted',
 }
 
 export function Badge({ label, color = 'grey' }: { label: ReactNode; color?: BadgeColor }) {

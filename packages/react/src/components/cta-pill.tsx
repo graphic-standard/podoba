@@ -8,15 +8,16 @@ import type { ReactNode } from 'react'
  * translate each per-locale while keeping the middle-word highlight. Presentational
  * only (hard rule #1): every string arrives via props — no i18n, no domain data.
  *
- * a11y NOTE: the background is the light brand-green (#6eddb1); the emphasised word is
- * rendered WHITE per the gs design — white-on-green is ~1.66:1, below WCAG AA, so it
- * reads as a decorative highlight (it also carries a bold weight), not load-bearing
- * copy. The surrounding text stays on the dark `fg` (~10:1).
+ * a11y NOTE: the background is the FIXED light brand-secondary (#6eddb1) — it does
+ * not flip with the theme, so every sentence fragment sits on `fg-on-brand` (stable
+ * dark ink, ~11:1 in both themes). The gs design's white emphasis word failed WCAG AA
+ * (~1.66:1) and turned the whole sentence white-on-green in a dark shell; the
+ * emphasis is now carried by weight alone.
  */
 export interface CtaPillProps {
 	/** Regular lead-in before the emphasised word (e.g. "Let's"). */
 	lead: ReactNode
-	/** The emphasised bold, white middle word (e.g. "create"). */
+	/** The emphasised bold middle word (e.g. "create"). */
 	emphasis: ReactNode
 	/** Regular trailing text after the emphasis (e.g. "something"). */
 	tail: ReactNode
@@ -27,8 +28,8 @@ export interface CtaPillProps {
 export function CtaPill({ lead, emphasis, tail, children }: CtaPillProps) {
 	return (
 		<div className="flex w-full items-center justify-between gap-4 rounded-lg bg-brand-secondary px-6 py-4">
-			<p className="min-w-0 text-heading4 font-medium leading-[22px] tracking-normal text-fg">
-				{lead} <span className="font-semibold text-white">{emphasis}</span> {tail}
+			<p className="min-w-0 text-heading4 font-medium leading-[22px] tracking-normal text-fg-on-brand">
+				{lead} <span className="font-semibold">{emphasis}</span> {tail}
 			</p>
 			<div className="shrink-0">{children}</div>
 		</div>
