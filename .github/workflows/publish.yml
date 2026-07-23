@@ -53,6 +53,9 @@ jobs:
       - name: Typecheck
         run: bun run typecheck
 
+      - name: Test
+        run: bun test
+
       # Publish in dependency order (react depends on tokens + tailwind).
       # scripts/publish.ts resolves catalog:/workspace: → concrete versions in
       # the published tarball (source keeps the catalog), then shells out to
