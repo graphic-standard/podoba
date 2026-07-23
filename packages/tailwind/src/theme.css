@@ -49,6 +49,7 @@
 	--color-fg-muted: var(--color-fg-muted);
 	--color-fg-subtle: var(--color-fg-subtle);
 	--color-fg-inverted: var(--color-fg-inverted);
+	--color-fg-on-brand: var(--color-fg-on-brand);
 
 	--color-accent-strong: var(--color-accent-strong);
 	--color-accent-yellow: var(--color-accent-yellow);

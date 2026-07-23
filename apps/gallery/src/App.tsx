@@ -577,7 +577,7 @@ function DashboardDemo() {
 				</Tile>
 			</DashboardTile>
 			<DashboardTile span={6}>
-				<Tile theme="dark" head={<span>Storage</span>} tail={<span className="text-compact text-white/60">of 100 GB</span>}>
+				<Tile theme="dark" head={<span>Storage</span>} tail={<span className="text-compact text-fg-inverted/60">of 100 GB</span>}>
 					<span className={tileStatClass}>62 GB</span>
 				</Tile>
 			</DashboardTile>
@@ -1465,7 +1465,7 @@ const SECTIONS: SectionDef[] = [
 		group: "Product patterns",
 		title: "CTA pill",
 		subtitle:
-			"The Brand Core hero CTA — a teal bar with a three-fragment copy line (the middle word emphasised white) and an action control on the right.",
+			"The Brand Core hero CTA — a teal bar with a three-fragment copy line (the middle word emphasised bold, on the AA-safe on-brand ink) and an action control on the right.",
 		content: (
 			<Demo label="Hero CTA">
 				<CtaPill lead="Let's" emphasis="create" tail="something">
