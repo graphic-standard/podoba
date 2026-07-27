@@ -280,16 +280,19 @@ function TagGroupDemo() {
 }
 
 function SectionTabsDemo() {
-	const [active, setActive] = useState("all");
+	const [active, setActive] = useState("");
 	return (
 		<SectionTabs
 			active={active}
 			onChange={setActive}
+			onReset={() => setActive("")}
+			resetLabel="Summary"
+			resetContent="Summary"
+			isResetSelected={active === ""}
 			tabs={[
-				{ key: "all", label: "All" },
-				{ key: "active", label: "Active" },
-				{ key: "archived", label: "Archived" },
-				{ key: "trash", label: "Trash", disabled: true },
+				{ key: "tokens", label: "Tokens" },
+				{ key: "templates", label: "Templates" },
+				{ key: "scenarios", label: "Scenarios" },
 			]}
 		/>
 	);
@@ -600,13 +603,14 @@ function DashboardDemo() {
 
 function BrandPageHeaderDemo() {
 	return (
-		<div className="w-full max-w-4xl rounded-lg border border-border bg-surface p-6">
+		<div className="flex w-full max-w-4xl flex-col gap-8 rounded-lg border border-border bg-surface p-6">
 			<BrandPageHeader
 				headingLevel={2}
-				breadcrumbs={[{ label: "Workspace" }, { label: "Acme" }]}
 				greeting={
 					<>
-						<Subtle>Good afternoon,</Subtle> Jonas 👋
+						<Subtle>Good afternoon</Subtle> Jonas <Subtle>👋</Subtle>
+						<br />
+						Design system and templates
 					</>
 				}
 				cta={
@@ -616,6 +620,11 @@ function BrandPageHeaderDemo() {
 						</Button>
 					</CtaPill>
 				}
+			/>
+			<BrandPageHeader
+				headingLevel={2}
+				parentLink={<a href="#brand-page-header">Design system</a>}
+				greeting="Templates"
 			/>
 		</div>
 	);

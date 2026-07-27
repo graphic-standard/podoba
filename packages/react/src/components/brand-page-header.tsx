@@ -1,5 +1,6 @@
 import { type ReactNode, useState } from 'react'
 import { Button } from './button'
+import { DisplayHeading } from './text'
 
 /**
  * BrandPageHeader — the brand-workspace page header (port of gs-platform
@@ -81,7 +82,7 @@ export function BrandPageHeader({
 	const isControlled = expandedProp !== undefined
 	const expanded = isControlled ? expandedProp : internalExpanded
 	const hasExpandable = Boolean(createHub)
-	const Heading = `h${headingLevel}` as const
+	const HeadingTag = `h${headingLevel}` as const
 
 	const setExpanded = (next: boolean) => {
 		if (!isControlled) setInternalExpanded(next)
@@ -98,8 +99,8 @@ export function BrandPageHeader({
 				.filter(Boolean)
 				.join(' ')}
 		>
-			<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
-				<div className="flex min-w-0 flex-1 flex-col gap-1">
+			<div className="flex flex-col gap-2 sm:grid sm:grid-cols-3 sm:items-stretch sm:gap-4">
+				<div className="flex min-w-0 flex-1 flex-col gap-1 sm:col-span-2">
 					{breadcrumbs && breadcrumbs.length > 0 ? (
 						<nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-compact text-fg-muted">
 							{breadcrumbs.map((crumb, i) => (
@@ -120,25 +121,27 @@ export function BrandPageHeader({
 							))}
 						</nav>
 					) : null}
-					<Heading className="text-display font-medium leading-[1.12] tracking-wide text-fg">
-						{parentLink ? (
-							// gs "title to go back": muted clickable parent line above the title.
-							// `[&_a]` styles the nested router <Link> (anchor) without @app/ui
-							// importing the router.
-							<>
-								<span className="text-fg-muted transition-colors [&_a:hover]:text-fg [&_a]:text-fg-muted [&_a]:no-underline [&_a]:outline-none [&_a:focus-visible]:underline">
-									{parentLink}
-								</span>
-								<br />
-							</>
-						) : null}
-						{greeting}
-					</Heading>
+					<DisplayHeading asChild className="tracking-tight">
+						<HeadingTag>
+							{parentLink ? (
+								// gs "title to go back": muted clickable parent line above the title.
+								// `[&_a]` styles the nested router <Link> (anchor) without @app/ui
+								// importing the router.
+								<>
+									<span className="text-fg-muted transition-colors [&_a:hover]:text-fg [&_a]:text-fg-muted [&_a]:no-underline [&_a]:outline-none [&_a:focus-visible]:underline">
+										{parentLink}
+									</span>
+									<br />
+								</>
+							) : null}
+							{greeting}
+						</HeadingTag>
+					</DisplayHeading>
 				</div>
 
 				{cta ? (
 					// Hero CTA spans 4 of 12 columns (one third) — the greeting takes the rest.
-					<div className="w-full shrink-0 sm:w-1/3">{cta}</div>
+					<div className="h-full min-w-0">{cta}</div>
 				) : ctaLabel ? (
 					<div className="shrink-0">
 						{hasExpandable ? (
