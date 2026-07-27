@@ -135,10 +135,13 @@
 	 * (--space-md 1rem = p-4, sm = p-2, lg = p-6, xl = p-8, xs = p-1), so use
 	 * the numeric utilities for spacing and leave xs…xl to sizing. */
 	--spacing-nav-x: var(--space-nav-x);
+	--spacing-mobile-cta: var(--control-height-mobile-cta);
+	--spacing-mobile-cta-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
 	--spacing-control-tall: var(--control-height-tall);
 
 	/* effects */
 	--blur-modal-backdrop: var(--effect-modal-backdrop-blur);
+	--shadow-mobile-cta: var(--shadow-mobile-cta);
 	--shadow-modal-surface: var(--shadow-modal-surface);
 
 	/* font families */

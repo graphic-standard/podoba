@@ -8,10 +8,9 @@ import { DisplayHeading } from './text'
  *
  * gs-platform's header is a two-column grid: a left "welcome" section
  * (optional breadcrumbs + a large greeting line) and a right section holding an
- * `ExpandableCTA` — a collapsed teal pill that expands into an inline
- * create-hub panel. We port that interaction to React Aria + Tailwind + the
- * teal accent token (`brand-secondary`), dropping gs-platform's mobile
- * fixed-sheet behaviour for a simpler inline disclosure.
+ * `ExpandableCTA` — a collapsed teal pill that expands into a create-hub panel.
+ * The supplied hero `CtaPill` owns the source mobile fixed-bar treatment; this
+ * header switches to the desktop 2/3 + 1/3 grid at the matching 768px breakpoint.
  *
  * The expandable CTA is a controlled disclosure: the collapsed teal pill is a
  * React Aria `Button` (keyboard + focus ring + press handling) wired to a
@@ -60,6 +59,11 @@ export type BrandPageHeaderProps = {
 	closeLabel?: string
 	/** Sticky header on scroll. */
 	sticky?: boolean
+	/**
+	 * Dock the supplied CTA to the safe bottom edge below 768px, matching the
+	 * source Manager's collapsed ExpandableCTA. Enabled by default.
+	 */
+	mobileCtaDocked?: boolean
 	className?: string
 }
 
@@ -77,6 +81,7 @@ export function BrandPageHeader({
 	onExpandedChange,
 	closeLabel = 'Close',
 	sticky = false,
+	mobileCtaDocked = true,
 	className,
 }: BrandPageHeaderProps) {
 	const [internalExpanded, setInternalExpanded] = useState(false)
@@ -100,8 +105,8 @@ export function BrandPageHeader({
 				.filter(Boolean)
 				.join(' ')}
 		>
-			<div className="flex flex-col gap-2 sm:grid sm:grid-cols-3 sm:items-stretch sm:gap-4">
-				<div className="flex min-w-0 flex-1 flex-col gap-1 sm:col-span-2">
+			<div className="flex flex-col gap-2 md:grid md:grid-cols-3 md:items-stretch md:gap-4">
+				<div className="flex min-w-0 flex-1 flex-col gap-1 md:col-span-2">
 					{breadcrumbs && breadcrumbs.length > 0 ? (
 						<nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-compact text-fg-muted">
 							{breadcrumbs.map((crumb, i) => (
@@ -142,7 +147,15 @@ export function BrandPageHeader({
 
 				{cta ? (
 					// Hero CTA spans 4 of 12 columns (one third) — the greeting takes the rest.
-					<div className="h-full min-w-0">{cta}</div>
+					<div
+						className={
+							mobileCtaDocked
+								? 'fixed inset-x-0 bottom-0 z-40 min-w-0 px-3 pb-mobile-cta-bottom md:static md:inset-auto md:z-auto md:h-full md:p-0'
+								: 'h-full min-w-0'
+						}
+					>
+						{cta}
+					</div>
 				) : ctaLabel ? (
 					<div className="shrink-0">
 						{hasExpandable ? (

@@ -35,6 +35,7 @@
 	--color-surface-inverted: #242423;
 	--color-surface-muted: #eceae1;
 	--color-surface-placeholder: #333333;
+	--control-height-mobile-cta: 99px;
 	--control-height-tall: 3.625rem;
 	--effect-modal-backdrop-blur: 10px;
 	--font-mono: 'GT America Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
@@ -92,6 +93,7 @@
 	--space-sm: 0.5rem;
 	--space-xl: 2rem;
 	--space-xs: 0.25rem;
+	--shadow-mobile-cta: 0 -2px 8px #00000014;
 	--tracking-display-large: -0.0666667em;
 	--tracking-normal: 0.01em;
 	--tracking-tight: 0em;

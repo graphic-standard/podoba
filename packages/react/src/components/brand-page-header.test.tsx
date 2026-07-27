@@ -30,9 +30,24 @@ describe('BrandPageHeader heading semantics', () => {
 			<BrandPageHeader greeting="Design system and templates" cta={<div>CTA</div>} />,
 		)
 
-		expect(html).toContain('sm:grid-cols-3')
-		expect(html).toContain('sm:col-span-2')
+		expect(html).toContain('md:grid-cols-3')
+		expect(html).toContain('md:col-span-2')
+		expect(html).toContain('inset-x-0')
+		expect(html).toContain('pb-mobile-cta-bottom')
+		expect(html).toContain('md:h-full')
+	})
+
+	test('can opt out of the mobile dock for non-hero compositions', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader
+				greeting="Design system and templates"
+				cta={<div>CTA</div>}
+				mobileCtaDocked={false}
+			/>,
+		)
+
 		expect(html).toContain('h-full min-w-0')
+		expect(html).not.toContain('pb-mobile-cta-bottom')
 	})
 
 	test('uses the source decorative grey for the parent row', () => {

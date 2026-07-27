@@ -649,7 +649,7 @@ function BrandPageHeaderDemo() {
 					</>
 				}
 				cta={
-					<CtaPill lead="Let's" emphasis="create" tail="something">
+					<CtaPill lead="Let's" emphasis="create" tail="something" mobileHeader>
 						<Button className="rounded-full bg-surface-inverted text-fg-inverted data-[hovered]:opacity-90">
 							<PlusIcon className="h-4 w-4" /> Create
 						</Button>
@@ -1547,7 +1547,7 @@ const SECTIONS: SectionDef[] = [
 		group: "Product patterns",
 		title: "CTA pill",
 		subtitle:
-			"The Brand Core hero CTA — a teal bar with a three-fragment copy line (the middle word emphasised bold, on the AA-safe on-brand ink) and an action control on the right.",
+			"The Brand Core hero CTA — a teal bar with a three-fragment copy line, an action control, and an optional 99px mobile-header density. BrandPageHeader docks that variant above the safe bottom edge below 768px.",
 		content: (
 			<Demo label="Hero CTA">
 				<CtaPill lead="Let's" emphasis="create" tail="something">
