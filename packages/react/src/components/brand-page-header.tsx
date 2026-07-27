@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useEffect, useId, useRef, useState } from 'react'
 import { Button } from './button'
 import { DisplayHeading } from './text'
 
@@ -27,6 +27,12 @@ export type BrandPageHeaderCrumb = {
 	onPress?: () => void
 }
 
+export type BrandPageHeaderCtaRenderProps = {
+	expanded: boolean
+	controls: string
+	toggle: () => void
+}
+
 export type BrandPageHeaderProps = {
 	/** The large greeting / page-title slot (e.g. "Good morning Jonas 👋"). */
 	greeting: ReactNode
@@ -43,11 +49,12 @@ export type BrandPageHeaderProps = {
 	/** Optional breadcrumb trail rendered above the greeting. */
 	breadcrumbs?: BrandPageHeaderCrumb[]
 	/**
-	 * Arbitrary right-column CTA node (e.g. the gs hero `CtaPill` banner). When
-	 * set it REPLACES the collapsed-pill ExpandableCTA — use this for the
-	 * gs-faithful "Let's create something" hero. `ctaLabel`/`createHub` are ignored.
+	 * Arbitrary right-column CTA node (e.g. the gs hero `CtaPill` banner), or a
+	 * render function receiving the disclosure state and generated controls id.
+	 * Prefer the render function when the CTA opens `createHub`, so its trigger can
+	 * expose `aria-expanded` and `aria-controls`.
 	 */
-	cta?: ReactNode
+	cta?: ReactNode | ((state: BrandPageHeaderCtaRenderProps) => ReactNode)
 	/** Label on the collapsed teal "Create" pill. Required to render the CTA. */
 	ctaLabel?: ReactNode
 	/** Inline content revealed when the CTA expands (the create hub). */
@@ -67,8 +74,6 @@ export type BrandPageHeaderProps = {
 	className?: string
 }
 
-const PANEL_ID = 'brand-page-header-create-hub'
-
 export function BrandPageHeader({
 	greeting,
 	headingLevel = 1,
@@ -85,15 +90,148 @@ export function BrandPageHeader({
 	className,
 }: BrandPageHeaderProps) {
 	const [internalExpanded, setInternalExpanded] = useState(false)
+	const [mobileSheet, setMobileSheet] = useState(false)
+	const [mobileFull, setMobileFull] = useState(false)
 	const isControlled = expandedProp !== undefined
 	const expanded = isControlled ? expandedProp : internalExpanded
 	const hasExpandable = Boolean(createHub)
 	const HeadingTag = `h${headingLevel}` as const
+	const panelId = useId()
+	const panelRef = useRef<HTMLDivElement>(null)
+	const contentRef = useRef<HTMLDivElement>(null)
+	const returnFocusRef = useRef<HTMLElement | null>(null)
+	const touchStartYRef = useRef(0)
+	const touchStartScrollTopRef = useRef(0)
 
 	const setExpanded = (next: boolean) => {
 		if (!isControlled) setInternalExpanded(next)
 		onExpandedChange?.(next)
 	}
+	const renderedCta =
+		typeof cta === 'function'
+			? cta({
+					expanded,
+					controls: panelId,
+					toggle: () => setExpanded(!expanded),
+				})
+			: cta
+
+	useEffect(() => {
+		if (!expanded || !hasExpandable || typeof window === 'undefined') return
+
+		returnFocusRef.current =
+			document.activeElement instanceof HTMLElement ? document.activeElement : null
+
+		let lockedScrollY = 0
+		let restoreBody: (() => void) | undefined
+
+		const updateComposition = () => {
+			const isMobile = window.innerWidth < 768
+			setMobileSheet(isMobile)
+
+			const content = contentRef.current
+			setMobileFull(Boolean(isMobile && content && content.scrollHeight >= window.innerHeight * 0.4))
+
+			if (isMobile && !restoreBody) {
+				lockedScrollY = window.scrollY
+				const previous = {
+					overflow: document.body.style.overflow,
+					position: document.body.style.position,
+					top: document.body.style.top,
+					width: document.body.style.width,
+				}
+				document.body.style.overflow = 'hidden'
+				document.body.style.position = 'fixed'
+				document.body.style.top = `-${lockedScrollY}px`
+				document.body.style.width = '100%'
+				restoreBody = () => {
+					document.body.style.overflow = previous.overflow
+					document.body.style.position = previous.position
+					document.body.style.top = previous.top
+					document.body.style.width = previous.width
+					window.scrollTo(0, lockedScrollY)
+				}
+			} else if (!isMobile && restoreBody) {
+				restoreBody()
+				restoreBody = undefined
+			}
+		}
+
+		const keepFocusInsideMobileSheet = (event: KeyboardEvent) => {
+			if (event.key === 'Escape') {
+				event.preventDefault()
+				setExpanded(false)
+				return
+			}
+			if (event.key !== 'Tab' || window.innerWidth >= 768 || !panelRef.current) return
+
+			const focusable = Array.from(
+				panelRef.current.querySelectorAll<HTMLElement>(
+					'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+				),
+			).filter((node) => {
+				const style = window.getComputedStyle(node)
+				return (
+					!node.hidden &&
+					!node.closest('[hidden]') &&
+					node.getAttribute('aria-hidden') !== 'true' &&
+					style.display !== 'none' &&
+					style.visibility !== 'hidden'
+				)
+			})
+			if (focusable.length === 0) {
+				event.preventDefault()
+				panelRef.current.focus()
+				return
+			}
+			const first = focusable[0]
+			const last = focusable[focusable.length - 1]
+			if (!panelRef.current.contains(document.activeElement)) {
+				event.preventDefault()
+				const boundary = event.shiftKey ? last : first
+				boundary?.focus()
+				return
+			}
+			if (event.shiftKey && document.activeElement === first) {
+				event.preventDefault()
+				last?.focus()
+			} else if (!event.shiftKey && document.activeElement === last) {
+				event.preventDefault()
+				first?.focus()
+			}
+		}
+
+		updateComposition()
+		const observer =
+			typeof ResizeObserver === 'undefined' || !contentRef.current
+				? undefined
+				: new ResizeObserver(updateComposition)
+		if (contentRef.current) observer?.observe(contentRef.current)
+		window.addEventListener('resize', updateComposition)
+		document.addEventListener('keydown', keepFocusInsideMobileSheet)
+
+		return () => {
+			observer?.disconnect()
+			window.removeEventListener('resize', updateComposition)
+			document.removeEventListener('keydown', keepFocusInsideMobileSheet)
+			restoreBody?.()
+			returnFocusRef.current?.focus()
+			returnFocusRef.current = null
+			setMobileSheet(false)
+			setMobileFull(false)
+		}
+	}, [expanded, hasExpandable])
+
+	useEffect(() => {
+		if (!expanded || !hasExpandable || typeof window === 'undefined') return
+		const frame = window.requestAnimationFrame(() => {
+			const selector = mobileSheet
+				? '[data-create-hub-focus="mobile"]'
+				: '[data-create-hub-focus="desktop"]'
+			panelRef.current?.querySelector<HTMLElement>(selector)?.focus()
+		})
+		return () => window.cancelAnimationFrame(frame)
+	}, [expanded, hasExpandable, mobileSheet])
 
 	return (
 		<div
@@ -149,12 +287,15 @@ export function BrandPageHeader({
 					// Hero CTA spans 4 of 12 columns (one third) — the greeting takes the rest.
 					<div
 						className={
-							mobileCtaDocked
-								? 'fixed inset-x-0 bottom-0 z-40 min-w-0 px-3 pb-mobile-cta-bottom md:static md:inset-auto md:z-auto md:h-full md:p-0'
-								: 'h-full min-w-0'
+							[
+								mobileCtaDocked
+									? 'fixed inset-x-0 bottom-0 z-40 min-w-0 px-3 pb-mobile-cta-bottom md:static md:inset-auto md:z-auto md:h-full md:p-0'
+									: 'h-full min-w-0',
+								expanded ? 'hidden' : '',
+							].join(' ')
 						}
 					>
-						{cta}
+						{renderedCta}
 					</div>
 				) : ctaLabel ? (
 					<div className="shrink-0">
@@ -162,7 +303,7 @@ export function BrandPageHeader({
 							<Button
 								onPress={() => setExpanded(!expanded)}
 								aria-expanded={expanded}
-								aria-controls={PANEL_ID}
+								aria-controls={panelId}
 								className="h-10 rounded-full bg-brand-secondary px-5 text-small font-medium text-fg data-[hovered]:opacity-90 data-[pressed]:opacity-80"
 							>
 								{ctaLabel}
@@ -176,35 +317,80 @@ export function BrandPageHeader({
 				) : null}
 			</div>
 
-			{hasExpandable ? (
-				<div
-					id={PANEL_ID}
-					role="region"
-					aria-label={typeof ctaLabel === 'string' ? ctaLabel : undefined}
-					hidden={!expanded}
-					className="mt-4"
-				>
-					{expanded ? (
-						<div className="relative rounded-lg border border-border bg-surface-card p-4 animate-expand-cta motion-reduce:animate-none">
-							<Button
-								variant="ghost"
-								aria-label={closeLabel}
-								onPress={() => setExpanded(false)}
-								className="absolute right-2 top-2 h-7 w-7 rounded-full p-0 text-fg-muted data-[hovered]:bg-surface-muted data-[hovered]:text-fg"
-							>
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-									<path
-										d="M6 6l12 12M18 6L6 18"
-										stroke="currentColor"
-										strokeWidth="2"
-										strokeLinecap="round"
-									/>
-								</svg>
-							</Button>
+			{hasExpandable && expanded ? (
+				<>
+					<div
+						aria-hidden="true"
+						onClick={() => setExpanded(false)}
+						className="fixed inset-0 z-40 bg-black/50 animate-create-hub-backdrop md:hidden motion-reduce:animate-none"
+					/>
+					<div
+						ref={panelRef}
+						id={panelId}
+						role={mobileSheet ? 'dialog' : 'region'}
+						aria-modal={mobileSheet || undefined}
+						aria-label={typeof ctaLabel === 'string' ? ctaLabel : undefined}
+						tabIndex={-1}
+						onTouchStart={(event) => {
+							const touch = event.touches[0]
+							if (!touch || !contentRef.current) return
+							touchStartYRef.current = touch.clientY
+							touchStartScrollTopRef.current = contentRef.current.scrollTop
+						}}
+						onTouchMove={(event) => {
+							const touch = event.touches[0]
+							if (
+								!touch ||
+								touchStartScrollTopRef.current > 10 ||
+								touch.clientY - touchStartYRef.current < 80
+							) {
+								return
+							}
+							event.preventDefault()
+							setExpanded(false)
+						}}
+						className={[
+							'fixed inset-x-0 bottom-0 z-50 flex flex-col overflow-hidden bg-brand-green',
+							'outline-none motion-reduce:animate-none',
+							'md:relative md:inset-auto md:z-auto md:mt-4 md:max-h-none md:origin-top-right md:rounded-lg md:animate-create-hub-desktop',
+							mobileFull
+								? 'top-0 max-h-create-hub-full animate-create-hub-full'
+								: 'max-h-create-hub-partial animate-create-hub-sheet',
+						].join(' ')}
+					>
+						<Button
+							variant="ghost"
+							aria-label={closeLabel}
+							data-create-hub-focus="mobile"
+							onPress={() => setExpanded(false)}
+							className="h-10 w-full shrink-0 rounded-none p-0 md:hidden data-[hovered]:bg-transparent"
+						>
+							<span className="h-1 w-10 rounded-full bg-fg/25" aria-hidden="true" />
+						</Button>
+						<Button
+							variant="ghost"
+							aria-label={closeLabel}
+							data-create-hub-focus="desktop"
+							onPress={() => setExpanded(false)}
+							className="absolute right-4 top-14 z-10 hidden h-8 w-8 rounded-md p-0 text-fg md:flex data-[hovered]:bg-black/5"
+						>
+							<svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+								<path
+									d="M6 6l12 12M18 6L6 18"
+									stroke="currentColor"
+									strokeWidth="2"
+									strokeLinecap="round"
+								/>
+							</svg>
+						</Button>
+						<div
+							ref={contentRef}
+							className="min-h-0 flex-1 overflow-y-auto overscroll-contain md:overflow-visible"
+						>
 							{createHub}
 						</div>
-					) : null}
-				</div>
+					</div>
+				</>
 			) : null}
 		</div>
 	)

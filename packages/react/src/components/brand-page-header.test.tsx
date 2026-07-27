@@ -50,6 +50,56 @@ describe('BrandPageHeader heading semantics', () => {
 		expect(html).not.toContain('pb-mobile-cta-bottom')
 	})
 
+	test('renders the source responsive Create Hub surface when expanded', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader
+				greeting="Dashboard"
+				cta={({ expanded, controls, toggle }) => (
+					<button
+						type="button"
+						aria-expanded={expanded}
+						aria-controls={controls}
+						onClick={toggle}
+					>
+						Create
+					</button>
+				)}
+				ctaLabel="Create hub"
+				createHub={<div>Hub content</div>}
+				expanded
+			/>,
+		)
+
+		expect(html).toContain('hidden')
+		expect(html).toContain('>Create</button>')
+		expect(html).toContain('role="region"')
+		expect(html).toContain('max-h-create-hub-partial')
+		expect(html).toContain('animate-create-hub-backdrop')
+		expect(html).toContain('animate-create-hub-sheet')
+		expect(html).toContain('md:origin-top-right')
+		expect(html).toContain('md:animate-create-hub-desktop')
+		expect(html).toContain('data-create-hub-focus="mobile"')
+		expect(html).toContain('data-create-hub-focus="desktop"')
+		expect(html).toContain('Hub content')
+	})
+
+	test('gives a custom CTA the disclosure state and generated controls id', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader
+				greeting="Dashboard"
+				cta={({ expanded, controls }) => (
+					<button type="button" aria-expanded={expanded} aria-controls={controls}>
+						Create
+					</button>
+				)}
+				createHub={<div>Hub content</div>}
+			/>,
+		)
+
+		expect(html).toContain('aria-expanded="false"')
+		expect(html).toMatch(/aria-controls="[^"]+"/)
+	})
+
 	test('uses the source decorative grey for the parent row', () => {
 		const html = renderToStaticMarkup(
 			<BrandPageHeader greeting="Colors" parentLink={<a href="/tokens">Tokens</a>} />,
