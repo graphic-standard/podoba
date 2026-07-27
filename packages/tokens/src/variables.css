@@ -69,6 +69,17 @@
 	--line-height-display: 30px;
 	--line-height-panel-heading: 20px;
 	--line-height-small: 18px;
+	--motion-modal-content-enter-delay: 280ms;
+	--motion-modal-content-enter-duration: 420ms;
+	--motion-modal-content-enter-stagger: 60ms;
+	--motion-modal-enter-duration: 520ms;
+	--motion-modal-enter-easing: cubic-bezier(0.16, 1, 0.3, 1);
+	--motion-modal-exit-duration: 360ms;
+	--motion-modal-exit-easing: cubic-bezier(0.4, 0, 0.2, 1);
+	--motion-modal-origin-scale-max: 0.96;
+	--motion-modal-origin-scale-min: 0.82;
+	--motion-modal-panel-enter-delay: 140ms;
+	--motion-modal-panel-enter-duration: 460ms;
 	--radius-2xl: 1rem;
 	--radius-lg: 0.5rem;
 	--radius-md: 0.375rem;

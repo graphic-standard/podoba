@@ -24,14 +24,16 @@ const Overlay = uic(ModalOverlay, {
 	baseClass:
 		'fixed inset-0 z-50 flex items-center justify-center p-4 ' +
 		'bg-modal-backdrop backdrop-blur-modal-backdrop ' +
-		'data-[entering]:animate-in data-[exiting]:animate-out',
+		'data-[entering]:animate-modal-overlay-in data-[exiting]:animate-modal-overlay-out',
 })
 
 // gs content card: white bg, 20px padding, 8px radius and the shared two-layer
 // modal elevation.
 const StyledModal = uic(Modal, {
 	displayName: 'DialogModal',
-	baseClass: 'rounded-lg bg-surface p-5 outline-none shadow-modal-surface',
+	baseClass:
+		'rounded-lg bg-surface p-5 outline-none shadow-modal-surface ' +
+		'data-[entering]:animate-modal-surface-in data-[exiting]:animate-modal-surface-out',
 })
 
 /**
