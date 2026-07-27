@@ -23,6 +23,7 @@ import {
 	Input,
 	MultiSelect,
 	NumberField,
+	PanelHeading,
 	Radio,
 	RadioGroup,
 	RichTextEditor,
@@ -339,6 +340,9 @@ function TypographyShowcase() {
 						Spring Campaign 2026.
 					</h2>
 				</DisplayHeading>
+			</Demo>
+			<Demo label="Workflow/dialog panel heading">
+				<PanelHeading>Approval process</PanelHeading>
 			</Demo>
 			<Demo label="Heading ramp (semantic — carries line-height)">
 				<div className="flex w-full max-w-2xl flex-col">

@@ -33,6 +33,12 @@ export const DisplayHeading = uic('h2', {
 	baseClass: 'text-display-large font-medium text-fg',
 })
 
+/** Compact 17px / 20px section title used in workflow and dialog panels. */
+export const PanelHeading = uic('h3', {
+	displayName: 'PanelHeading',
+	baseClass: 'text-panel-heading font-medium text-fg',
+})
+
 export const Text = uic('span', {
 	displayName: 'Text',
 	baseClass: 'text-fg',

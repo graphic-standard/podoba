@@ -101,18 +101,24 @@
 	--text-caption: var(--font-size-caption);
 	--text-label: var(--font-size-label);
 	--text-compact: var(--font-size-compact);
+	--text-compact--line-height: var(--line-height-compact);
 	--text-small: var(--font-size-small);
+	--text-small--line-height: var(--line-height-small);
 	--text-callout: var(--font-size-callout);
 	--text-body: var(--font-size-body);
+	--text-body--line-height: var(--line-height-body);
 	--text-subtitle: var(--font-size-subtitle);
 	--text-title: var(--font-size-title);
 	--text-headline: var(--font-size-headline);
 	--text-display: var(--font-size-display);
+	--text-display--line-height: var(--line-height-display);
 	/* GS source `label-1`: 30px / 32px / -2px at 30px. Used by page,
 	 * workflow and split-dialog hero headings. */
 	--text-display-large: var(--font-size-display-large);
 	--text-display-large--line-height: var(--line-height-display-large);
 	--text-display-large--letter-spacing: var(--tracking-display-large);
+	--text-panel-heading: var(--font-size-panel-heading);
+	--text-panel-heading--line-height: var(--line-height-panel-heading);
 
 	/* font sizes — heading ramp (size + paired line-height) */
 	--text-heading1: var(--font-size-heading1);

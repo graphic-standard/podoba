@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { renderToStaticMarkup } from 'react-dom/server'
 
-import { DisplayHeading } from './text'
+import { DisplayHeading, PanelHeading } from './text'
 
 describe('DisplayHeading', () => {
 	test('renders the shared GS product-display typography and supports asChild', () => {
@@ -15,5 +15,12 @@ describe('DisplayHeading', () => {
 		expect(html).toContain('text-display-large')
 		expect(html).toContain('font-medium')
 		expect(html).toContain('Review final output')
+	})
+
+	test('renders the shared workflow panel title treatment', () => {
+		const html = renderToStaticMarkup(<PanelHeading>Approval process</PanelHeading>)
+
+		expect(html).toContain('text-panel-heading')
+		expect(html).toContain('font-medium')
 	})
 })
