@@ -34,4 +34,14 @@ describe('BrandPageHeader heading semantics', () => {
 		expect(html).toContain('sm:col-span-2')
 		expect(html).toContain('h-full min-w-0')
 	})
+
+	test('uses the source decorative grey for the parent row', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader greeting="Colors" parentLink={<a href="/tokens">Tokens</a>} />,
+		)
+
+		expect(html).toContain('text-fg-subtle')
+		expect(html).toContain('[&amp;_a]:text-fg-subtle')
+		expect(html).not.toContain('[&amp;_a]:text-fg-muted')
+	})
 })
