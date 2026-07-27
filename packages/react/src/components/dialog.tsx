@@ -4,8 +4,8 @@ import {
 	DialogTrigger as RACDialogTrigger,
 	type DialogProps as RACDialogProps,
 	Heading,
-	Modal,
-	ModalOverlay,
+	Modal as RACModal,
+	ModalOverlay as RACModalOverlay,
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
 
@@ -19,7 +19,7 @@ import { uic } from '../utils/uic'
 export const DialogTrigger = RACDialogTrigger
 
 // Current gs modal backdrop: warm surface-card scrim at 66% under a 10px blur.
-const Overlay = uic(ModalOverlay, {
+export const ModalOverlay = uic(RACModalOverlay, {
 	displayName: 'DialogOverlay',
 	baseClass:
 		'fixed inset-0 z-50 flex items-center justify-center p-4 ' +
@@ -29,12 +29,19 @@ const Overlay = uic(ModalOverlay, {
 
 // gs content card: white bg, 20px padding, 8px radius and the shared two-layer
 // modal elevation.
-const StyledModal = uic(Modal, {
+export const ModalSurface = uic(RACModal, {
 	displayName: 'DialogModal',
 	baseClass:
 		'rounded-lg bg-surface p-5 outline-none shadow-modal-surface ' +
 		'data-[entering]:animate-modal-surface-in data-[exiting]:animate-modal-surface-out',
 })
+
+/**
+ * Unstyled accessible dialog body for edge-to-edge / split modal compositions.
+ * Pair only with the shared {@link ModalOverlay} and {@link ModalSurface}; ordinary
+ * form and confirmation dialogs should use the composed {@link Dialog}.
+ */
+export const ModalDialog = RACDialog
 
 /**
  * Modal width presets. `md` (default) is the form/confirm dialog (gs DialogContent
@@ -125,14 +132,14 @@ export const Dialog = ({
 		// when omitted the overlay reads its state from an enclosing DialogTrigger.
 		// Either way the RACDialog render-prop `close` resolves against the active
 		// overlay state, so `close()` works in both modes.
-		<Overlay
+		<ModalOverlay
 			isOpen={isOpen}
 			defaultOpen={defaultOpen}
 			onOpenChange={onOpenChange}
 			isDismissable={isDismissable}
 		>
-			<StyledModal className={SIZE_CLASS[size]}>
-				<RACDialog
+			<ModalSurface className={SIZE_CLASS[size]}>
+				<ModalDialog
 					{...props}
 					className={isFlex ? 'flex min-h-0 flex-1 flex-col outline-none' : 'outline-none'}
 				>
@@ -195,8 +202,8 @@ export const Dialog = ({
 							)}
 						</>
 					)}
-				</RACDialog>
-			</StyledModal>
-		</Overlay>
+				</ModalDialog>
+			</ModalSurface>
+		</ModalOverlay>
 	)
 }
