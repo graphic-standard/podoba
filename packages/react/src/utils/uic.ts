@@ -58,6 +58,7 @@ const twMerge = extendTailwindMerge({
 						'caption',
 						'label',
 						'compact',
+						'small',
 						'callout',
 						'body',
 						'subtitle',

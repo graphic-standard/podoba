@@ -48,6 +48,7 @@
 	--color-fg: var(--color-fg);
 	--color-fg-muted: var(--color-fg-muted);
 	--color-fg-subtle: var(--color-fg-subtle);
+	--color-fg-workflow-muted: var(--color-fg-workflow-muted);
 	--color-fg-inverted: var(--color-fg-inverted);
 	--color-fg-on-brand: var(--color-fg-on-brand);
 

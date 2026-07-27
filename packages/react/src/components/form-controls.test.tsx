@@ -12,6 +12,7 @@ describe('source-parity form controls', () => {
 
 		expect(html).toContain('text-panel-heading')
 		expect(html).toContain('h-control-tall')
+		expect(html).toContain('text-small')
 		expect(html).toContain('bg-surface-card')
 		expect(html).toContain('rounded-md')
 	})

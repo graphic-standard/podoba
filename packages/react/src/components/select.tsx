@@ -64,6 +64,8 @@ export type SelectProps<T extends object> = RACSelectProps<T> & {
 	 */
 	placeholder: string
 	children: ReactNode
+	/** Optional class for the Select root. */
+	rootClassName?: string
 	/** Optional class for the trigger (for product-specific composition). */
 	triggerClassName?: string
 }
@@ -74,6 +76,7 @@ export const Select = <T extends object>({
 	errorMessage,
 	placeholder,
 	children,
+	rootClassName,
 	triggerClassName,
 	...props
 }: SelectProps<T>) => {
@@ -92,7 +95,7 @@ export const Select = <T extends object>({
 	const err = <FieldError className="text-label text-danger">{errorMessage}</FieldError>
 
 	return (
-		<RACSelect {...props} placeholder={placeholder} className="group flex flex-col gap-3">
+		<RACSelect {...props} placeholder={placeholder} className={`group flex flex-col gap-3 ${rootClassName ?? ''}`}>
 			<Label className="text-panel-heading font-medium text-fg">{label}</Label>
 			{inFocus ? (
 				<>

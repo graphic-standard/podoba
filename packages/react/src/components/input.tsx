@@ -53,12 +53,14 @@ export type InputProps = TextFieldProps & {
 	errorMessage?: string
 	placeholder?: string
 	size?: 'sm' | 'md' | 'lg' | 'tall'
+	/** Optional class for the TextField root. */
+	rootClassName?: string
 	/** Optional class for the inner native input (for product-specific composition). */
 	inputClassName?: string
 }
 
-export const Input = ({ label, description, errorMessage, placeholder, size, inputClassName, ...props }: InputProps) => (
-	<TextField {...props} className="flex w-full flex-col gap-3">
+export const Input = ({ label, description, errorMessage, placeholder, size, rootClassName, inputClassName, ...props }: InputProps) => (
+	<TextField {...props} className={`flex w-full flex-col gap-3 ${rootClassName ?? ''}`}>
 		<Label className="text-panel-heading font-medium text-fg">{label}</Label>
 		<StyledInput className={inputClassName} placeholder={placeholder} fieldSize={size} />
 		{description ? (
