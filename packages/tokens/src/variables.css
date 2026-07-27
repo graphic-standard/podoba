@@ -23,6 +23,8 @@
 	--color-fg-muted: #7d786f;
 	--color-fg-on-brand: #0d0d0d;
 	--color-fg-subtle: #b3b3b3;
+	--color-modal-backdrop: #f7f6f2a8;
+	--color-modal-backdrop-fallback: #f7f6f2c2;
 	--color-neutral-300: #b3b3b3;
 	--color-neutral-600: #333333;
 	--color-ring: #0d0d0d;
@@ -33,6 +35,8 @@
 	--color-surface-inverted: #242423;
 	--color-surface-muted: #eceae1;
 	--color-surface-placeholder: #333333;
+	--control-height-tall: 3.625rem;
+	--effect-modal-backdrop-blur: 10px;
 	--font-mono: 'GT America Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 	--font-sans: 'GT America', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 	--font-size-body: 1rem;
@@ -76,6 +80,7 @@
 	--space-sm: 0.5rem;
 	--space-xl: 2rem;
 	--space-xs: 0.25rem;
+	--shadow-modal-surface: 0 24px 80px #0d0d0d2e, 0 2px 12px #0d0d0d14;
 	--tracking-normal: 0.01em;
 	--tracking-tight: 0em;
 	--tracking-display-large: -0.0666667em;

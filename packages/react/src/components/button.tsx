@@ -23,7 +23,7 @@ export const Button = uic(RACButton, {
 			// hover neutral-600 (#333333) + `0 0 5px rgba(0,0,0,.5)` shadow → active back
 			// to neutral-400 (surface-inverted, no shadow).
 			primary:
-				'bg-surface-inverted text-fg-inverted hover:bg-neutral-600 hover:shadow-[0_0_5px_0_rgba(0,0,0,0.5)] data-[pressed]:bg-surface-inverted data-[pressed]:shadow-none',
+				'bg-brand-primary text-fg-inverted hover:bg-neutral-600 hover:shadow-[0_0_5px_0_rgba(0,0,0,0.5)] data-[pressed]:bg-brand-primary data-[pressed]:shadow-none',
 			// secondary: #f7f6f2 (surface-card) + 1px #eceae1 (border); hover bg #eceae1
 			// (surface-muted) + border #aba89c (fg-subtle); active bg #eceae1.
 			secondary:
@@ -39,6 +39,9 @@ export const Button = uic(RACButton, {
 			sm: 'py-2 px-4',
 			md: 'py-3 px-6',
 			lg: 'py-4 px-8',
+			// Task/workflow CTA: exact source 44px height, 24px inline padding,
+			// 17/20 medium text.
+			prominent: 'h-11 px-6 py-0 text-panel-heading font-medium',
 		},
 	},
 	defaultVariants: {
@@ -49,5 +52,5 @@ export const Button = uic(RACButton, {
 
 export type ButtonProps = RACButtonProps & {
 	variant?: 'primary' | 'secondary' | 'ghost' | 'destructive'
-	size?: 'sm' | 'md' | 'lg'
+	size?: 'sm' | 'md' | 'lg' | 'prominent'
 }

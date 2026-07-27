@@ -73,6 +73,8 @@
 	--color-success-fg: var(--color-success-fg);
 
 	--color-ring: var(--color-ring);
+	--color-modal-backdrop: var(--color-modal-backdrop);
+	--color-modal-backdrop-fallback: var(--color-modal-backdrop-fallback);
 
 	/* border radius */
 	--radius-sm: var(--radius-sm);
@@ -91,6 +93,11 @@
 	 * (--space-md 1rem = p-4, sm = p-2, lg = p-6, xl = p-8, xs = p-1), so use
 	 * the numeric utilities for spacing and leave xs…xl to sizing. */
 	--spacing-nav-x: var(--space-nav-x);
+	--spacing-control-tall: var(--control-height-tall);
+
+	/* effects */
+	--blur-modal-backdrop: var(--effect-modal-backdrop-blur);
+	--shadow-modal-surface: var(--shadow-modal-surface);
 
 	/* font families */
 	--font-sans: var(--font-sans);

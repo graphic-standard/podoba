@@ -77,7 +77,7 @@ const twMerge = extendTailwindMerge({
 			],
 		},
 		theme: {
-			spacing: ['nav-x'],
+			spacing: ['nav-x', 'control-tall'],
 			// Custom card/panel radius key (rounded-panel) → dedupes against other
 			// rounded-* utilities. xl/2xl are stock keys tailwind-merge already knows.
 			radius: ['panel'],

@@ -20,20 +20,15 @@ import { uic } from '../utils/uic'
  */
 const StyledInput = uic(RACInput, {
 	displayName: 'InputControl',
-	// White fill so the field reads as editable. The gs original used a cream
-	// (#f7f6f2 → surface-card) fill, but our Card surface is ALSO surface-card, so
-	// a filled field inside a card vanished and read as disabled. Inverted: active
-	// = white (surface), disabled = the muted cream. border #eceae1 → border ·
-	// hover #aba89c → fg-subtle · focus #75e7b8 → brand-green · error → danger.
-	// Identical to textarea.tsx's filled-field skin; `fieldSize` adds the
-	// single-line height (gs sizes the field via padding only).
+	// gs source: borderless cream fill, 8px radius, 14/18 text and 16px inline
+	// padding. Focus keeps an explicit ring for keyboard accessibility.
 	baseClass:
-		'w-full rounded-lg border border-border bg-surface px-4 text-small text-fg ' +
+		'w-full rounded-lg border-0 bg-surface-card px-4 text-small text-fg ' +
 		'outline-none transition-colors duration-200 placeholder:text-fg-muted ' +
-		'data-[hovered]:border-fg-subtle ' +
-		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
-		'data-[invalid]:border-danger data-[invalid]:ring-danger ' +
-		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
+		'data-[hovered]:bg-surface-muted ' +
+		'data-[focused]:ring-2 data-[focused]:ring-ring ' +
+		'data-[invalid]:ring-2 data-[invalid]:ring-danger ' +
+		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 	variants: {
 		// `fieldSize` (not `size`) to avoid colliding with the native <input size>
 		// attribute, which RAC's Input inherits (a numeric prop).
@@ -41,6 +36,7 @@ const StyledInput = uic(RACInput, {
 			sm: 'h-8',
 			md: 'h-10',
 			lg: 'h-12',
+			tall: 'h-control-tall',
 		},
 	},
 	defaultVariants: {
@@ -56,13 +52,15 @@ export type InputProps = TextFieldProps & {
 	/** Error message; pass a string for a static error or rely on validation. */
 	errorMessage?: string
 	placeholder?: string
-	size?: 'sm' | 'md' | 'lg'
+	size?: 'sm' | 'md' | 'lg' | 'tall'
+	/** Optional class for the inner native input (for product-specific composition). */
+	inputClassName?: string
 }
 
-export const Input = ({ label, description, errorMessage, placeholder, size, ...props }: InputProps) => (
-	<TextField {...props} className="flex w-full flex-col gap-2">
-		<Label className="text-heading5 font-medium text-fg">{label}</Label>
-		<StyledInput placeholder={placeholder} fieldSize={size} />
+export const Input = ({ label, description, errorMessage, placeholder, size, inputClassName, ...props }: InputProps) => (
+	<TextField {...props} className="flex w-full flex-col gap-3">
+		<Label className="text-panel-heading font-medium text-fg">{label}</Label>
+		<StyledInput className={inputClassName} placeholder={placeholder} fieldSize={size} />
 		{description ? (
 			<Text slot="description" className="text-label text-fg-muted">
 				{description}

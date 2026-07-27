@@ -772,7 +772,7 @@ const SECTIONS: SectionDef[] = [
 		group: "Forms",
 		title: "Text fields",
 		subtitle:
-			"Active fields use a white fill so they read as editable — including inside a Card (which shares the cream surface). Flip the canvas background to check contrast.",
+			"Borderless cream fields follow the GS source UI; focus rings preserve keyboard visibility.",
 		content: (
 			<>
 				<Demo label="On the canvas surface">
@@ -796,7 +796,7 @@ const SECTIONS: SectionDef[] = [
 						<Input label="Disabled" placeholder="Can't touch this" isDisabled />
 					</div>
 				</Demo>
-				<Demo label="Sizes (sm · md · lg)">
+				<Demo label="Sizes (sm · md · lg · tall)">
 					<div className="w-72">
 						<Input label="Small" size="sm" placeholder="sm" />
 					</div>
@@ -805,6 +805,9 @@ const SECTIONS: SectionDef[] = [
 					</div>
 					<div className="w-72">
 						<Input label="Large" size="lg" placeholder="lg" />
+					</div>
+					<div className="w-72">
+						<Input label="Tall workflow field" size="tall" placeholder="58px" />
 					</div>
 				</Demo>
 				<Demo label="Textarea">
@@ -1091,6 +1094,7 @@ const SECTIONS: SectionDef[] = [
 					<Button size="sm">Small</Button>
 					<Button size="md">Medium</Button>
 					<Button size="lg">Large</Button>
+					<Button size="prominent">Workflow CTA</Button>
 				</Demo>
 			</>
 		),

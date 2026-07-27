@@ -18,23 +18,20 @@ import { uic } from '../utils/uic'
  */
 export const DialogTrigger = RACDialogTrigger
 
-// gs modal backdrop — gs `Dialog.module.scss` overlay: a neutral grey scrim
-// (`rgba(179,179,179,0.5)`) under a light `blur(2px)`.
+// Current gs modal backdrop: warm surface-card scrim at 66% under a 10px blur.
 const Overlay = uic(ModalOverlay, {
 	displayName: 'DialogOverlay',
 	baseClass:
 		'fixed inset-0 z-50 flex items-center justify-center p-4 ' +
-		'bg-[rgba(179,179,179,0.5)] backdrop-blur-[2px] ' +
+		'bg-modal-backdrop backdrop-blur-modal-backdrop ' +
 		'data-[entering]:animate-in data-[exiting]:animate-out',
 })
 
-// gs content card: white bg, 20px padding (`p-5`), 8px radius (`rounded-lg`), and
-// the gs `Dialog.module.scss` card shadow — a light single-layer
-// `0 2px 8px rgba(0,0,0,.06)`. No border: gs defines the card with the shadow alone.
+// gs content card: white bg, 20px padding, 8px radius and the shared two-layer
+// modal elevation.
 const StyledModal = uic(Modal, {
 	displayName: 'DialogModal',
-	baseClass:
-		'rounded-lg bg-surface p-5 outline-none shadow-[0px_2px_8px_0px_rgba(0,0,0,0.06)]',
+	baseClass: 'rounded-lg bg-surface p-5 outline-none shadow-modal-surface',
 })
 
 /**
@@ -127,10 +124,6 @@ export const Dialog = ({
 		// Either way the RACDialog render-prop `close` resolves against the active
 		// overlay state, so `close()` works in both modes.
 		<Overlay
-			// Full-screen is an immersive takeover: swap the light 2px scrim for a
-			// heavier backdrop blur so the page behind reads as clearly blurred around
-			// the near-fullscreen canvas. (tailwind-merge dedupes the base blur/scrim.)
-			className={isFlex ? "bg-black/25 backdrop-blur-lg" : undefined}
 			isOpen={isOpen}
 			defaultOpen={defaultOpen}
 			onOpenChange={onOpenChange}
