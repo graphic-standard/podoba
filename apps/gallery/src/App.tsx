@@ -7,6 +7,7 @@ import {
 	ComboBoxItem,
 	DateField,
 	DatePicker,
+	DisplayHeading,
 	Dialog,
 	DialogTrigger,
 	Disclosure,
@@ -331,6 +332,14 @@ function RampRow({ meta, children }: { meta: string; children: ReactNode }) {
 function TypographyShowcase() {
 	return (
 		<>
+			<Demo label="Product display heading (GS source label-1)">
+				<DisplayHeading asChild>
+					<h2>
+						<span className="text-fg-subtle">Review final output, then approve for </span>
+						Spring Campaign 2026.
+					</h2>
+				</DisplayHeading>
+			</Demo>
 			<Demo label="Heading ramp (semantic — carries line-height)">
 				<div className="flex w-full max-w-2xl flex-col">
 					{HEADINGS.map((h) => (

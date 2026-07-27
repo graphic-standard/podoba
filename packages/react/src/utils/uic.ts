@@ -64,6 +64,7 @@ const twMerge = extendTailwindMerge({
 						'title',
 						'headline',
 						'display',
+						'display-large',
 						// Heading ramp (size + line-height).
 						'heading1',
 						'heading2',

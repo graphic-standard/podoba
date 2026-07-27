@@ -20,6 +20,19 @@ import { uic } from '../utils/uic'
  * no i18n.
  */
 
+/**
+ * The large product heading from the GS reference UI (`label-1` in its original
+ * token vocabulary): 30px / 32px / medium with -2px tracking.
+ *
+ * Kept separate from the 28px semantic Heading ramp because it is a reusable
+ * product-display treatment, not a document-outline level. Use `asChild` to project
+ * it onto the correct h1–h6 element.
+ */
+export const DisplayHeading = uic('h2', {
+	displayName: 'DisplayHeading',
+	baseClass: 'text-display-large font-medium text-fg',
+})
+
 export const Text = uic('span', {
 	displayName: 'Text',
 	baseClass: 'text-fg',
