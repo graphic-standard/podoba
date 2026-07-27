@@ -11,6 +11,8 @@ describe('BrandPageHeader heading semantics', () => {
 
 		expect(html).toContain('<h1')
 		expect(html).toContain('>Projects</h1>')
+		expect(html).toContain('text-display-large')
+		expect(html).toContain('tracking-tight')
 	})
 
 	test('supports a nested h2 without changing the visual component', () => {
@@ -21,5 +23,15 @@ describe('BrandPageHeader heading semantics', () => {
 		expect(html).toContain('<h2')
 		expect(html).toContain('>Graphic Outputs</h2>')
 		expect(html).not.toContain('<h1')
+	})
+
+	test('keeps the source two-thirds hero / one-third CTA composition', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader greeting="Design system and templates" cta={<div>CTA</div>} />,
+		)
+
+		expect(html).toContain('sm:grid-cols-3')
+		expect(html).toContain('sm:col-span-2')
+		expect(html).toContain('h-full min-w-0')
 	})
 })

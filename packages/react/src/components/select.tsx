@@ -30,17 +30,15 @@ import { useInFocusOverlay } from './focus-context'
  */
 const SelectTrigger = uic(RACButton, {
 	displayName: 'SelectTrigger',
-	// Sized to match the other form fields (Input / ComboBox): h-12, 16px side
-	// padding, 8px radius. White fill + border so the trigger doesn't vanish inside
-	// a Card (also surface-card) and read as disabled; hover darkens the border.
-	// Error → 2px danger ring driven off the RACSelect root's `data-invalid`.
+	// Exact gs source control: 58px tall, 20px inline padding, borderless cream
+	// fill and 8px radius.
 	baseClass:
-		'flex h-12 w-full items-center justify-between gap-2.5 rounded-lg border border-border bg-surface px-4 ' +
+		'flex h-control-tall w-full items-center justify-between gap-2.5 rounded-lg border-0 bg-surface-card px-5 ' +
 		'text-small text-fg outline-none transition-colors ' +
-		'data-[hovered]:border-fg-subtle ' +
+		'data-[hovered]:bg-surface-muted ' +
 		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
-		'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
-		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
+		'group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
+		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 })
 
 export const SelectItem = uic(ListBoxItem, {
@@ -66,6 +64,10 @@ export type SelectProps<T extends object> = RACSelectProps<T> & {
 	 */
 	placeholder: string
 	children: ReactNode
+	/** Optional class for the Select root. */
+	rootClassName?: string
+	/** Optional class for the trigger (for product-specific composition). */
+	triggerClassName?: string
 }
 
 export const Select = <T extends object>({
@@ -74,6 +76,8 @@ export const Select = <T extends object>({
 	errorMessage,
 	placeholder,
 	children,
+	rootClassName,
+	triggerClassName,
 	...props
 }: SelectProps<T>) => {
 	// In a focus overlay, show the options inline (seamless) instead of a popover.
@@ -91,8 +95,8 @@ export const Select = <T extends object>({
 	const err = <FieldError className="text-label text-danger">{errorMessage}</FieldError>
 
 	return (
-		<RACSelect {...props} placeholder={placeholder} className="group flex flex-col gap-2">
-			<Label className="text-heading5 font-medium text-fg">{label}</Label>
+		<RACSelect {...props} placeholder={placeholder} className={`group flex flex-col gap-3 ${rootClassName ?? ''}`}>
+			<Label className="text-panel-heading font-medium text-fg">{label}</Label>
 			{inFocus ? (
 				<>
 					{listbox}
@@ -101,7 +105,7 @@ export const Select = <T extends object>({
 				</>
 			) : (
 				<>
-					<SelectTrigger>
+					<SelectTrigger className={triggerClassName}>
 						<SelectValue className="data-[placeholder]:text-fg-muted" />
 						{/* gs chevron: 9.5px caret, dark (neutral-400 → fg), non-interactive. */}
 						<svg

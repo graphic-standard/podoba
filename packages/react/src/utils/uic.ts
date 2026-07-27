@@ -58,12 +58,15 @@ const twMerge = extendTailwindMerge({
 						'caption',
 						'label',
 						'compact',
+						'small',
 						'callout',
 						'body',
 						'subtitle',
 						'title',
 						'headline',
 						'display',
+						'display-large',
+						'panel-heading',
 						// Heading ramp (size + line-height).
 						'heading1',
 						'heading2',
@@ -75,7 +78,7 @@ const twMerge = extendTailwindMerge({
 			],
 		},
 		theme: {
-			spacing: ['nav-x'],
+			spacing: ['nav-x', 'control-tall'],
 			// Custom card/panel radius key (rounded-panel) → dedupes against other
 			// rounded-* utilities. xl/2xl are stock keys tailwind-merge already knows.
 			radius: ['panel'],

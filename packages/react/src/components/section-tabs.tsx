@@ -36,6 +36,10 @@ export type SectionTabsProps = {
 	resetLabel?: string
 	/** Glyph for the reset control; defaults to a small grid icon. */
 	resetIcon?: ReactNode
+	/** Visible reset content. When set, renders a source-style text tab (e.g. "Summary"). */
+	resetContent?: ReactNode
+	/** Whether the reset/overview destination is the currently selected section. */
+	isResetSelected?: boolean
 	className?: string
 }
 
@@ -49,12 +53,12 @@ const GridGlyph = () => (
 )
 
 const tabBase =
-	'inline-flex h-7 items-center gap-2 rounded-sm px-3 text-compact text-fg-muted outline-none ' +
-	'transition-colors duration-[120ms] ease-[ease] data-[hovered]:bg-surface-muted data-[hovered]:text-fg ' +
+	'inline-flex h-7 shrink-0 items-center gap-2 rounded-sm px-nav-x py-1.5 text-compact font-normal text-fg-muted outline-none ' +
+	'transition-colors duration-150 ease-in-out data-[hovered]:bg-surface-muted data-[hovered]:text-fg ' +
 	'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
 	'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[disabled]:bg-transparent data-[disabled]:text-fg-muted'
 
-const tabActive = 'bg-surface-muted font-medium text-fg'
+const tabActive = 'bg-surface-muted text-fg'
 
 export function SectionTabs({
 	tabs,
@@ -64,19 +68,37 @@ export function SectionTabs({
 	onReset,
 	resetLabel = 'Reset',
 	resetIcon,
+	resetContent,
+	isResetSelected = false,
 	className,
 }: SectionTabsProps) {
 	return (
-		<div className={['flex flex-wrap items-center gap-1', className].filter(Boolean).join(' ')} role="group">
+		<div
+			className={[
+				'flex min-h-9 w-full flex-nowrap items-start gap-2 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:w-2/3 lg:flex-wrap lg:overflow-visible lg:pb-0',
+				className,
+			]
+				.filter(Boolean)
+				.join(' ')}
+			role="group"
+		>
 			{onReset ? (
-				<Button
-					variant="ghost"
-					aria-label={resetLabel}
-					onPress={onReset}
-					className="h-7 w-7 rounded-sm p-0 text-fg-muted data-[hovered]:text-fg"
-				>
-					{resetIcon ?? <GridGlyph />}
-				</Button>
+				<div className="sticky left-0 z-10 shrink-0 bg-surface pr-1 lg:static lg:bg-transparent lg:pr-0">
+					<Button
+						variant="ghost"
+						aria-label={resetLabel}
+						aria-pressed={isResetSelected}
+						onPress={onReset}
+						className={[
+							resetContent ? tabBase : 'h-7 w-7 rounded-sm p-0 text-fg-muted data-[hovered]:text-fg',
+							isResetSelected ? tabActive : '',
+						]
+							.filter(Boolean)
+							.join(' ')}
+					>
+						{resetContent ?? resetIcon ?? <GridGlyph />}
+					</Button>
+				</div>
 			) : null}
 			{tabs.map((tab) => {
 				const selected = active === tab.key

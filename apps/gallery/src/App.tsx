@@ -7,6 +7,7 @@ import {
 	ComboBoxItem,
 	DateField,
 	DatePicker,
+	DisplayHeading,
 	Dialog,
 	DialogTrigger,
 	Disclosure,
@@ -22,6 +23,7 @@ import {
 	Input,
 	MultiSelect,
 	NumberField,
+	PanelHeading,
 	Radio,
 	RadioGroup,
 	RichTextEditor,
@@ -278,16 +280,19 @@ function TagGroupDemo() {
 }
 
 function SectionTabsDemo() {
-	const [active, setActive] = useState("all");
+	const [active, setActive] = useState("");
 	return (
 		<SectionTabs
 			active={active}
 			onChange={setActive}
+			onReset={() => setActive("")}
+			resetLabel="Summary"
+			resetContent="Summary"
+			isResetSelected={active === ""}
 			tabs={[
-				{ key: "all", label: "All" },
-				{ key: "active", label: "Active" },
-				{ key: "archived", label: "Archived" },
-				{ key: "trash", label: "Trash", disabled: true },
+				{ key: "tokens", label: "Tokens" },
+				{ key: "templates", label: "Templates" },
+				{ key: "scenarios", label: "Scenarios" },
 			]}
 		/>
 	);
@@ -331,6 +336,17 @@ function RampRow({ meta, children }: { meta: string; children: ReactNode }) {
 function TypographyShowcase() {
 	return (
 		<>
+			<Demo label="Product display heading (GS source label-1)">
+				<DisplayHeading asChild>
+					<h2>
+						<span className="text-fg-subtle">Review final output, then approve for </span>
+						Spring Campaign 2026.
+					</h2>
+				</DisplayHeading>
+			</Demo>
+			<Demo label="Workflow/dialog panel heading">
+				<PanelHeading>Approval process</PanelHeading>
+			</Demo>
 			<Demo label="Heading ramp (semantic — carries line-height)">
 				<div className="flex w-full max-w-2xl flex-col">
 					{HEADINGS.map((h) => (
@@ -587,13 +603,14 @@ function DashboardDemo() {
 
 function BrandPageHeaderDemo() {
 	return (
-		<div className="w-full max-w-4xl rounded-lg border border-border bg-surface p-6">
+		<div className="flex w-full max-w-4xl flex-col gap-8 rounded-lg border border-border bg-surface p-6">
 			<BrandPageHeader
 				headingLevel={2}
-				breadcrumbs={[{ label: "Workspace" }, { label: "Acme" }]}
 				greeting={
 					<>
-						<Subtle>Good afternoon,</Subtle> Jonas 👋
+						<Subtle>Good afternoon</Subtle> Jonas <Subtle>👋</Subtle>
+						<br />
+						Design system and templates
 					</>
 				}
 				cta={
@@ -603,6 +620,11 @@ function BrandPageHeaderDemo() {
 						</Button>
 					</CtaPill>
 				}
+			/>
+			<BrandPageHeader
+				headingLevel={2}
+				parentLink={<a href="#brand-page-header">Design system</a>}
+				greeting="Templates"
 			/>
 		</div>
 	);
@@ -759,7 +781,7 @@ const SECTIONS: SectionDef[] = [
 		group: "Forms",
 		title: "Text fields",
 		subtitle:
-			"Active fields use a white fill so they read as editable — including inside a Card (which shares the cream surface). Flip the canvas background to check contrast.",
+			"Borderless cream fields follow the GS source UI; focus rings preserve keyboard visibility.",
 		content: (
 			<>
 				<Demo label="On the canvas surface">
@@ -783,7 +805,7 @@ const SECTIONS: SectionDef[] = [
 						<Input label="Disabled" placeholder="Can't touch this" isDisabled />
 					</div>
 				</Demo>
-				<Demo label="Sizes (sm · md · lg)">
+				<Demo label="Sizes (sm · md · lg · tall)">
 					<div className="w-72">
 						<Input label="Small" size="sm" placeholder="sm" />
 					</div>
@@ -792,6 +814,9 @@ const SECTIONS: SectionDef[] = [
 					</div>
 					<div className="w-72">
 						<Input label="Large" size="lg" placeholder="lg" />
+					</div>
+					<div className="w-72">
+						<Input label="Tall workflow field" size="tall" placeholder="58px" />
 					</div>
 				</Demo>
 				<Demo label="Textarea">
@@ -1078,6 +1103,7 @@ const SECTIONS: SectionDef[] = [
 					<Button size="sm">Small</Button>
 					<Button size="md">Medium</Button>
 					<Button size="lg">Large</Button>
+					<Button size="prominent">Workflow CTA</Button>
 				</Demo>
 			</>
 		),
