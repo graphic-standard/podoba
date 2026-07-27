@@ -37,7 +37,8 @@ export type BrandPageHeaderProps = {
 	 * gs-style "title to go back": a muted, clickable PARENT link rendered as the
 	 * line ABOVE the title (so the title reads "Parent ⏎ Current"). Pass a real
 	 * router `<Link>` so it's an anchor (cmd/middle-click, deep-link-safe), exactly
-	 * like gs's `parentLink`. The header styles it muted with a hover→fg affordance.
+	 * like gs's `parentLink`. The header uses the source's decorative `fg-subtle`
+	 * (#b3b3b3) with a hover→fg affordance.
 	 */
 	parentLink?: ReactNode
 	/** Optional breadcrumb trail rendered above the greeting. */
@@ -128,7 +129,7 @@ export function BrandPageHeader({
 								// `[&_a]` styles the nested router <Link> (anchor) without @app/ui
 								// importing the router.
 								<>
-									<span className="text-fg-muted transition-colors [&_a:hover]:text-fg [&_a]:text-fg-muted [&_a]:no-underline [&_a]:outline-none [&_a:focus-visible]:underline">
+									<span className="text-fg-subtle transition-colors [&_a:hover]:text-fg [&_a]:text-fg-subtle [&_a]:no-underline [&_a]:outline-none [&_a:focus-visible]:underline">
 										{parentLink}
 									</span>
 									<br />
