@@ -21,24 +21,26 @@ import { useInFocusOverlay } from './focus-context'
  * RAC handles the listbox ARIA pattern, keyboard navigation, typeahead and
  * focus management. Styling via `uic`. Pass options as `SelectItem` children.
  *
- * Re-skinned 1:1 to gs-platform's designer spec (Figma GraphicStandard 1.5,
- * node 2115-4271 — `Select.module.scss`): a tall (min-h 58px) borderless filled
- * trigger on the cream `surface-card`, matching our `Input` / `Textarea` fill so
- * the form controls stay consistent. gs token map: bg #f7f6f2 → surface-card ·
- * hover #eceae1 → surface-muted · text #0d0d0d → fg · placeholder → fg-muted ·
+ * Re-skinned to gs-platform's designer spec (Figma GraphicStandard 1.5, node
+ * 2115-4271 — `Select.module.scss`): a tall (58px) filled trigger matching our
+ * `Input` / `Textarea` so the form controls stay consistent. gs token map:
+ * hover border #aba89c → fg-subtle · text #0d0d0d → fg · placeholder → fg-muted ·
  * 8px radius → rounded-lg · 6px item radius → rounded-md · error → danger.
  */
 const SelectTrigger = uic(RACButton, {
 	displayName: 'SelectTrigger',
-	// Exact gs source control: 58px tall, 20px inline padding, borderless cream
-	// fill and 8px radius.
+	// gs source control geometry (58px tall, 20px inline padding, 8px radius) with
+	// the shared bordered fill: gs draws it borderless on cream, but our Card is
+	// also surface-card and dark theme collapses surface-card onto surface, so a
+	// borderless cream trigger disappears. White fill + border keeps it visible and
+	// consistent with the other form controls; hover darkens the border.
 	baseClass:
-		'flex h-control-tall w-full items-center justify-between gap-2.5 rounded-lg border-0 bg-surface-card px-5 ' +
+		'flex h-control-tall w-full items-center justify-between gap-2.5 rounded-lg border border-border bg-surface px-5 ' +
 		'text-small text-fg outline-none transition-colors ' +
-		'data-[hovered]:bg-surface-muted ' +
+		'data-[hovered]:border-fg-subtle ' +
 		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
-		'group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
-		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
+		'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
+		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
 })
 
 export const SelectItem = uic(ListBoxItem, {

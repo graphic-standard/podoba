@@ -20,15 +20,21 @@ import { uic } from '../utils/uic'
  */
 const StyledInput = uic(RACInput, {
 	displayName: 'InputControl',
-	// gs source: borderless cream fill, 8px radius, 14/18 text and 16px inline
-	// padding. Focus keeps an explicit ring for keyboard accessibility.
+	// White fill + border so the field reads as editable. The gs original used a
+	// borderless cream (#f7f6f2 → surface-card) fill, but our Card surface is ALSO
+	// surface-card — and in dark theme surface-card and surface are the SAME colour
+	// (#242423) — so a borderless cream field vanishes on both. Inverted: active =
+	// surface, disabled = the muted cream. border #eceae1 → border · hover #aba89c →
+	// fg-subtle · focus #75e7b8 → brand-green · error → danger. This is the shared
+	// filled-field skin (textarea / combobox / date-field / number-field /
+	// search-field); `fieldSize` adds the single-line height on top.
 	baseClass:
-		'w-full rounded-lg border-0 bg-surface-card px-4 text-small text-fg ' +
+		'w-full rounded-lg border border-border bg-surface px-4 text-small text-fg ' +
 		'outline-none transition-colors duration-200 placeholder:text-fg-muted ' +
-		'data-[hovered]:bg-surface-muted ' +
-		'data-[focused]:ring-2 data-[focused]:ring-ring ' +
-		'data-[invalid]:ring-2 data-[invalid]:ring-danger ' +
-		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
+		'data-[hovered]:border-fg-subtle ' +
+		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
+		'data-[invalid]:border-danger data-[invalid]:ring-2 data-[invalid]:ring-danger ' +
+		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
 	variants: {
 		// `fieldSize` (not `size`) to avoid colliding with the native <input size>
 		// attribute, which RAC's Input inherits (a numeric prop).

@@ -7,11 +7,11 @@ import {
 	ComboBoxItem,
 	DateField,
 	DatePicker,
-	DisplayHeading,
 	Dialog,
 	DialogTrigger,
 	Disclosure,
 	DisclosurePanel,
+	DisplayHeading,
 	DropdownMenu,
 	DropdownMenuItem,
 	DropdownMenuSeparator,
@@ -781,7 +781,7 @@ const SECTIONS: SectionDef[] = [
 		group: "Forms",
 		title: "Text fields",
 		subtitle:
-			"Borderless cream fields follow the GS source UI; focus rings preserve keyboard visibility.",
+			"Active fields use a white fill and a border so they read as editable — including inside a Card (which shares the cream surface) and in dark theme (where card and canvas are the same colour). Flip the canvas background to check contrast.",
 		content: (
 			<>
 				<Demo label="On the canvas surface">
