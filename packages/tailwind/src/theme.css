@@ -117,7 +117,6 @@
 
 	--color-ring: var(--color-ring);
 	--color-modal-backdrop: var(--color-modal-backdrop);
-	--color-modal-backdrop-fallback: var(--color-modal-backdrop-fallback);
 
 	/* border radius */
 	--radius-sm: var(--radius-sm);

@@ -25,7 +25,6 @@
 	--color-fg-subtle: #b3b3b3;
 	--color-fg-workflow-muted: #858585;
 	--color-modal-backdrop: #f7f6f2a8;
-	--color-modal-backdrop-fallback: #f7f6f2c2;
 	--color-neutral-300: #b3b3b3;
 	--color-neutral-600: #333333;
 	--color-ring: #0d0d0d;
@@ -58,15 +57,15 @@
 	--font-size-small: 0.875rem;
 	--font-size-subtitle: 1.125rem;
 	--font-size-title: 1.25rem;
-	--line-height-heading1: 30px;
+	--line-height-body: 22px;
+	--line-height-compact: 16px;
+	--line-height-display: 30px;
 	--line-height-display-large: 32px;
+	--line-height-heading1: 30px;
 	--line-height-heading2: 24px;
 	--line-height-heading3: 22px;
 	--line-height-heading4: 22px;
 	--line-height-heading5: 20px;
-	--line-height-body: 22px;
-	--line-height-compact: 16px;
-	--line-height-display: 30px;
 	--line-height-panel-heading: 20px;
 	--line-height-small: 18px;
 	--motion-modal-content-enter-delay: 280ms;
@@ -86,16 +85,16 @@
 	--radius-panel: 1.1rem;
 	--radius-sm: 0.125rem;
 	--radius-xl: 0.75rem;
+	--shadow-modal-surface: 0 24px 80px #0d0d0d2e, 0 2px 12px #0d0d0d14;
 	--space-lg: 1.5rem;
 	--space-md: 1rem;
 	--space-nav-x: 0.8125rem;
 	--space-sm: 0.5rem;
 	--space-xl: 2rem;
 	--space-xs: 0.25rem;
-	--shadow-modal-surface: 0 24px 80px #0d0d0d2e, 0 2px 12px #0d0d0d14;
+	--tracking-display-large: -0.0666667em;
 	--tracking-normal: 0.01em;
 	--tracking-tight: 0em;
-	--tracking-display-large: -0.0666667em;
 	--tracking-wide: 0.02em;
 	--tracking-wider: 0.03em;
 }
@@ -109,6 +108,7 @@
 	--color-fg: #ffffff;
 	--color-fg-inverted: #0d0d0d;
 	--color-fg-muted: #aba89c;
+	--color-modal-backdrop: #0d0d0da8;
 	--color-ring: #75e7b8;
 	--color-surface: #242423;
 	--color-surface-card: #242423;
