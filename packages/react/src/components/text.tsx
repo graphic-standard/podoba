@@ -6,10 +6,12 @@ import { uic } from '../utils/uic'
  * They express the `@app/tokens` type ramp as variant props so screens stop
  * hand-writing `text-[NNpx]` literals (the scale, not arbitrary pixels). Two ramps:
  *
- *   • <Text> — the SIZE-ONLY UI ramp (micro · caption · label · compact · callout ·
- *     body · subtitle · title · headline · display). Like the tokens, these set
- *     font-size only; pair with `leading-*` via `className` where a fixed leading
- *     matters. `weight` + `tone` cover the common cases.
+ *   • <Text> — the UI ramp (micro · caption · label · compact · small · callout ·
+ *     body · subtitle · title · headline · display). Four of these carry the gs
+ *     source leading with them (compact 13/16, small 14/18, body 16/22,
+ *     display 28/30); the rest are size-only — pair those with `leading-*` via
+ *     `className` where a fixed leading matters. `weight` + `tone` cover the
+ *     common cases.
  *   • <Heading> — the semantic heading ramp (`level` 1–5 → text-heading1…5), which
  *     DO carry a matching line-height. Renders an <h2> by default; pass `asChild`
  *     to project the styles onto the correct heading element for the document

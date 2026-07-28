@@ -133,6 +133,10 @@ export const Dialog = ({
 		// Either way the RACDialog render-prop `close` resolves against the active
 		// overlay state, so `close()` works in both modes.
 		<ModalOverlay
+			// Full-screen is an immersive takeover: swap the light scrim for a heavier
+			// backdrop blur so the page behind reads as clearly blurred around the
+			// near-fullscreen canvas. (tailwind-merge dedupes the base blur/scrim.)
+			className={isFlex ? 'bg-black/25 backdrop-blur-lg' : undefined}
 			isOpen={isOpen}
 			defaultOpen={defaultOpen}
 			onOpenChange={onOpenChange}

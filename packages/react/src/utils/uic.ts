@@ -82,6 +82,11 @@ const twMerge = extendTailwindMerge({
 			// Custom card/panel radius key (rounded-panel) → dedupes against other
 			// rounded-* utilities. xl/2xl are stock keys tailwind-merge already knows.
 			radius: ['panel'],
+			// Custom blur/shadow keys, so `backdrop-blur-modal-backdrop` dedupes against
+			// a caller's `backdrop-blur-lg` (Dialog size="full" does exactly this) and
+			// `shadow-modal-surface` isn't misread as a shadow COLOR.
+			blur: ['modal-backdrop'],
+			shadow: ['modal-surface'],
 		},
 	},
 })

@@ -19,9 +19,9 @@ export const Button = uic(RACButton, {
 		'data-[pending]:opacity-70 data-[pending]:cursor-progress',
 	variants: {
 		variant: {
-			// primary (gs `_primary`): base neutral-400 (#242423 = surface-inverted) →
-			// hover neutral-600 (#333333) + `0 0 5px rgba(0,0,0,.5)` shadow → active back
-			// to neutral-400 (surface-inverted, no shadow).
+			// primary (gs `_primary`): base brand-primary (#0d0d0d light / brand-green on
+			// dark) → hover neutral-600 (#333333) + `0 0 5px rgba(0,0,0,.5)` shadow →
+			// active back to brand-primary (no shadow).
 			primary:
 				'bg-brand-primary text-fg-inverted hover:bg-neutral-600 hover:shadow-[0_0_5px_0_rgba(0,0,0,0.5)] data-[pressed]:bg-brand-primary data-[pressed]:shadow-none',
 			// secondary: #f7f6f2 (surface-card) + 1px #eceae1 (border); hover bg #eceae1
