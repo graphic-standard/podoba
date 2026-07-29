@@ -95,6 +95,8 @@ import {
 	UserIcon,
 	type IconProps,
 } from "@podoba/react";
+// Opt-in subpath — this import is what pulls Tiptap/ProseMirror into the bundle.
+import { BlockEditor } from "@podoba/react/editor";
 import { type ComponentType, createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 // ── gallery chrome ──────────────────────────────────────────────────────────
@@ -153,6 +155,39 @@ function RichTextDemo() {
 			value={html}
 			onChange={setHtml}
 		/>
+	);
+}
+
+function BlockEditorDemo() {
+	const [html, setHtml] = useState(
+		"<h2>Block editor</h2><p>Press <code>/</code> on an empty line for the block palette, or select text for the bubble toolbar.</p><ul><li>Markdown input rules: <code># </code>, <code>- </code>, <code>&gt; </code></li><li>Same HTML-string value as RichTextEditor</li></ul>",
+	);
+	return (
+		<div className="flex w-full flex-col gap-3">
+			<BlockEditor label="Body" value={html} onChange={setHtml} />
+			{/* The emitted HTML, so the round-trip is visible rather than claimed. */}
+			<pre className="max-h-40 overflow-auto rounded-lg border border-border bg-surface-muted p-3 text-caption text-fg-muted">{html}</pre>
+		</div>
+	);
+}
+
+// Read-only render + a value the parent can swap under the editor — the two cases
+// the controlled-value contract actually has to survive.
+function BlockEditorStatesDemo() {
+	const [html, setHtml] = useState("<p>Switch the record below — the editor re-seeds without fighting the caret.</p>");
+	return (
+		<div className="flex w-full flex-col gap-3">
+			<div className="flex gap-2">
+				<Button size="sm" variant="secondary" onPress={() => setHtml("<h3>Record A</h3><p>Loaded from the parent.</p>")}>
+					Load record A
+				</Button>
+				<Button size="sm" variant="secondary" onPress={() => setHtml("<h3>Record B</h3><ul><li>Different content</li></ul>")}>
+					Load record B
+				</Button>
+			</div>
+			<BlockEditor label="Editable" value={html} onChange={setHtml} minHeight={120} />
+			<BlockEditor aria-label="Read-only preview" value={html} onChange={setHtml} editable={false} minHeight={120} />
+		</div>
 	);
 }
 
@@ -934,6 +969,27 @@ const SECTIONS: SectionDef[] = [
 					<RichTextDemo />
 				</div>
 			</Demo>
+		),
+	},
+	{
+		id: "block-editor",
+		group: "Forms",
+		title: "Block editor",
+		subtitle:
+			"Notion-style blocks on Tiptap, from the opt-in @podoba/react/editor subpath (Tiptap is an optional peer — the base package never pulls ProseMirror). Type / at the start of a line for the block palette; select text for the bubble toolbar. Emits the same HTML string as Rich text, so the two swap without a data migration.",
+		content: (
+			<>
+				<Demo label="Editor + emitted HTML">
+					<div className="w-full max-w-xl">
+						<BlockEditorDemo />
+					</div>
+				</Demo>
+				<Demo label="External value changes · read-only">
+					<div className="w-full max-w-xl">
+						<BlockEditorStatesDemo />
+					</div>
+				</Demo>
+			</>
 		),
 	},
 	{
