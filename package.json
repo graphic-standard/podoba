@@ -3,12 +3,9 @@
 	"private": true,
 	"type": "module",
 	"packageManager": "bun@1.3.14",
-	"description": "podoba \u2014 the universal design system. React Aria Components + Tailwind, seeded from graphic-standard's @app/ui. App-agnostic: consumed by GS, pramen, and everything future.",
+	"description": "podoba — the universal design system. React Aria Components + Tailwind, seeded from graphic-standard's @app/ui. App-agnostic: consumed by GS, pramen, and everything future.",
 	"workspaces": {
-		"packages": [
-			"packages/*",
-			"apps/*"
-		],
+		"packages": ["packages/*", "apps/*"],
 		"catalog": {
 			"typescript": "^5.9.3",
 			"@types/bun": "^1.3.3"

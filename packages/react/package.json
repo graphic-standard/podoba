@@ -2,7 +2,7 @@
 	"name": "@podoba/react",
 	"version": "0.0.31",
 	"type": "module",
-	"description": "podoba React components \u2014 React Aria Components + Tailwind primitives + layout, built with uic.",
+	"description": "podoba React components — React Aria Components + Tailwind primitives + layout, built with uic.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/graphic-standard/podoba.git",
@@ -16,10 +16,7 @@
 		".": "./src/index.ts",
 		"./editor": "./src/editor/index.ts"
 	},
-	"files": [
-		"src",
-		"!src/**/*.test.*"
-	],
+	"files": ["src", "!src/**/*.test.*"],
 	"publishConfig": {
 		"access": "public"
 	},
@@ -34,7 +31,12 @@
 		"class-variance-authority": "catalog:ui",
 		"clsx": "catalog:ui",
 		"tailwind-merge": "catalog:ui",
-		"@radix-ui/react-slot": "catalog:ui",
+		"@radix-ui/react-slot": "catalog:ui"
+	},
+	"//tiptap": "Only `@podoba/react/editor` (BlockEditor) needs Tiptap. Optional peers, not dependencies: the base package must not make every consumer install ProseMirror, and a peer keeps ONE @tiptap/pm in the tree — two copies of prosemirror-model break instanceof across the editor.",
+	"peerDependencies": {
+		"react": ">=19",
+		"react-dom": ">=19",
 		"@tiptap/react": "catalog:ui",
 		"@tiptap/pm": "catalog:ui",
 		"@tiptap/starter-kit": "catalog:ui",
@@ -43,9 +45,14 @@
 		"@tiptap/extension-task-list": "catalog:ui",
 		"@tiptap/extension-task-item": "catalog:ui"
 	},
-	"peerDependencies": {
-		"react": ">=19",
-		"react-dom": ">=19"
+	"peerDependenciesMeta": {
+		"@tiptap/react": { "optional": true },
+		"@tiptap/pm": { "optional": true },
+		"@tiptap/starter-kit": { "optional": true },
+		"@tiptap/extension-placeholder": { "optional": true },
+		"@tiptap/extension-highlight": { "optional": true },
+		"@tiptap/extension-task-list": { "optional": true },
+		"@tiptap/extension-task-item": { "optional": true }
 	},
 	"devDependencies": {
 		"react": "catalog:ui",
@@ -53,6 +60,13 @@
 		"@types/react": "catalog:ui",
 		"@types/react-dom": "catalog:ui",
 		"typescript": "catalog:",
-		"@types/bun": "catalog:"
+		"@types/bun": "catalog:",
+		"@tiptap/react": "catalog:ui",
+		"@tiptap/pm": "catalog:ui",
+		"@tiptap/starter-kit": "catalog:ui",
+		"@tiptap/extension-placeholder": "catalog:ui",
+		"@tiptap/extension-highlight": "catalog:ui",
+		"@tiptap/extension-task-list": "catalog:ui",
+		"@tiptap/extension-task-item": "catalog:ui"
 	}
 }
