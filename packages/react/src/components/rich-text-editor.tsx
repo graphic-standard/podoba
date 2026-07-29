@@ -1,12 +1,19 @@
 import { type ClipboardEvent as ReactClipboardEvent, type ReactNode, useEffect, useRef } from 'react'
 import { clsx } from 'clsx'
+import { SAFE_LINK_HINT, safeLinkUrl } from '../utils/safe-link-url'
 import { useInFocusOverlay } from './focus-context'
 
 /**
  * RichTextEditor — a dependency-free contentEditable WYSIWYG that emits an HTML
  * string (round-trips with any `set:html` / `dangerouslySetInnerHTML` renderer,
  * so no value migration and no bundled ProseMirror). Ported from pramen's
- * cms-editor `RichText`; TipTap is the upgrade path if tables/embeds are needed.
+ * cms-editor `RichText`.
+ *
+ * Still the right pick for a short caption/bio field. For document-shaped content
+ * — blocks, a `/` palette, tables/embeds — reach for `BlockEditor` from
+ * `@podoba/react/editor` instead; it is the Tiptap-backed upgrade this component's
+ * `execCommand` core cannot grow into. Both emit the same HTML-string value, so
+ * swapping one for the other needs no data migration.
  *
  * The `prose prose-sm` body relies on the @tailwindcss/typography plugin, which
  * @podoba/tailwind's preset already registers.
@@ -32,7 +39,7 @@ const RT_TOOLS: Array<{ label: string; title: string; run: (exec: (c: string, a?
 			if (!raw) return
 			const url = safeLinkUrl(raw)
 			if (!url) {
-				window.alert('Only http(s), mailto, tel, or relative (/, #) links are allowed.')
+				window.alert(SAFE_LINK_HINT)
 				return
 			}
 			x('createLink', url)
@@ -41,13 +48,6 @@ const RT_TOOLS: Array<{ label: string; title: string; run: (exec: (c: string, a?
 	{ label: 'Unlink', title: 'Remove link', run: (x) => x('unlink') },
 	{ label: 'Clear', title: 'Clear formatting', run: (x) => x('removeFormat') },
 ]
-
-/** Allow-list for a link href: http(s), mailto, tel, or a relative/anchor path.
- * The prefix allow-list inherently rejects `javascript:`/`data:`/`vbscript:`. */
-function safeLinkUrl(raw: string): string | null {
-	const url = raw.trim()
-	return /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url) ? url : null
-}
 
 /** Cosmetic scrub (NOT a security boundary — sanitise on the server). */
 function scrubHtml(html: string): string {
