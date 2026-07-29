@@ -1,37 +1,51 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { EditorContent, useEditor, type Editor } from '@tiptap/react'
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
+import { EditorContent, useEditor, useEditorState, type Editor } from '@tiptap/react'
 import { BubbleMenu } from '@tiptap/react/menus'
+import type { EditorState } from '@tiptap/pm/state'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Highlight from '@tiptap/extension-highlight'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import { clsx } from 'clsx'
+import { SAFE_LINK_HINT, safeLinkUrl } from '../utils/safe-link-url'
 
 /**
  * BlockEditor — a Notion-style block/rich-text editor for podoba, on Tiptap 3
  * (ProseMirror). Opt-in subpath (`@podoba/react/editor`) so the base library stays
  * free of the ProseMirror weight — importing this is what pulls Tiptap into a bundle.
+ * The Tiptap packages are OPTIONAL PEERS: install them alongside @podoba/react only
+ * if you import this subpath.
  *
  * Serialises to an **HTML string** (controlled `value` / `onChange(html)`), so it is a
  * drop-in upgrade for any `set:html` / `dangerouslySetInnerHTML` renderer with no value
  * migration. SECURITY: like any editor, it can emit arbitrary HTML — sanitise on the
  * SERVER on write; the `value`/`onChange` contract here is presentation only.
  *
+ * CONTROLLED-VALUE CONTRACT: echo `onChange`'s HTML back as `value` VERBATIM. The
+ * editor only re-seeds its document when `value` differs from what it last emitted, so
+ * a parent that normalises/sanitises before echoing would re-seed on every keystroke
+ * and send the caret back to the start. Sanitise on write to your store, not in render.
+ *
  * Notion features: `/` slash menu (self-contained — insert paragraph/heading/list/
  * to-do/quote/code/divider), an inline bubble toolbar (bold/italic/strike/highlight/
  * code/link), and StarterKit's markdown input rules. Styling rides `@tailwindcss/
  * typography` (`prose`), which @podoba/tailwind already registers, plus design tokens
  * so it flips under `[data-theme="dark"]`.
+ *
+ * Prefer this over {@link ../components/rich-text-editor RichTextEditor} for
+ * document-shaped content; the dependency-free contentEditable one stays the right
+ * pick for a short caption/bio field where ProseMirror is not worth installing.
  */
 export type BlockEditorProps = {
-	/** Controlled HTML value. */
+	/** Controlled HTML value. Must be echoed back verbatim — see the contract above. */
 	value: string
 	/** Called with the editor's HTML on every change. */
 	onChange: (html: string) => void
 	/** Empty-document placeholder (also the `/`-hint). */
 	placeholder?: string
-	/** Optional visible label rendered above the editor. */
+	/** Optional visible label rendered above the editor; names the editable region. */
 	label?: ReactNode
 	/** Set false for a read-only render. */
 	editable?: boolean
@@ -39,6 +53,7 @@ export type BlockEditorProps = {
 	minHeight?: number | string
 	/** Class on the outer container. */
 	className?: string
+	/** Accessible name when there is no visible `label`. */
 	'aria-label'?: string
 }
 
@@ -64,32 +79,111 @@ const SLASH_COMMANDS: readonly SlashCommand[] = [
 	{ title: 'Divider', hint: 'Horizontal rule', keywords: ['divider', 'rule', 'hr', 'separator'], run: (e) => e.chain().focus().setHorizontalRule().run() },
 ]
 
-type SlashState = { from: number; query: string; x: number; y: number; index: number }
+/** Open palette: the doc position of the trigger `/`, the query typed after it, and
+ * the highlighted row. Screen position is derived from `from` at paint time, never
+ * stored — so the menu can be re-placed on scroll/resize without stale coordinates. */
+type SlashState = { from: number; query: string; index: number }
 
-function safeLinkUrl(raw: string): string | null {
-	const url = raw.trim()
-	return /^(https?:\/\/|mailto:|tel:|\/|#)/i.test(url) ? url : null
+/** Filter the palette by title or keyword. Exported for tests. */
+export function filterCommands(query: string): SlashCommand[] {
+	const q = query.trim().toLowerCase()
+	if (!q) return [...SLASH_COMMANDS]
+	return SLASH_COMMANDS.filter((c) => c.title.toLowerCase().includes(q) || c.keywords.some((k) => k.includes(q)))
+}
+
+/** A `/` only opens the palette at the start of a block or after whitespace — never
+ * mid-word, so `and/or`, `https://…` and `/api/v2` stay plain text. Code blocks are
+ * excluded outright: a `/` there is always literal. Exported for tests. */
+export function canOpenSlash(state: EditorState, from: number): boolean {
+	if (from < 0 || from > state.doc.content.size) return false
+	const $from = state.doc.resolve(from)
+	if ($from.parent.type.spec.code) return false
+	if ($from.parentOffset === 0) return true
+	// textBetween returns '' for a non-text node (inline image, mention) — treat that
+	// as a boundary too; only a real word character blocks the trigger.
+	return /^\s*$/.test($from.parent.textBetween($from.parentOffset - 1, $from.parentOffset))
 }
 
 const btn =
 	'inline-flex h-8 min-w-8 items-center justify-center rounded-md px-2 text-small text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg data-[active=true]:bg-surface-muted data-[active=true]:text-fg'
 
+/** Marks the bubble toolbar toggles. `active` keys read off the useEditorState
+ * snapshot below — Tiptap 3 does NOT re-render on transactions, so a plain
+ * `editor.isActive()` read during render would go stale on selection-only changes. */
+const MARK_TOOLS = [
+	{ key: 'bold', title: 'Bold', label: <b>B</b>, run: (e: Editor) => e.chain().focus().toggleBold().run() },
+	{ key: 'italic', title: 'Italic', label: <i>i</i>, run: (e: Editor) => e.chain().focus().toggleItalic().run() },
+	{ key: 'strike', title: 'Strikethrough', label: <s>S</s>, run: (e: Editor) => e.chain().focus().toggleStrike().run() },
+	{ key: 'highlight', title: 'Highlight', label: 'H', run: (e: Editor) => e.chain().focus().toggleHighlight().run() },
+	{ key: 'code', title: 'Inline code', label: '</>', run: (e: Editor) => e.chain().focus().toggleCode().run() },
+] as const
+
+const LinkIcon = () => (
+	<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+		<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+		<path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+	</svg>
+)
+
 export function BlockEditor({ value, onChange, placeholder = "Write, or press '/' for blocks…", label, editable = true, minHeight = 200, className, ...aria }: BlockEditorProps) {
 	const onChangeRef = useRef(onChange)
 	onChangeRef.current = onChange
 	const lastEmitted = useRef<string>(value)
-	const [slash, setSlash] = useState<SlashState | null>(null)
+	// The Placeholder extension is configured once at editor creation, so read the
+	// current prop through a ref — that keeps `placeholder` live without recreating
+	// the whole editor on every change.
+	const placeholderRef = useRef(placeholder)
+	placeholderRef.current = placeholder
+
+	// Slash state lives in a REF as well as in React state: ProseMirror handlers run
+	// synchronously inside the key event, long before React re-renders, so reading a
+	// render-assigned ref would lag a full render (two fast `/`s would double-open).
+	// `setSlash` writes both, so handlers always see what the last one wrote.
 	const slashRef = useRef<SlashState | null>(null)
-	slashRef.current = slash
+	const [slash, setSlashState] = useState<SlashState | null>(null)
+	const setSlash = useCallback((next: SlashState | null) => {
+		slashRef.current = next
+		setSlashState(next)
+	}, [])
+
+	const [linkOpen, setLinkOpen] = useState(false)
+	const linkOpenRef = useRef(false)
+	linkOpenRef.current = linkOpen
+	const [linkDraft, setLinkDraft] = useState('')
+	const [linkError, setLinkError] = useState<string | null>(null)
+	const linkInputRef = useRef<HTMLInputElement>(null)
+
+	const menuRef = useRef<HTMLDivElement>(null)
+	const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
+	// The palette portals to <body>, so mount first — a portal has no server render.
+	const [mounted, setMounted] = useState(false)
+	useEffect(() => setMounted(true), [])
+
+	const reactId = useId()
+	const labelId = `${reactId}-label`
+	const listboxId = `${reactId}-slash`
+	const optionId = (i: number) => `${listboxId}-option-${i}`
+
+	// `runSlash` closes over `editor`, which does not exist yet — hand the handlers a
+	// ref instead of relying on Tiptap re-applying options after every render.
+	const runSlashRef = useRef<(cmd: SlashCommand) => void>(() => {})
+
+	const ariaLabel = aria['aria-label']
+	const filtered = useMemo(() => filterCommands(slash?.query ?? ''), [slash?.query])
+	const activeOption = slash ? Math.min(slash.index, Math.max(filtered.length - 1, 0)) : 0
+	const paletteOpen = slash !== null && filtered.length > 0
 
 	const editor = useEditor({
 		editable,
+		// Explicit: Tiptap otherwise renders immediately and warns on every SSR pass.
+		// A published library cannot assume a client-only host.
+		immediatelyRender: false,
 		extensions: [
 			StarterKit.configure({ heading: { levels: [1, 2, 3] }, link: { openOnClick: false, autolink: true } }),
 			Highlight,
 			TaskList,
 			TaskItem.configure({ nested: true }),
-			Placeholder.configure({ placeholder }),
+			Placeholder.configure({ placeholder: () => placeholderRef.current }),
 		],
 		content: value || '',
 		editorProps: {
@@ -100,42 +194,47 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 					'prose-code:text-fg prose-blockquote:text-fg-muted prose-li:text-fg',
 				),
 				style: `min-height:${typeof minHeight === 'number' ? `${minHeight}px` : minHeight}`,
+				// The contenteditable IS the textbox — naming the EditorContent wrapper
+				// instead would leave it nameless to assistive tech.
+				role: 'textbox',
+				'aria-multiline': 'true',
+				...(label ? { 'aria-labelledby': labelId } : {}),
+				...(ariaLabel ? { 'aria-label': ariaLabel } : {}),
+				'aria-expanded': paletteOpen ? 'true' : 'false',
+				...(paletteOpen ? { 'aria-controls': listboxId, 'aria-activedescendant': optionId(activeOption) } : {}),
 			},
-			// Primary `/` trigger — fires on the actual character insert (covers every input
-			// method, incl. IME and synthetic input). `from` is the position of the `/`.
+			// The `/` trigger fires on the actual character insert, so it covers every
+			// input method (IME, synthetic input, paste of a single char) with one path.
 			handleTextInput(view, from, _to, text) {
 				if (text !== '/' || slashRef.current) return false
-				const coords = view.coordsAtPos(from)
-				setSlash({ from, query: '', x: coords.left, y: coords.bottom + 6, index: 0 })
+				if (!canOpenSlash(view.state, from)) return false
+				setSlash({ from, query: '', index: 0 })
 				return false // let the `/` type; onUpdate tracks it as the query prefix
 			},
-			handleKeyDown(view, event) {
+			handleKeyDown(_view, event) {
 				const s = slashRef.current
-				// Fallback `/` trigger for layouts/IME paths that skip handleTextInput.
-				if (event.key === '/' && !event.metaKey && !event.ctrlKey && !event.altKey && !s) {
-					const from = view.state.selection.from
-					const coords = view.coordsAtPos(from)
-					requestAnimationFrame(() => setSlash({ from, query: '', x: coords.left, y: coords.bottom + 6, index: 0 }))
-					return false
-				}
 				if (!s) return false
-				// Palette navigation.
-				const list = filterCommands(s.query)
 				if (event.key === 'Escape') {
 					setSlash(null)
 					return true
 				}
+				const list = filterCommands(s.query)
+				// Nothing to pick — close and let the key through. Swallowing Enter and
+				// the arrows here is what used to strand the caret after `/api/v2`.
+				if (list.length === 0) {
+					setSlash(null)
+					return false
+				}
 				if (event.key === 'ArrowDown') {
-					setSlash({ ...s, index: (s.index + 1) % Math.max(list.length, 1) })
+					setSlash({ ...s, index: (s.index + 1) % list.length })
 					return true
 				}
 				if (event.key === 'ArrowUp') {
-					setSlash({ ...s, index: (s.index - 1 + Math.max(list.length, 1)) % Math.max(list.length, 1) })
+					setSlash({ ...s, index: (s.index - 1 + list.length) % list.length })
 					return true
 				}
-				if (event.key === 'Enter') {
-					const cmd = list[s.index]
-					if (cmd) runSlash(cmd)
+				if (event.key === 'Enter' || event.key === 'Tab') {
+					runSlashRef.current(list[Math.min(s.index, list.length - 1)])
 					return true
 				}
 				return false
@@ -147,13 +246,27 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 			onChangeRef.current(html)
 			// Track the `/query` the caret is typing after an open palette.
 			const s = slashRef.current
-			if (s) {
-				const to = editor.state.selection.from
-				if (to < s.from) return setSlash(null)
-				const text = editor.state.doc.textBetween(s.from, to, '\n', '\n')
-				if (!text.startsWith('/')) return setSlash(null)
-				setSlash({ ...s, query: text.slice(1), index: 0 })
-			}
+			if (!s) return
+			const to = editor.state.selection.from
+			if (to < s.from) return setSlash(null)
+			const text = editor.state.doc.textBetween(s.from, to, '\n', '\n')
+			if (!text.startsWith('/')) return setSlash(null)
+			const query = text.slice(1)
+			// A block query is one word. Whitespace, or a query that matches nothing,
+			// means the user is writing prose — close rather than linger invisibly.
+			if (/\s/.test(query) || filterCommands(query).length === 0) return setSlash(null)
+			setSlash({ ...s, query, index: 0 })
+		},
+		// A pure caret move (click, arrow, select-all) fires no update — close the
+		// palette when the caret leaves the `/query` it belongs to.
+		onSelectionUpdate({ editor }) {
+			const s = slashRef.current
+			if (!s) return
+			const to = editor.state.selection.from
+			if (to < s.from || to > s.from + s.query.length + 1) setSlash(null)
+		},
+		onBlur() {
+			setSlash(null)
 		},
 	})
 
@@ -167,91 +280,243 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 		}
 	}, [value, editor])
 
+	// Tiptap's own re-render pass re-applies options with `editable` pinned to the
+	// live instance value, so the prop has to be pushed through this side channel.
 	useEffect(() => {
 		if (editor) editor.setEditable(editable)
 	}, [editable, editor])
 
-	const runSlash = (cmd: SlashCommand) => {
+	const runSlash = useCallback(
+		(cmd: SlashCommand | undefined) => {
+			const s = slashRef.current
+			if (!editor || !s || !cmd) return
+			// Clamp: the doc can have shrunk under an open palette (an external
+			// setContent), which would make deleteRange throw on a stale position.
+			const size = editor.state.doc.content.size
+			const from = Math.min(Math.max(s.from, 0), size)
+			const to = Math.min(Math.max(editor.state.selection.from, from), size)
+			editor.chain().focus().deleteRange({ from, to }).run()
+			cmd.run(editor)
+			setSlash(null)
+		},
+		[editor, setSlash],
+	)
+	runSlashRef.current = runSlash
+
+	// Place the palette from the caret's CURRENT viewport coords, clamped into the
+	// viewport and flipped above the caret when it would overflow the bottom.
+	const placeMenu = useCallback(() => {
 		const s = slashRef.current
-		if (!editor || !s) return
-		const to = editor.state.selection.from
-		// Delete the `/query` text, then run the block command.
-		editor.chain().focus().deleteRange({ from: s.from, to }).run()
-		cmd.run(editor)
-		setSlash(null)
+		const el = menuRef.current
+		if (!editor || !s || !el) return
+		const size = editor.state.doc.content.size
+		if (s.from > size) return setSlash(null)
+		const caret = editor.view.coordsAtPos(s.from)
+		const rect = el.getBoundingClientRect()
+		const gap = 6
+		const edge = 8
+		let top = caret.bottom + gap
+		if (top + rect.height > window.innerHeight - edge) top = Math.max(edge, caret.top - gap - rect.height)
+		const left = Math.max(edge, Math.min(caret.left, window.innerWidth - rect.width - edge))
+		setMenuPos((prev) => (prev && prev.left === left && prev.top === top ? prev : { left, top }))
+	}, [editor, setSlash])
+
+	useLayoutEffect(() => {
+		if (slash) placeMenu()
+		else setMenuPos(null)
+	}, [slash, placeMenu])
+
+	// Fixed coordinates go stale the moment anything scrolls — including a scroll
+	// inside the editor itself, hence the capture-phase listener.
+	useEffect(() => {
+		if (!slash) return
+		const replace = () => placeMenu()
+		window.addEventListener('scroll', replace, true)
+		window.addEventListener('resize', replace)
+		return () => {
+			window.removeEventListener('scroll', replace, true)
+			window.removeEventListener('resize', replace)
+		}
+	}, [slash, placeMenu])
+
+	// Selection-driven mark states. Tiptap 3's useEditor deliberately does not
+	// re-render on transactions; this subscription is what keeps the toolbar honest.
+	const active = useEditorState({
+		editor,
+		selector: ({ editor }) =>
+			editor
+				? {
+						bold: editor.isActive('bold'),
+						italic: editor.isActive('italic'),
+						strike: editor.isActive('strike'),
+						highlight: editor.isActive('highlight'),
+						code: editor.isActive('code'),
+						link: editor.isActive('link'),
+						hasSelection: !editor.state.selection.empty,
+					}
+				: null,
+	})
+
+	const closeLink = useCallback(() => {
+		setLinkOpen(false)
+		setLinkError(null)
+		linkOpenRef.current = false
+	}, [])
+
+	// The link panel replaces the toolbar in place; a collapsed selection means the
+	// bubble menu is on its way out, so it must not strand an open panel.
+	useEffect(() => {
+		if (linkOpen && active && !active.hasSelection && !active.link) closeLink()
+	}, [linkOpen, active, closeLink])
+
+	useEffect(() => {
+		if (linkOpen) linkInputRef.current?.focus()
+	}, [linkOpen])
+
+	const openLink = () => {
+		if (!editor) return
+		setLinkDraft((editor.getAttributes('link').href as string | undefined) ?? '')
+		setLinkError(null)
+		linkOpenRef.current = true
+		setLinkOpen(true)
 	}
 
-	const filtered = useMemo(() => filterCommands(slash?.query ?? ''), [slash?.query])
+	const applyLink = () => {
+		if (!editor) return
+		if (linkDraft.trim() === '') {
+			editor.chain().focus().extendMarkRange('link').unsetLink().run()
+			closeLink()
+			return
+		}
+		const url = safeLinkUrl(linkDraft)
+		if (!url) return setLinkError(SAFE_LINK_HINT)
+		editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+		closeLink()
+	}
 
 	return (
 		<div className={clsx('flex w-full flex-col gap-2', className)}>
-			{label ? <span className="text-small font-medium text-fg">{label}</span> : null}
+			{label ? (
+				<span id={labelId} className="text-small font-medium text-fg">
+					{label}
+				</span>
+			) : null}
 			<div className="relative rounded-lg border border-border bg-surface focus-within:border-brand-green">
 				{editor ? (
-					<BubbleMenu editor={editor} className="flex items-center gap-0.5 rounded-lg border border-border bg-surface-card p-1 shadow-md">
-						<button type="button" className={btn} data-active={editor.isActive('bold')} onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold">
-							<b>B</b>
-						</button>
-						<button type="button" className={btn} data-active={editor.isActive('italic')} onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleItalic().run()} title="Italic">
-							<i>i</i>
-						</button>
-						<button type="button" className={btn} data-active={editor.isActive('strike')} onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleStrike().run()} title="Strikethrough">
-							<s>S</s>
-						</button>
-						<button type="button" className={btn} data-active={editor.isActive('highlight')} onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleHighlight().run()} title="Highlight">
-							H
-						</button>
-						<button type="button" className={btn} data-active={editor.isActive('code')} onMouseDown={(e) => e.preventDefault()} onClick={() => editor.chain().focus().toggleCode().run()} title="Inline code">
-							{'</>'}
-						</button>
-						<button
-							type="button"
-							className={btn}
-							data-active={editor.isActive('link')}
-							onMouseDown={(e) => e.preventDefault()}
-							onClick={() => {
-								const prev = editor.getAttributes('link').href as string | undefined
-								const raw = window.prompt('Link URL (https://, mailto:, /path)', prev ?? 'https://')
-								if (raw === null) return
-								if (raw === '') return void editor.chain().focus().unsetLink().run()
-								const url = safeLinkUrl(raw)
-								if (!url) return window.alert('Only http(s), mailto, tel, or relative (/, #) links are allowed.')
-								editor.chain().focus().setLink({ href: url }).run()
-							}}
-							title="Link"
-						>
-							🔗
-						</button>
+					<BubbleMenu
+						editor={editor}
+						// Mirrors Tiptap's default (focus + non-empty selection), plus: stay up
+						// while the link panel owns focus, or typing a URL would dismiss itself.
+						shouldShow={({ editor, view, state, element }) => {
+							const inMenu = element.contains(document.activeElement)
+							if (!editor.isEditable || !(view.hasFocus() || inMenu)) return false
+							return linkOpenRef.current || !state.selection.empty
+						}}
+						className="flex flex-col gap-1 rounded-lg border border-border bg-surface-card p-1 shadow-md"
+					>
+						{linkOpen ? (
+							<>
+								<div className="flex items-center gap-1">
+									<input
+										ref={linkInputRef}
+										type="text"
+										value={linkDraft}
+										aria-label="Link URL"
+										aria-invalid={linkError ? true : undefined}
+										placeholder="https://, mailto:, /path"
+										className="h-8 w-56 rounded-md border border-border bg-surface px-2 text-small text-fg outline-none placeholder:text-fg-subtle focus:border-brand-green"
+										onChange={(e) => {
+											setLinkDraft(e.target.value)
+											setLinkError(null)
+										}}
+										onKeyDown={(e) => {
+											if (e.key === 'Enter') {
+												e.preventDefault()
+												applyLink()
+											}
+											if (e.key === 'Escape') {
+												e.preventDefault()
+												closeLink()
+												editor.chain().focus().run()
+											}
+										}}
+									/>
+									<button type="button" className={btn} onMouseDown={(e) => e.preventDefault()} onClick={applyLink} title="Apply link">
+										Apply
+									</button>
+									<button
+										type="button"
+										className={btn}
+										onMouseDown={(e) => e.preventDefault()}
+										onClick={() => {
+											closeLink()
+											editor.chain().focus().run()
+										}}
+										title="Cancel"
+									>
+										Cancel
+									</button>
+								</div>
+								{linkError ? <span className="px-1 pb-0.5 text-caption text-danger">{linkError}</span> : null}
+							</>
+						) : (
+							<div className="flex items-center gap-0.5">
+								{MARK_TOOLS.map((tool) => (
+									// preventDefault on mousedown keeps the editor selection while the button is clicked.
+									<button
+										key={tool.key}
+										type="button"
+										className={btn}
+										data-active={active?.[tool.key] ?? false}
+										aria-pressed={active?.[tool.key] ?? false}
+										onMouseDown={(e) => e.preventDefault()}
+										onClick={() => tool.run(editor)}
+										title={tool.title}
+									>
+										{tool.label}
+									</button>
+								))}
+								<button type="button" className={btn} data-active={active?.link ?? false} aria-pressed={active?.link ?? false} onMouseDown={(e) => e.preventDefault()} onClick={openLink} title="Link">
+									<LinkIcon />
+								</button>
+							</div>
+						)}
 					</BubbleMenu>
 				) : null}
 
-				<EditorContent editor={editor} aria-label={aria['aria-label']} />
+				<EditorContent editor={editor} />
 
-				{slash && filtered.length > 0 ? (
-					<div className="fixed z-50 max-h-72 w-64 overflow-auto rounded-lg border border-border bg-surface-card p-1 shadow-md" style={{ left: slash.x, top: slash.y }} role="listbox">
-						{filtered.map((cmd, i) => (
-							<button
-								key={cmd.title}
-								type="button"
-								role="option"
-								aria-selected={i === slash.index}
-								className={clsx('flex w-full flex-col items-start rounded-md px-3 py-1.5 text-left', i === slash.index ? 'bg-surface-muted' : 'hover:bg-surface-muted')}
-								onMouseDown={(e) => e.preventDefault()}
-								onClick={() => runSlash(cmd)}
+				{mounted && paletteOpen && slash
+					? createPortal(
+							<div
+								ref={menuRef}
+								id={listboxId}
+								role="listbox"
+								aria-label="Insert block"
+								className="fixed z-50 max-h-72 w-64 overflow-auto rounded-lg border border-border bg-surface-card p-1 shadow-md"
+								style={{ left: menuPos?.left ?? 0, top: menuPos?.top ?? 0, visibility: menuPos ? 'visible' : 'hidden' }}
 							>
-								<span className="text-small text-fg">{cmd.title}</span>
-								<span className="text-caption text-fg-subtle">{cmd.hint}</span>
-							</button>
-						))}
-					</div>
-				) : null}
+								{filtered.map((cmd, i) => (
+									// role=option must sit on a plain element — a <button> would override it.
+									// Focus stays in the editor; aria-activedescendant on the textbox drives AT.
+									<div
+										key={cmd.title}
+										id={optionId(i)}
+										role="option"
+										aria-selected={i === activeOption}
+										className={clsx('flex w-full cursor-pointer flex-col items-start rounded-md px-3 py-1.5 text-left', i === activeOption ? 'bg-surface-muted' : 'hover:bg-surface-muted')}
+										onMouseDown={(e) => e.preventDefault()}
+										onClick={() => runSlash(cmd)}
+									>
+										<span className="text-small text-fg">{cmd.title}</span>
+										<span className="text-caption text-fg-subtle">{cmd.hint}</span>
+									</div>
+								))}
+							</div>,
+							document.body,
+						)
+					: null}
 			</div>
 		</div>
 	)
-}
-
-function filterCommands(query: string): SlashCommand[] {
-	const q = query.trim().toLowerCase()
-	if (!q) return [...SLASH_COMMANDS]
-	return SLASH_COMMANDS.filter((c) => c.title.toLowerCase().includes(q) || c.keywords.some((k) => k.includes(q)))
 }
