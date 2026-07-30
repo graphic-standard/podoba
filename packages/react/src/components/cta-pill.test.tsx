@@ -32,4 +32,19 @@ describe('<CtaPill> foreground pairing (WCAG AA — issue #13)', () => {
 		expect(html).toContain('leading-5')
 		expect(html).toContain('tracking-tight')
 	})
+
+	test('exposes the source mobile header density without forcing positioning', () => {
+		const mobileHtml = renderToStaticMarkup(
+			<CtaPill lead="Let's" emphasis="create" tail="something" mobileHeader>
+				<button type="button">Create</button>
+			</CtaPill>,
+		)
+
+		expect(mobileHtml).toContain('min-h-mobile-cta')
+		expect(mobileHtml).toContain('px-12')
+		expect(mobileHtml).toContain('py-5')
+		expect(mobileHtml).toContain('shadow-mobile-cta')
+		expect(mobileHtml).toContain('md:min-h-16')
+		expect(mobileHtml).not.toContain('fixed')
+	})
 })

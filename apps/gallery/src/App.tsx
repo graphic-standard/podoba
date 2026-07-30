@@ -637,6 +637,7 @@ function DashboardDemo() {
 }
 
 function BrandPageHeaderDemo() {
+	const [createHubOpen, setCreateHubOpen] = useState(false);
 	return (
 		<div className="flex w-full max-w-4xl flex-col gap-8 rounded-lg border border-border bg-surface p-6">
 			<BrandPageHeader
@@ -648,12 +649,51 @@ function BrandPageHeaderDemo() {
 						Design system and templates
 					</>
 				}
-				cta={
-					<CtaPill lead="Let's" emphasis="create" tail="something">
-						<Button className="rounded-full bg-surface-inverted text-fg-inverted data-[hovered]:opacity-90">
+				expanded={createHubOpen}
+				onExpandedChange={setCreateHubOpen}
+				ctaLabel="Create hub"
+				cta={({ expanded, controls, toggle }) => (
+					<CtaPill lead="Let's" emphasis="create" tail="something" mobileHeader>
+						<Button
+							aria-expanded={expanded}
+							aria-controls={controls}
+							onPress={toggle}
+							className="rounded-full bg-surface-inverted text-fg-inverted data-[hovered]:opacity-90"
+						>
 							<PlusIcon className="h-4 w-4" /> Create
 						</Button>
 					</CtaPill>
+				)}
+				createHub={
+					<div className="flex min-h-96 flex-col gap-8 p-4 pt-14 md:p-8 md:pt-14">
+						<h3 className="text-center text-heading4 font-medium">
+							Let&apos;s <span className="font-semibold text-fg-inverted">create</span> new
+						</h3>
+						<section aria-labelledby="gallery-create-hub-processes">
+							<h4 id="gallery-create-hub-processes" className="mb-4 text-heading5 font-medium">
+								Processes
+							</h4>
+							<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+								{['Campaign launch', 'Quarterly report', 'Brand refresh'].map((label) => (
+									<div key={label} className="min-h-28 rounded-lg bg-surface-card p-4 text-heading5 font-medium">
+										{label}
+									</div>
+								))}
+							</div>
+						</section>
+						<section aria-labelledby="gallery-create-hub-actions">
+							<h4 id="gallery-create-hub-actions" className="mb-4 text-heading5 font-medium">
+								Quick actions
+							</h4>
+							<div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-4">
+								{['New project', 'New process', 'Studio', 'New asset'].map((label) => (
+									<Button key={label} variant="secondary" className="min-h-20">
+										{label}
+									</Button>
+								))}
+							</div>
+						</section>
+					</div>
 				}
 			/>
 			<BrandPageHeader
@@ -1547,7 +1587,7 @@ const SECTIONS: SectionDef[] = [
 		group: "Product patterns",
 		title: "CTA pill",
 		subtitle:
-			"The Brand Core hero CTA — a teal bar with a three-fragment copy line (the middle word emphasised bold, on the AA-safe on-brand ink) and an action control on the right.",
+			"The Brand Core hero CTA — a teal bar with a three-fragment copy line, an action control, and an optional 99px mobile-header density. BrandPageHeader docks that variant above the safe bottom edge below 768px.",
 		content: (
 			<Demo label="Hero CTA">
 				<CtaPill lead="Let's" emphasis="create" tail="something">
@@ -1612,7 +1652,7 @@ const SECTIONS: SectionDef[] = [
 		group: "Product patterns",
 		title: "Brand page header",
 		subtitle:
-			"The brand-workspace page header — breadcrumbs, a large two-tone greeting, and a right-column CTA (here the CtaPill hero). Combines Subtle + CtaPill.",
+			"The brand-workspace page header — breadcrumbs, a large two-tone greeting, and a right-column CTA. Its Create Hub expands inline from the top-right on desktop and becomes a focus-trapped, swipe-dismissable bottom sheet below 768px.",
 		content: (
 			<Demo label="Workspace header">
 				<BrandPageHeaderDemo />

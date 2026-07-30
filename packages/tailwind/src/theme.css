@@ -135,10 +135,15 @@
 	 * (--space-md 1rem = p-4, sm = p-2, lg = p-6, xl = p-8, xs = p-1), so use
 	 * the numeric utilities for spacing and leave xs…xl to sizing. */
 	--spacing-nav-x: var(--space-nav-x);
+	--spacing-create-hub-full: var(--control-height-create-hub-full);
+	--spacing-create-hub-partial: var(--control-height-create-hub-partial);
+	--spacing-mobile-cta: var(--control-height-mobile-cta);
+	--spacing-mobile-cta-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
 	--spacing-control-tall: var(--control-height-tall);
 
 	/* effects */
 	--blur-modal-backdrop: var(--effect-modal-backdrop-blur);
+	--shadow-mobile-cta: var(--shadow-mobile-cta);
 	--shadow-modal-surface: var(--shadow-modal-surface);
 
 	/* font families */
@@ -188,6 +193,14 @@
 	--tracking-wider: var(--tracking-wider);
 
 	/* animations */
+	--animate-create-hub-backdrop: create-hub-backdrop var(--motion-create-hub-backdrop-duration)
+		var(--motion-create-hub-enter-easing) both;
+	--animate-create-hub-desktop: create-hub-desktop var(--motion-create-hub-desktop-duration)
+		var(--motion-create-hub-enter-easing) both;
+	--animate-create-hub-full: create-hub-full var(--motion-create-hub-full-duration)
+		var(--motion-create-hub-enter-easing) both;
+	--animate-create-hub-sheet: create-hub-sheet var(--motion-create-hub-sheet-duration)
+		var(--motion-create-hub-enter-easing) both;
 	--animate-expand-cta: expand-cta 220ms cubic-bezier(0.16, 1, 0.3, 1);
 	--animate-lightbox-in: lightbox-in 0.3s ease-out;
 	--animate-modal-overlay-in: modal-overlay-in var(--motion-modal-enter-duration)
@@ -235,6 +248,46 @@
 				var(--motion-modal-content-enter-stagger) + var(--motion-modal-content-enter-stagger)
 		)
 		both;
+}
+
+@keyframes create-hub-backdrop {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes create-hub-desktop {
+	from {
+		opacity: 0;
+		transform: scale(0.15, 0.1);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@keyframes create-hub-sheet {
+	from {
+		opacity: 0;
+		transform: translateY(100%);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes create-hub-full {
+	from {
+		max-height: var(--control-height-create-hub-partial);
+	}
+	to {
+		max-height: var(--control-height-create-hub-full);
+	}
 }
 
 @keyframes expand-cta {

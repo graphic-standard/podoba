@@ -35,6 +35,9 @@
 	--color-surface-inverted: #242423;
 	--color-surface-muted: #eceae1;
 	--color-surface-placeholder: #333333;
+	--control-height-mobile-cta: 99px;
+	--control-height-create-hub-full: 100vh;
+	--control-height-create-hub-partial: 40vh;
 	--control-height-tall: 3.625rem;
 	--effect-modal-backdrop-blur: 10px;
 	--font-mono: 'GT America Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
@@ -69,6 +72,11 @@
 	--line-height-panel-heading: 20px;
 	--line-height-small: 18px;
 	--motion-modal-content-enter-delay: 280ms;
+	--motion-create-hub-backdrop-duration: 150ms;
+	--motion-create-hub-desktop-duration: 400ms;
+	--motion-create-hub-full-duration: 300ms;
+	--motion-create-hub-enter-easing: cubic-bezier(0.16, 1, 0.3, 1);
+	--motion-create-hub-sheet-duration: 320ms;
 	--motion-modal-content-enter-duration: 420ms;
 	--motion-modal-content-enter-stagger: 60ms;
 	--motion-modal-enter-duration: 520ms;
@@ -92,6 +100,7 @@
 	--space-sm: 0.5rem;
 	--space-xl: 2rem;
 	--space-xs: 0.25rem;
+	--shadow-mobile-cta: 0 -2px 8px #00000014;
 	--tracking-display-large: -0.0666667em;
 	--tracking-normal: 0.01em;
 	--tracking-tight: 0em;
