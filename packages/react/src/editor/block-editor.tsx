@@ -84,6 +84,36 @@ const SLASH_COMMANDS: readonly SlashCommand[] = [
  * stored — so the menu can be re-placed on scroll/resize without stale coordinates. */
 type SlashState = { from: number; query: string; index: number }
 
+/** Tallest the palette is ever allowed to grow; past this it scrolls. */
+const MENU_MAX_H = 288
+
+/** Caret box + palette size + viewport, in viewport coords. */
+type PlaceInput = { caretTop: number; caretBottom: number; caretLeft: number; wanted: number; width: number; viewportW: number; viewportH: number }
+
+/**
+ * Resolve the palette's fixed position from the caret. Below the caret by default;
+ * flipped above only when above is genuinely roomier; height always capped to the
+ * room on the chosen side so it scrolls rather than overflowing. Both branches are
+ * anchored to the caret, so no result ever needs clamping away from it.
+ * Exported for tests.
+ */
+export function placeSlashMenu({ caretTop, caretBottom, caretLeft, wanted, width, viewportW, viewportH }: PlaceInput): { left: number; top: number; maxHeight: number } {
+	const gap = 6
+	const edge = 8
+	const below = viewportH - edge - (caretBottom + gap)
+	const above = caretTop - gap - edge
+	// Flip only when it buys room. Flipping on any bottom overflow and clamping the
+	// result to `edge` parked the palette at the top of the viewport — over the page
+	// header — whenever the caret sat high in a short viewport.
+	const flip = wanted > below && above > below
+	const maxHeight = Math.max(0, Math.min(wanted, flip ? above : below))
+	return {
+		left: Math.max(edge, Math.min(caretLeft, viewportW - width - edge)),
+		top: flip ? caretTop - gap - maxHeight : caretBottom + gap,
+		maxHeight,
+	}
+}
+
 /** Filter the palette by title or keyword. Exported for tests. */
 export function filterCommands(query: string): SlashCommand[] {
 	const q = query.trim().toLowerCase()
@@ -154,7 +184,7 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 	const linkInputRef = useRef<HTMLInputElement>(null)
 
 	const menuRef = useRef<HTMLDivElement>(null)
-	const [menuPos, setMenuPos] = useState<{ left: number; top: number } | null>(null)
+	const [menuPos, setMenuPos] = useState<{ left: number; top: number; maxHeight: number } | null>(null)
 	// The palette portals to <body>, so mount first — a portal has no server render.
 	const [mounted, setMounted] = useState(false)
 	useEffect(() => setMounted(true), [])
@@ -303,8 +333,7 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 	)
 	runSlashRef.current = runSlash
 
-	// Place the palette from the caret's CURRENT viewport coords, clamped into the
-	// viewport and flipped above the caret when it would overflow the bottom.
+	// Place the palette from the caret's CURRENT viewport coords.
 	const placeMenu = useCallback(() => {
 		const s = slashRef.current
 		const el = menuRef.current
@@ -312,13 +341,19 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 		const size = editor.state.doc.content.size
 		if (s.from > size) return setSlash(null)
 		const caret = editor.view.coordsAtPos(s.from)
-		const rect = el.getBoundingClientRect()
-		const gap = 6
-		const edge = 8
-		let top = caret.bottom + gap
-		if (top + rect.height > window.innerHeight - edge) top = Math.max(edge, caret.top - gap - rect.height)
-		const left = Math.max(edge, Math.min(caret.left, window.innerWidth - rect.width - edge))
-		setMenuPos((prev) => (prev && prev.left === left && prev.top === top ? prev : { left, top }))
+		const next = placeSlashMenu({
+			caretTop: caret.top,
+			caretBottom: caret.bottom,
+			caretLeft: caret.left,
+			// Measure the CONTENT, not the box — the box already carries the cap from the
+			// last placement, so measuring it would let one tight spot shrink every
+			// placement after it. +2 for the 1px border (scrollHeight omits borders).
+			wanted: Math.min(MENU_MAX_H, el.scrollHeight + 2),
+			width: el.getBoundingClientRect().width,
+			viewportW: window.innerWidth,
+			viewportH: window.innerHeight,
+		})
+		setMenuPos((prev) => (prev && prev.left === next.left && prev.top === next.top && prev.maxHeight === next.maxHeight ? prev : next))
 	}, [editor, setSlash])
 
 	useLayoutEffect(() => {
@@ -493,8 +528,15 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 								id={listboxId}
 								role="listbox"
 								aria-label="Insert block"
-								className="fixed z-50 max-h-72 w-64 overflow-auto rounded-lg border border-border bg-surface-card p-1 shadow-md"
-								style={{ left: menuPos?.left ?? 0, top: menuPos?.top ?? 0, visibility: menuPos ? 'visible' : 'hidden' }}
+								className="fixed z-50 w-64 overflow-auto rounded-lg border border-border bg-surface-card p-1 shadow-md"
+								style={{
+									left: menuPos?.left ?? 0,
+									top: menuPos?.top ?? 0,
+									// The cap is placement-derived (room on the chosen side), so it lives here
+									// rather than in a max-h-* class — MENU_MAX_H is the ceiling it clamps to.
+									maxHeight: menuPos?.maxHeight ?? MENU_MAX_H,
+									visibility: menuPos ? 'visible' : 'hidden',
+								}}
 							>
 								{filtered.map((cmd, i) => (
 									// role=option must sit on a plain element — a <button> would override it.

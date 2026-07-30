@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { Schema } from '@tiptap/pm/model'
 import { EditorState } from '@tiptap/pm/state'
 
-import { canOpenSlash, filterCommands } from './block-editor'
+import { canOpenSlash, filterCommands, placeSlashMenu } from './block-editor'
 import { safeLinkUrl } from '../utils/safe-link-url'
 
 describe('filterCommands', () => {
@@ -92,5 +92,51 @@ describe('safeLinkUrl', () => {
 		expect(safeLinkUrl('vbscript:msgbox')).toBeNull()
 		expect(safeLinkUrl('example.com')).toBeNull()
 		expect(safeLinkUrl('')).toBeNull()
+	})
+})
+
+describe('placeSlashMenu', () => {
+	// A caret 40px tall near the top of a 1200px-wide viewport.
+	const caret = { caretTop: 120, caretBottom: 140, caretLeft: 300, width: 256, viewportW: 1200 }
+
+	test('sits just below the caret when there is room', () => {
+		const p = placeSlashMenu({ ...caret, wanted: 288, viewportH: 900 })
+		expect(p.top).toBe(146) // caretBottom + 6
+		expect(p.maxHeight).toBe(288)
+	})
+
+	test('stays at the caret in a short viewport instead of jumping to the top edge', () => {
+		// 400px tall: 288 does not fit below (246 free), and above (106) is tighter
+		// still. The old code flipped anyway and clamped to top: 8 — over the header.
+		const p = placeSlashMenu({ ...caret, wanted: 288, viewportH: 400 })
+		expect(p.top).toBe(146)
+		expect(p.maxHeight).toBe(246) // scrolls within the room below
+		expect(p.top).toBeGreaterThan(caret.caretTop)
+	})
+
+	test('flips above only when above is roomier, and never past the top edge', () => {
+		const p = placeSlashMenu({ ...caret, caretTop: 700, caretBottom: 720, wanted: 288, viewportH: 800 })
+		expect(p.maxHeight).toBe(288)
+		expect(p.top).toBe(406) // caretTop - 6 - 288
+		expect(p.top).toBeGreaterThanOrEqual(8)
+		expect(p.top + p.maxHeight).toBeLessThanOrEqual(700)
+	})
+
+	test('caps a flipped palette to the room above rather than clamping its top', () => {
+		// Caret low in a short viewport: above (186) beats below (54), but cannot fit 288.
+		const p = placeSlashMenu({ ...caret, caretTop: 200, caretBottom: 220, wanted: 288, viewportH: 288 })
+		expect(p.maxHeight).toBe(186)
+		expect(p.top).toBe(8)
+		expect(p.top + p.maxHeight).toBeLessThanOrEqual(200)
+	})
+
+	test('never returns a negative height when neither side has room', () => {
+		const p = placeSlashMenu({ ...caret, caretTop: 10, caretBottom: 30, wanted: 288, viewportH: 32 })
+		expect(p.maxHeight).toBeGreaterThanOrEqual(0)
+	})
+
+	test('clamps horizontally to the viewport', () => {
+		expect(placeSlashMenu({ ...caret, caretLeft: 1190, wanted: 288, viewportH: 900 }).left).toBe(936)
+		expect(placeSlashMenu({ ...caret, caretLeft: 0, wanted: 288, viewportH: 900 }).left).toBe(8)
 	})
 })
