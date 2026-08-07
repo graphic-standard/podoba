@@ -46,4 +46,13 @@ describe('source-parity form controls', () => {
 		expect(html).toContain('bg-brand-primary')
 		expect(html).toContain('Approve')
 	})
+
+	test('keeps disabled button labels AA-readable instead of fading the whole control', () => {
+		const html = renderToStaticMarkup(<Button isDisabled>Approve</Button>)
+
+		expect(html).toContain('data-[disabled]:bg-surface-muted')
+		expect(html).toContain('data-[disabled]:text-fg')
+		expect(html).toContain('data-[disabled]:shadow-none')
+		expect(html).not.toContain('data-[disabled]:opacity-50')
+	})
 })

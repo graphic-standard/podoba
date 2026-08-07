@@ -15,7 +15,11 @@ export const Button = uic(RACButton, {
 	baseClass:
 		'inline-flex items-center justify-center gap-2 rounded-full text-compact leading-4 transition-all duration-200 ease-in-out ' +
 		'outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2 ' +
-		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none ' +
+		// Do not dim the entire control with opacity: that blends both foreground and
+		// background into the parent surface and makes disabled labels fail WCAG AA.
+		// The semantic muted surface keeps the state visibly subdued while retaining
+		// strong text contrast in both the light and dark themes.
+		'data-[disabled]:bg-surface-muted data-[disabled]:text-fg data-[disabled]:shadow-none data-[disabled]:pointer-events-none ' +
 		'data-[pending]:opacity-70 data-[pending]:cursor-progress',
 	variants: {
 		variant: {
