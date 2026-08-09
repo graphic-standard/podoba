@@ -211,6 +211,10 @@
 		var(--motion-modal-enter-easing) both;
 	--animate-modal-surface-out: modal-surface-out var(--motion-modal-exit-duration)
 		var(--motion-modal-exit-easing) both;
+	--animate-side-panel-in: side-panel-in var(--motion-modal-enter-duration)
+		var(--motion-modal-enter-easing) both;
+	--animate-side-panel-out: side-panel-out var(--motion-modal-exit-duration)
+		var(--motion-modal-exit-easing) both;
 	--animate-modal-panel-in: modal-panel-in var(--motion-modal-panel-enter-duration)
 		var(--motion-modal-enter-easing) var(--motion-modal-panel-enter-delay) both;
 	--animate-modal-content-in: modal-content-in var(--motion-modal-content-enter-duration)
@@ -360,6 +364,28 @@
 	to {
 		opacity: 1;
 		transform: translateX(0) scaleX(1);
+	}
+}
+
+@keyframes side-panel-in {
+	from {
+		opacity: 0;
+		transform: translateX(100%);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes side-panel-out {
+	from {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateX(100%);
 	}
 }
 
