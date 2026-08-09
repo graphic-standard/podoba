@@ -32,6 +32,7 @@ import {
 	SelectItem,
 	Separator,
 	SectionTabs,
+	SidePanel,
 	Slider,
 	Switch,
 	Tag,
@@ -330,6 +331,44 @@ function SectionTabsDemo() {
 				{ key: "scenarios", label: "Scenarios" },
 			]}
 		/>
+	);
+}
+
+function SidePanelDemo({ size = "md", pending = false }: { size?: "sm" | "md" | "lg"; pending?: boolean }) {
+	const [open, setOpen] = useState(false);
+	return (
+		<>
+			<Button variant="secondary" onPress={() => setOpen(true)}>
+				{pending ? "Pending state" : `Open ${size.toUpperCase()}`}
+			</Button>
+			<SidePanel
+				isOpen={open}
+				onOpenChange={setOpen}
+				title="Assistant"
+				description="Acme Robotics · current Brand context"
+				closeLabel="Close assistant"
+				size={size}
+				isDismissable={!pending}
+				footer={
+					<div className="flex justify-end gap-2">
+						<Button variant="secondary" onPress={() => setOpen(false)}>New conversation</Button>
+						<Button isPending={pending}>{pending ? "Answering…" : "Send"}</Button>
+					</div>
+				}
+			>
+				<div className="flex flex-col gap-4">
+					<div className="rounded-lg bg-surface-card p-4 text-small text-fg-muted">
+						Ask about approved Brand facts, Tokens and published content.
+					</div>
+					<div className="self-end rounded-lg bg-brand-secondary px-4 py-3 text-small text-fg-on-brand">
+						What is our primary brand color?
+					</div>
+					<div className="rounded-lg border border-border px-4 py-3 text-small text-fg">
+						Acme Red (#DA291C) is the primary brand color. <a className="underline" href="#assistant-panel">Brand profile</a>
+					</div>
+				</div>
+			</SidePanel>
+		</>
 	);
 }
 
@@ -1346,6 +1385,25 @@ const SECTIONS: SectionDef[] = [
 							)}
 						</Dialog>
 					</DialogTrigger>
+				</Demo>
+			</>
+		),
+	},
+	{
+		id: "side-panel",
+		group: "Modals",
+		title: "Side panel",
+		subtitle:
+			"A modal right-side surface with RAC focus containment and trigger return. Full-screen owned scroll on mobile; tokenized widths and reduced-motion handling on desktop.",
+		content: (
+			<>
+				<Demo label="Sizes (sm · md · lg)">
+					<SidePanelDemo size="sm" />
+					<SidePanelDemo size="md" />
+					<SidePanelDemo size="lg" />
+				</Demo>
+				<Demo label="Non-dismissable pending state">
+					<SidePanelDemo pending />
 				</Demo>
 			</>
 		),

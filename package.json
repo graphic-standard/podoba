@@ -41,6 +41,7 @@
 		"publish:packages": "bun scripts/publish.ts"
 	},
 	"devDependencies": {
+		"@happy-dom/global-registrator": "^20.11.2",
 		"typescript": "catalog:"
 	}
 }
