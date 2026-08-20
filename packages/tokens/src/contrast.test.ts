@@ -82,6 +82,17 @@ const BLENDED_PAIRS: Array<[fg: string, alpha: number, bg: string]> = [
 	['fg-on-brand', 0.7, 'brand-secondary'],
 	['fg-on-brand', 0.7, 'brand-green'],
 	['fg-on-brand', 0.7, 'accent-yellow'],
+	// Button's inactive (disabled / pending) label: it softens the INK over the
+	// variant's own surface rather than fading the whole control, so every ink ×
+	// surface combination it can land on has to hold AA on its own.
+	// `primary` — inverted ink on the brand fill, kept so a submitting CTA stays
+	// brand-coloured.
+	['fg-inverted', 0.7, 'brand-primary'],
+	// `secondary` (surface-card), `destructive` (surface-muted) and `ghost`, which
+	// is transparent and therefore inherits whichever surface it sits on.
+	['fg', 0.6, 'surface-card'],
+	['fg', 0.6, 'surface-muted'],
+	['fg', 0.6, 'surface'],
 ]
 
 for (const [themeName, tokens] of Object.entries(THEMES)) {

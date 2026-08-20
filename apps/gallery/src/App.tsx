@@ -1232,7 +1232,18 @@ const SECTIONS: SectionDef[] = [
 					<Button variant="secondary">Secondary</Button>
 					<Button variant="ghost">Ghost</Button>
 					<Button variant="destructive">Destructive</Button>
-					<Button isDisabled>Disabled</Button>
+				</Demo>
+				<Demo label="Disabled variants">
+					<Button variant="primary" isDisabled>Primary</Button>
+					<Button variant="secondary" isDisabled>Secondary</Button>
+					<Button variant="ghost" isDisabled>Ghost</Button>
+					<Button variant="destructive" isDisabled>Destructive</Button>
+				</Demo>
+				<Demo label="Pending variants">
+					<Button variant="primary" isDisabled isPending>Primary</Button>
+					<Button variant="secondary" isDisabled isPending>Secondary</Button>
+					<Button variant="ghost" isDisabled isPending>Ghost</Button>
+					<Button variant="destructive" isDisabled isPending>Destructive</Button>
 				</Demo>
 				<Demo label="Sizes">
 					<Button size="sm">Small</Button>

@@ -15,15 +15,29 @@ export const Button = uic(RACButton, {
 	baseClass:
 		'inline-flex items-center justify-center gap-2 rounded-full text-compact leading-4 transition-all duration-200 ease-in-out ' +
 		'outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2 ' +
-		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none ' +
-		'data-[pending]:opacity-70 data-[pending]:cursor-progress',
+		// Inactive states (disabled / pending) soften the LABEL ONLY and leave every
+		// variant on its own surface. Two reasons:
+		//   - fading the whole control (`opacity-*`) blends the label into the parent
+		//     surface and drops it below WCAG AA;
+		//   - repainting every variant onto one muted surface makes a disabled button
+		//     indistinguishable from a hovered one (`secondary`/`ghost` both hover to
+		//     `surface-muted`) and strips the brand fill off a submitting primary CTA.
+		// `text-fg/60` is measured over surface / surface-card / surface-muted in both
+		// themes by packages/tokens `contrast.test.ts`; variants whose ink or surface
+		// differs override it below.
+		'data-[disabled]:text-fg/60 data-[disabled]:pointer-events-none ' +
+		'data-[pending]:text-fg/60 data-[pending]:cursor-progress',
 	variants: {
 		variant: {
 			// primary (gs `_primary`): base brand-primary (#0d0d0d light / brand-green on
 			// dark) → hover neutral-600 (#333333) + `0 0 5px rgba(0,0,0,.5)` shadow →
 			// active back to brand-primary (no shadow).
+			// Keeps the brand fill while inactive — a submitting CTA has to stay the
+			// primary action next to a disabled `secondary` Cancel — so it softens the
+			// INVERTED ink instead of the base one.
 			primary:
-				'bg-brand-primary text-fg-inverted hover:bg-neutral-600 hover:shadow-[0_0_5px_0_rgba(0,0,0,0.5)] data-[pressed]:bg-brand-primary data-[pressed]:shadow-none',
+				'bg-brand-primary text-fg-inverted hover:bg-neutral-600 hover:shadow-[0_0_5px_0_rgba(0,0,0,0.5)] data-[pressed]:bg-brand-primary data-[pressed]:shadow-none ' +
+				'data-[disabled]:text-fg-inverted/70 data-[pending]:text-fg-inverted/70',
 			// secondary: #f7f6f2 (surface-card) + 1px #eceae1 (border); hover bg #eceae1
 			// (surface-muted) + border #aba89c (fg-subtle); active bg #eceae1.
 			secondary:
@@ -31,7 +45,16 @@ export const Button = uic(RACButton, {
 			// ghost: transparent → hover/active #eceae1 (surface-muted).
 			ghost: 'bg-transparent text-fg hover:bg-surface-muted data-[pressed]:bg-surface-muted',
 			// destructive: #ef4444 → danger token; hover/active dim via opacity (gs parity).
-			destructive: 'bg-danger text-danger-fg hover:opacity-90 data-[pressed]:opacity-80',
+			// Enabled white-on-danger is only ~4.8:1, so softening that ink would fail AA
+			// — an inactive destructive drops the red (it no longer affords the action)
+			// and falls back to the base muted ink on `surface-muted`. That pill is
+			// invisible on a `surface-muted` panel, so it outlines itself with an INSET
+			// shadow — a real border would resize the enabled button, and a `ring-*`
+			// would fight the focus ring a pending (still focusable) button can show.
+			destructive:
+				'bg-danger text-danger-fg hover:opacity-90 data-[pressed]:opacity-80 ' +
+				'data-[disabled]:bg-surface-muted data-[disabled]:shadow-[inset_0_0_0_1px_var(--color-border-muted)] ' +
+				'data-[pending]:bg-surface-muted data-[pending]:shadow-[inset_0_0_0_1px_var(--color-border-muted)]',
 		},
 		size: {
 			// gs sizes: PADDING ONLY (spacing-2/4, 3/6, 4/8) — text is a fixed 13px/400
