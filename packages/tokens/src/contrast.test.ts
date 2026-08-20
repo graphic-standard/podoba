@@ -19,11 +19,20 @@ function parseBlock(selector: string): Record<string, string> {
 	const m = css.match(new RegExp(`${selector}\\s*\\{([^}]*)\\}`))
 	if (!m) throw new Error(`selector ${selector} not found in variables.css`)
 	const vars: Record<string, string> = {}
-	// 8-digit values are captured too — NOT to assert them, but so `opaque()` below
-	// can reject them. A 6-digit-only regex silently skipped a translucent dark
-	// override and let the pair re-test the inherited LIGHT value instead.
-	for (const [, name, hex] of m[1].matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-fA-F]{8}|#[0-9a-fA-F]{6})\b/g)) {
-		vars[name] = hex
+	// EVERY `--color-*` declaration is captured, whatever its value shape, and an
+	// unrecognised one is a hard error. Matching a narrow value pattern instead
+	// drops the token from `vars` with no signal — and for a token that appears
+	// only as a DARK override, the pair then silently re-tests the inherited LIGHT
+	// value and reports a fiction. That is the failure this harness exists to
+	// prevent, so it must not be able to happen to the harness itself.
+	for (const [, name, raw] of m[1].matchAll(/--color-([a-z0-9-]+):\s*([^;]+);/g)) {
+		const value = raw.trim()
+		if (!/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(value)) {
+			throw new Error(
+				`--color-${name} in ${selector} is \`${value}\` — this harness only understands 6- or 8-digit hex. Teach it that form (and how to composite it) before the token lands.`,
+			)
+		}
+		vars[name] = value
 	}
 	return vars
 }
@@ -131,6 +140,9 @@ for (const [themeName, tokens] of Object.entries(THEMES)) {
 		})
 
 		test.each(BLENDED_PAIRS)('%s at %d over %s ≥ 4.5:1', (fg, alpha, bg) => {
+			expect(tokens[fg]).toBeDefined()
+			expect(tokens[bg]).toBeDefined()
+
 			// `blend()` applies the alpha ITSELF, so both operands must be opaque here
 			// for the same reason they must be in the solid test — `rgb()` slices bytes
 			// 1–7 and would silently discard a token's own alpha channel.
