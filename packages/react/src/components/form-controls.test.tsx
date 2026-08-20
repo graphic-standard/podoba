@@ -47,12 +47,50 @@ describe('source-parity form controls', () => {
 		expect(html).toContain('Approve')
 	})
 
-	test('keeps disabled button labels AA-readable instead of fading the whole control', () => {
-		const html = renderToStaticMarkup(<Button isDisabled>Approve</Button>)
+	// The measured half of this guard lives in packages/tokens `contrast.test.ts`,
+	// which proves every inactive ink × surface pair below clears AA in both themes.
+	// What can be asserted here is the class contract those numbers assume.
+	const VARIANTS = ['primary', 'secondary', 'ghost', 'destructive'] as const
 
-		expect(html).toContain('data-[disabled]:bg-surface-muted')
-		expect(html).toContain('data-[disabled]:text-fg')
-		expect(html).toContain('data-[disabled]:shadow-none')
-		expect(html).not.toContain('data-[disabled]:opacity-50')
+	test('no Button variant fades the whole control while inactive', () => {
+		for (const variant of VARIANTS) {
+			for (const props of [{ isDisabled: true }, { isPending: true }]) {
+				const html = renderToStaticMarkup(
+					<Button variant={variant} {...props}>
+						Approve
+					</Button>,
+				)
+
+				// Whole-control opacity blends the label into the PARENT surface, which
+				// is what dropped the old `data-[disabled]:opacity-50` below AA.
+				expect(html).not.toMatch(/data-\[disabled\]:opacity-/)
+				expect(html).not.toMatch(/data-\[pending\]:opacity-/)
+			}
+		}
+	})
+
+	test('inactive Buttons keep their variant surface instead of collapsing to one muted pill', () => {
+		const render = (variant: (typeof VARIANTS)[number]) =>
+			renderToStaticMarkup(
+				<Button variant={variant} isDisabled isPending>
+					Approve
+				</Button>,
+			)
+
+		// A submitting primary CTA sits next to a disabled `secondary` Cancel in every
+		// workflow modal — it has to stay brand-filled to remain the primary action.
+		expect(render('primary')).toContain('bg-brand-primary')
+		expect(render('primary')).not.toMatch(/data-\[(disabled|pending)\]:bg-/)
+
+		// `secondary` and `ghost` both hover to `surface-muted`, so painting their
+		// disabled state onto that same token made inert and hovered identical.
+		expect(render('secondary')).toContain('bg-surface-card')
+		expect(render('secondary')).not.toMatch(/data-\[(disabled|pending)\]:bg-/)
+		expect(render('ghost')).toContain('bg-transparent')
+		expect(render('ghost')).not.toMatch(/data-\[(disabled|pending)\]:bg-/)
+
+		// `destructive` is the one variant that does swap surface: white on `danger`
+		// is only ~4.8:1, so its ink cannot be softened in place.
+		expect(render('destructive')).toContain('data-[disabled]:bg-surface-muted')
 	})
 })
