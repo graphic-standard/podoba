@@ -19,7 +19,10 @@ function parseBlock(selector: string): Record<string, string> {
 	const m = css.match(new RegExp(`${selector}\\s*\\{([^}]*)\\}`))
 	if (!m) throw new Error(`selector ${selector} not found in variables.css`)
 	const vars: Record<string, string> = {}
-	for (const [, name, hex] of m[1].matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})\b/g)) {
+	// 8-digit values are captured too — NOT to assert them, but so `opaque()` below
+	// can reject them. A 6-digit-only regex silently skipped a translucent dark
+	// override and let the pair re-test the inherited LIGHT value instead.
+	for (const [, name, hex] of m[1].matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-fA-F]{8}|#[0-9a-fA-F]{6})\b/g)) {
 		vars[name] = hex
 	}
 	return vars
@@ -46,6 +49,18 @@ function luminance([r, g, b]: Rgb): number {
 	return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb
 }
 
+/**
+ * A static pair only means something for an OPAQUE value: a translucent token's
+ * effective colour depends on whatever it is composited over, which is a property
+ * of the layout, not of the token. Fail loudly rather than measure a fiction.
+ */
+function opaque(name: string, hex: string): string {
+	if (hex.length !== 7) {
+		throw new Error(`token ${name} is translucent (${hex}) — assert it as a blend over a known surface, not as a solid pair`)
+	}
+	return hex
+}
+
 function ratio(fgHex: string, bgHex: string): number {
 	const [a, b] = [luminance(rgb(fgHex)), luminance(rgb(bgHex))]
 	return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
@@ -70,11 +85,22 @@ const SOLID_PAIRS: Array<[fg: string, bg: string]> = [
 	['fg', 'surface-muted'],
 	// general body-copy sanity
 	['fg', 'surface'],
-	// NOT listed: ['fg-muted', 'surface'] — #7d786f on #ffffff measures ~4.39:1,
-	// just under AA, despite the token's "AA-compliant grey on white" description.
-	// Pre-existing, system-wide, and owned by the upstream token source — tracked
-	// as its own issue; add the pair here once the value is corrected.
+	// #19: `fg-muted` was #7d786f, which cleared NONE of its own surfaces (4.39:1 on
+	// white, 4.06:1 on surface-card, 3.64:1 on surface-muted) while its description
+	// called itself "AA-compliant grey on white". The upstream token source darkened
+	// it to #67635b; these four pairs are the ones that value was tuned against, and
+	// the binding one is `border`/`surface-muted` (#eceae1), not white.
+	['fg-muted', 'surface'],
+	['fg-muted', 'surface-card'],
+	['fg-muted', 'surface-muted'],
 ]
+
+/**
+ * Asserted in the LIGHT theme only. `border` is an opaque #eceae1 hairline in light
+ * — the binding surface `fg-muted` was tuned against — but a translucent #ffffff1a
+ * in dark, where the pair is composite-dependent (see `opaque()`).
+ */
+const LIGHT_ONLY_SOLID_PAIRS: Array<[fg: string, bg: string]> = [['fg-muted', 'border']]
 
 /** Alpha-blended muted tones used by Tile (`/60` dark, `/70` teal/yellow). */
 const BLENDED_PAIRS: Array<[fg: string, alpha: number, bg: string]> = [
@@ -97,10 +123,13 @@ const BLENDED_PAIRS: Array<[fg: string, alpha: number, bg: string]> = [
 
 for (const [themeName, tokens] of Object.entries(THEMES)) {
 	describe(`${themeName} theme`, () => {
-		test.each(SOLID_PAIRS)('%s on %s ≥ 4.5:1', (fg, bg) => {
+		const solidPairs =
+			themeName === 'light' ? [...SOLID_PAIRS, ...LIGHT_ONLY_SOLID_PAIRS] : SOLID_PAIRS
+
+		test.each(solidPairs)('%s on %s ≥ 4.5:1', (fg, bg) => {
 			expect(tokens[fg]).toBeDefined()
 			expect(tokens[bg]).toBeDefined()
-			expect(ratio(tokens[fg], tokens[bg])).toBeGreaterThanOrEqual(4.5)
+			expect(ratio(opaque(fg, tokens[fg]), opaque(bg, tokens[bg]))).toBeGreaterThanOrEqual(4.5)
 		})
 
 		test.each(BLENDED_PAIRS)('%s at %d over %s ≥ 4.5:1', (fg, alpha, bg) => {
