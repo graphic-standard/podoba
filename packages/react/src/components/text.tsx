@@ -73,6 +73,10 @@ export const Text = uic('span', {
 		// therefore an AA-safe alias of `muted` (same approach as the semibold /
 		// bold aliases above: the key survives so consumers don't break), and the
 		// light grey moved behind the explicit `decorative` key. See <Subtle>.
+		// NOTE: `muted` covers the reading surfaces only. On `surface-inverted` —
+		// which does NOT flip with the theme — pair `inverted` (or `Subtle`'s
+		// `tone="inverted"` for a de-emphasised run) instead; `fg-muted` is 2.60:1
+		// there.
 		tone: {
 			default: 'text-fg',
 			muted: 'text-fg-muted',

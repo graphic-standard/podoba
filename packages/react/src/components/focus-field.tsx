@@ -85,8 +85,8 @@ export function FocusFields({ children, className }: { children: ReactNode; clas
 
 // In the overlay, enlarge and de-chrome text controls into a bare headline editor.
 const OVERLAY_EDITOR =
-	'[&_input]:w-full [&_input]:border-0 [&_input]:bg-transparent [&_input]:p-0 [&_input]:text-display [&_input]:font-medium [&_input]:text-fg [&_input]:outline-none [&_input]:shadow-none [&_input]:ring-0 [&_input]:placeholder:text-fg-subtle ' +
-	'[&_textarea]:min-h-40 [&_textarea]:w-full [&_textarea]:resize-none [&_textarea]:border-0 [&_textarea]:bg-transparent [&_textarea]:p-0 [&_textarea]:text-display [&_textarea]:font-medium [&_textarea]:text-fg [&_textarea]:outline-none [&_textarea]:placeholder:text-fg-subtle'
+	'[&_input]:w-full [&_input]:border-0 [&_input]:bg-transparent [&_input]:p-0 [&_input]:text-display [&_input]:font-medium [&_input]:text-fg [&_input]:outline-none [&_input]:shadow-none [&_input]:ring-0 [&_input]:placeholder:text-fg-muted ' +
+	'[&_textarea]:min-h-40 [&_textarea]:w-full [&_textarea]:resize-none [&_textarea]:border-0 [&_textarea]:bg-transparent [&_textarea]:p-0 [&_textarea]:text-display [&_textarea]:font-medium [&_textarea]:text-fg [&_textarea]:outline-none [&_textarea]:placeholder:text-fg-muted'
 
 function IconBadge({ icon }: { icon: ReactNode }) {
 	return (
@@ -166,7 +166,7 @@ export function FocusField({
 				<div className="min-w-0 flex-1">
 					<div className="text-small text-fg-muted">{label}</div>
 					<div className="mt-1 truncate text-body text-fg">
-						{hasValue ? preview : <span className="text-fg-subtle">{placeholder}</span>}
+						{hasValue ? preview : <span className="text-fg-muted">{placeholder}</span>}
 					</div>
 				</div>
 			</div>

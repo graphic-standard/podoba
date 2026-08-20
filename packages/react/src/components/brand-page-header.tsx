@@ -270,9 +270,11 @@ export function BrandPageHeader({
 							{parentLink ? (
 								// gs "title to go back": muted clickable parent line above the title.
 								// `[&_a]` styles the nested router <Link> (anchor) without @app/ui
-								// importing the router.
+								// importing the router. #25: the source's decorative grey is 2.10:1
+								// on `surface` — this row is a navigation LINK, so it takes the
+								// readable `fg-muted` (5.98:1) instead.
 								<>
-									<span className="text-fg-subtle transition-colors [&_a:hover]:text-fg [&_a]:text-fg-subtle [&_a]:no-underline [&_a]:outline-none [&_a:focus-visible]:underline">
+									<span className="text-fg-muted transition-colors [&_a:hover]:text-fg [&_a]:text-fg-muted [&_a]:no-underline [&_a]:outline-none [&_a:focus-visible]:underline">
 										{parentLink}
 									</span>
 									<br />

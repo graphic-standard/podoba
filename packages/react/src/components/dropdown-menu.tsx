@@ -43,7 +43,8 @@ import { uic } from '../utils/uic'
  * tokens): content bg white → `surface` · 1px `#eceae1` border → `border` · 8px
  * radius → `rounded-lg` · `shadow-lg` · item 12/16px padding → `py-3 px-4` · 6px
  * item radius → `rounded-md` · item hover `#f7f6f2` → `surface-card` · item text
- * `#0d0d0d` → `fg` · section label `#aba89c` 13px → `text-fg-subtle text-compact`
+ * `#0d0d0d` → `fg` · section label `#aba89c` 13px → `text-fg-muted text-compact`
+ * (#25: the source grey is 2.10:1 on `surface`; a section label is read, not ornament)
  * · separator `#eceae1` → `border`. The destructive item uses `text-danger`
  * (`#dc2626`) — a light-surface red that reads correctly here (unlike the dark
  * ContextMenu, which needs the lighter `#ffb5b5`).
@@ -98,7 +99,7 @@ export function DropdownMenuSection<T extends object>({
 	return (
 		<RACMenuSection {...props}>
 			{label ? (
-				<Header className="px-4 py-3 text-compact font-medium text-fg-subtle">{label}</Header>
+				<Header className="px-4 py-3 text-compact font-medium text-fg-muted">{label}</Header>
 			) : null}
 			{children}
 		</RACMenuSection>

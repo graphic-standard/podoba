@@ -48,6 +48,17 @@ describe('de-emphasised text is AA by default', () => {
 		expect(renderToStaticMarkup(<Text>Copy</Text>)).not.toContain('text-fg-subtle')
 	})
 
+	// `surface-inverted` does NOT flip with the theme, so in the light theme it is a
+	// dark #242423 panel where `fg-muted` collapses to 2.60:1 — worse than the
+	// `fg-subtle` this component used to apply there (7.41:1). `inverted` is the tone
+	// for that surface, matching Tile's own `mutedTone()`.
+	test('Subtle offers an inverted tone for the surface fg-muted cannot cover', () => {
+		const html = renderToStaticMarkup(<Subtle tone="inverted">on a dark tile</Subtle>)
+
+		expect(html).toContain('text-fg-inverted/60')
+		expect(html).not.toContain('text-fg-muted')
+	})
+
 	test('the decorative token stays reachable, but only explicitly', () => {
 		expect(renderToStaticMarkup(<Subtle tone="decorative">/</Subtle>)).toContain('text-fg-subtle')
 		expect(renderToStaticMarkup(<Text tone="decorative">/</Text>)).toContain('text-fg-subtle')

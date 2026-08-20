@@ -462,7 +462,10 @@ function TypographyShowcase() {
 				<Text tone="default">Default</Text>
 				<Text tone="muted">Muted</Text>
 				<Text tone="subtle">Subtle (AA alias of muted)</Text>
-				<Text tone="decorative">Decorative — ornament only</Text>
+				<span>
+					<Text tone="muted">Decorative — ornament only:</Text>{" "}
+					<Text tone="decorative">╱╱╱</Text>
+				</span>
 				<span className="rounded-md bg-surface-inverted px-2.5 py-1">
 					<Text tone="inverted">Inverted</Text>
 				</span>
@@ -1586,6 +1589,13 @@ const SECTIONS: SectionDef[] = [
 					<h1 className="text-display font-medium leading-tight text-fg">
 						Q3 report <Subtle tone="decorative">/</Subtle> Brand system
 					</h1>
+				</Demo>
+				<Demo label="tone=&quot;inverted&quot; — surface-inverted does not flip with the theme">
+					<span className="inline-block rounded-panel bg-surface-inverted px-5 py-4">
+						<span className="text-display font-medium leading-tight text-fg-inverted">
+							<Subtle tone="inverted">You have</Subtle> 3 planned tasks
+						</span>
+					</span>
 				</Demo>
 			</>
 		),
