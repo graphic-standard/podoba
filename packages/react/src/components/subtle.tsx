@@ -43,14 +43,17 @@ import { uic } from '../utils/uic'
  *
  * ## Migrating from ≤ 0.0.34
  *
- * BREAKING for dark and brand surfaces. This component used to render `fg-subtle`
- * unconditionally, which happens to PASS on `surface-inverted` (7.41:1) — so a run
- * that sat on a dark or brand panel got a working colour by accident and now needs
- * `tone="inverted"` / `tone="on-brand"` to keep it. Nothing detects this for you:
- * the tone is a prop, and no lint rule knows which surface a run lands on. Grep for
- * `<Subtle` and `tone="subtle"` inside dark `Tile`s, `bg-surface-inverted` panels,
- * `CtaPill`s and teal/yellow surfaces. On the reading surfaces — the overwhelming
- * majority — the default is strictly better and needs no change.
+ * BREAKING on `surface-inverted` ONLY. `fg-subtle` is light enough that it happened
+ * to PASS on that dark panel (7.41:1) while failing everywhere else, so a run that
+ * sat on a dark `Tile` had a working colour by accident and now needs
+ * `tone="inverted"` to keep it. Nothing detects this for you: the tone is a prop,
+ * and no lint rule knows which surface a run lands on — grep for `<Subtle` and
+ * `tone="subtle"` inside dark `Tile`s and `bg-surface-inverted` panels.
+ *
+ * Everywhere else the new default is an improvement, not a migration. On the
+ * reading surfaces it goes 2.10 → 5.98 (and 1.74 → 4.96 on `surface-muted`); on the
+ * brand fills 1.39 → 3.95, which is better but still short of AA — those runs were
+ * ALWAYS broken and `tone="on-brand"` is the fix, not a regression to undo.
  *
  * `decorative` is the lighter `fg-subtle` (#b3b3b3) this component used to apply
  * unconditionally. It measures 2.10:1 on `surface` and 1.94:1 on `surface-card`, below
