@@ -1597,6 +1597,18 @@ const SECTIONS: SectionDef[] = [
 						</span>
 					</span>
 				</Demo>
+				<Demo label="tone=&quot;on-brand&quot; — the fixed brand fills never flip either">
+					<span className="inline-block rounded-panel bg-brand-green px-5 py-4">
+						<span className="text-display font-medium leading-tight text-fg-on-brand">
+							<Subtle tone="on-brand">You have</Subtle> 3 planned tasks
+						</span>
+					</span>
+					<span className="inline-block rounded-panel bg-accent-yellow px-5 py-4">
+						<span className="text-display font-medium leading-tight text-fg-on-brand">
+							<Subtle tone="on-brand">You have</Subtle> 3 planned tasks
+						</span>
+					</span>
+				</Demo>
 			</>
 		),
 	},

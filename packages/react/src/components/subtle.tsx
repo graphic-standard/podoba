@@ -25,12 +25,32 @@ import { uic } from '../utils/uic'
  * 4.96:1 in light; 6.52:1 / 5.30:1 in dark. Meaningful copy — a greeting, a task
  * count, a caption — belongs here.
  *
- * `inverted` is for the one surface `muted` does NOT cover: `surface-inverted` does
- * not flip with the theme, so in the LIGHT theme it is a dark #242423 panel (a dark
- * `Tile`, a `Badge color="dark"`) where `fg-muted` collapses to 2.60:1. Reach for
- * this tone whenever the run sits on an inverted surface — `fg-inverted/60` holds
- * 6.49:1 there in light and 4.99:1 in dark, and matches what `Tile`'s own
- * `mutedTone()` already applies to its own dark theme.
+ * `muted` covers the reading surfaces and nothing else. Every surface that carries
+ * its OWN ink needs the matching tone, because `fg-muted` is below AA on all of
+ * them — `Tile.mutedTone()` has always encoded this pairing, and these two tones
+ * are the same rule made reachable from a bare run of text:
+ *
+ *   surface-inverted (#242423 — does NOT flip, so it is a dark panel in the LIGHT
+ *     theme too: a dark `Tile`, `Badge color="dark"`)   fg-muted 2.60:1
+ *     → `inverted`, `fg-inverted/60` — 6.49:1 light, 4.99:1 dark
+ *
+ *   the FIXED brand fills, which never flip: brand-green (fg-muted 3.95:1),
+ *     accent-yellow (4.01:1), brand-secondary (3.60:1) — a teal or yellow `Tile`,
+ *     a `CtaPill`, a green/yellow `Badge`
+ *     → `on-brand`, `fg-on-brand/70` — 6.08:1 / 6.11:1 / 5.78:1, theme-stable
+ *
+ * All four blends are asserted in @podoba/tokens `contrast.test.ts`.
+ *
+ * ## Migrating from ≤ 0.0.34
+ *
+ * BREAKING for dark and brand surfaces. This component used to render `fg-subtle`
+ * unconditionally, which happens to PASS on `surface-inverted` (7.41:1) — so a run
+ * that sat on a dark or brand panel got a working colour by accident and now needs
+ * `tone="inverted"` / `tone="on-brand"` to keep it. Nothing detects this for you:
+ * the tone is a prop, and no lint rule knows which surface a run lands on. Grep for
+ * `<Subtle` and `tone="subtle"` inside dark `Tile`s, `bg-surface-inverted` panels,
+ * `CtaPill`s and teal/yellow surfaces. On the reading surfaces — the overwhelming
+ * majority — the default is strictly better and needs no change.
  *
  * `decorative` is the lighter `fg-subtle` (#b3b3b3) this component used to apply
  * unconditionally. It measures 2.10:1 on `surface` and 1.94:1 on `surface-card`, below
@@ -44,6 +64,7 @@ export const Subtle = uic('span', {
 		tone: {
 			muted: 'text-fg-muted',
 			inverted: 'text-fg-inverted/60',
+			'on-brand': 'text-fg-on-brand/70',
 			decorative: 'text-fg-subtle',
 		},
 	},

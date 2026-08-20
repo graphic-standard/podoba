@@ -83,7 +83,8 @@ export const DropdownMenuSeparator = uic(RACSeparator, {
 export interface DropdownMenuSectionProps<T extends object> extends Omit<RACMenuSectionProps<T>, 'children'> {
 	/**
 	 * Section label (gs `.label`). Rendered as a non-interactive `Header` — 13px
-	 * medium, `fg-subtle` — above the section's items.
+	 * medium, `fg-muted` — above the section's items. (The source grey `fg-subtle`
+	 * is 2.10:1 on `surface`; a section label is read, not ornament — #25.)
 	 */
 	label?: ReactNode
 	/** Static section items (each a {@link DropdownMenuItem}). */

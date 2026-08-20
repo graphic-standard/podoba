@@ -42,8 +42,9 @@ export type BrandPageHeaderProps = {
 	 * gs-style "title to go back": a muted, clickable PARENT link rendered as the
 	 * line ABOVE the title (so the title reads "Parent ⏎ Current"). Pass a real
 	 * router `<Link>` so it's an anchor (cmd/middle-click, deep-link-safe), exactly
-	 * like gs's `parentLink`. The header uses the source's decorative `fg-subtle`
-	 * (#b3b3b3) with a hover→fg affordance.
+	 * like gs's `parentLink`. Rendered in `fg-muted` with a hover→fg affordance —
+	 * the source's decorative `fg-subtle` is 2.10:1 on `surface`, and this row is a
+	 * navigation link, not ornament (#25).
 	 */
 	parentLink?: ReactNode
 	/** Optional breadcrumb trail rendered above the greeting. */

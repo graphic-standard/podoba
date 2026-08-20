@@ -108,8 +108,14 @@ describe('BrandPageHeader heading semantics', () => {
 			<BrandPageHeader greeting="Colors" parentLink={<a href="/tokens">Tokens</a>} />,
 		)
 
-		expect(html).toContain('text-fg-muted')
-		expect(html).toContain('[&amp;_a]:text-fg-muted')
-		expect(html).not.toContain('text-fg-subtle')
+		// Scoped to the parent-link span, NOT the whole component: a legitimately
+		// ornamental `fg-subtle` elsewhere in the header must not fail a test that
+		// names this row.
+		const parentRow = html.match(/<span class="([^"]*\[&amp;_a\][^"]*)"/)?.[1]
+
+		expect(parentRow).toBeDefined()
+		expect(parentRow).toContain('text-fg-muted')
+		expect(parentRow).toContain('[&amp;_a]:text-fg-muted')
+		expect(parentRow).not.toContain('text-fg-subtle')
 	})
 })

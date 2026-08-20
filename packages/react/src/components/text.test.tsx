@@ -59,6 +59,16 @@ describe('de-emphasised text is AA by default', () => {
 		expect(html).not.toContain('text-fg-muted')
 	})
 
+	// The fixed brand fills never flip either, and `fg-muted` is 3.60–4.01:1 on them.
+	// `Tile.mutedTone()` already pairs them with `fg-on-brand/70`; a bare run needs
+	// the same reach.
+	test('Subtle offers an on-brand tone for the fixed brand fills', () => {
+		const html = renderToStaticMarkup(<Subtle tone="on-brand">in a teal tile</Subtle>)
+
+		expect(html).toContain('text-fg-on-brand/70')
+		expect(html).not.toContain('text-fg-muted')
+	})
+
 	test('the decorative token stays reachable, but only explicitly', () => {
 		expect(renderToStaticMarkup(<Subtle tone="decorative">/</Subtle>)).toContain('text-fg-subtle')
 		expect(renderToStaticMarkup(<Text tone="decorative">/</Text>)).toContain('text-fg-subtle')
