@@ -108,7 +108,7 @@ import { type ComponentType, createElement, type ReactNode, useEffect, useMemo, 
 function Demo({ label, children }: { label: string; children: ReactNode }) {
 	return (
 		<div className="flex flex-col gap-3">
-			<span className="text-micro font-medium uppercase tracking-wide text-fg-subtle">{label}</span>
+			<span className="text-micro font-medium uppercase tracking-wide text-fg-muted">{label}</span>
 			<div className="flex flex-wrap items-start gap-6">{children}</div>
 		</div>
 	);
@@ -401,7 +401,7 @@ const SPECIMEN = "The quick brown fox";
 function RampRow({ meta, children }: { meta: string; children: ReactNode }) {
 	return (
 		<div className="flex items-baseline gap-4 border-b border-border/60 py-2 last:border-0">
-			<span className="w-32 shrink-0 font-mono text-micro text-fg-subtle">{meta}</span>
+			<span className="w-32 shrink-0 font-mono text-micro text-fg-muted">{meta}</span>
 			<div className="min-w-0 flex-1">{children}</div>
 		</div>
 	);
@@ -413,7 +413,7 @@ function TypographyShowcase() {
 			<Demo label="Product display heading (GS source label-1)">
 				<DisplayHeading asChild>
 					<h2>
-						<span className="text-fg-subtle">Review final output, then approve for </span>
+						<Subtle>Review final output, then approve for </Subtle>
 						Spring Campaign 2026.
 					</h2>
 				</DisplayHeading>
@@ -461,7 +461,8 @@ function TypographyShowcase() {
 			<Demo label="Tones">
 				<Text tone="default">Default</Text>
 				<Text tone="muted">Muted</Text>
-				<Text tone="subtle">Subtle</Text>
+				<Text tone="subtle">Subtle (AA alias of muted)</Text>
+				<Text tone="decorative">Decorative — ornament only</Text>
 				<span className="rounded-md bg-surface-inverted px-2.5 py-1">
 					<Text tone="inverted">Inverted</Text>
 				</span>
@@ -1571,15 +1572,22 @@ const SECTIONS: SectionDef[] = [
 		group: "Content",
 		title: "Two-tone text",
 		subtitle:
-			"<Subtle> wraps a run in the light fg-subtle grey; text outside it stays full-contrast. Compose it freely to two-tone any run of a line, in any word order — ideal for greetings and mid-line emphasis.",
+			"<Subtle> wraps a run in the de-emphasised fg-muted grey; text outside it stays full-contrast. Compose it freely to two-tone any run of a line, in any word order — ideal for greetings and mid-line emphasis. tone=\"decorative\" opts into the lighter fg-subtle, which is 2.10:1 on this surface and therefore ornament-only.",
 		content: (
-			<Demo label="Inline de-emphasis">
-				<h1 className="text-display font-medium leading-tight text-fg">
-					<Subtle>Good afternoon,</Subtle> Jonas 👋
-					<br />
-					<Subtle>You have</Subtle> 3 planned tasks <Subtle>today</Subtle>
-				</h1>
-			</Demo>
+			<>
+				<Demo label="Inline de-emphasis (default — AA on every surface)">
+					<h1 className="text-display font-medium leading-tight text-fg">
+						<Subtle>Good afternoon,</Subtle> Jonas 👋
+						<br />
+						<Subtle>You have</Subtle> 3 planned tasks <Subtle>today</Subtle>
+					</h1>
+				</Demo>
+				<Demo label="tone=&quot;decorative&quot; — ornament only, never meaningful copy">
+					<h1 className="text-display font-medium leading-tight text-fg">
+						Q3 report <Subtle tone="decorative">/</Subtle> Brand system
+					</h1>
+				</Demo>
+			</>
 		),
 	},
 
@@ -1892,7 +1900,7 @@ export function App() {
 				<div className="flex flex-col gap-3 border-b border-border p-4">
 					<div className="flex flex-col">
 						<span className="text-heading5 font-medium text-fg">podoba</span>
-						<span className="text-micro uppercase tracking-wide text-fg-subtle">component gallery</span>
+						<span className="text-micro uppercase tracking-wide text-fg-muted">component gallery</span>
 					</div>
 					<input
 						value={query}
@@ -1904,7 +1912,7 @@ export function App() {
 				<nav className="flex flex-1 flex-col gap-4 overflow-y-auto p-3">
 					{groups.map((g) => (
 						<div key={g.group} className="flex flex-col gap-0.5">
-							<span className="px-3 pb-1 text-micro font-medium uppercase tracking-wider text-fg-subtle">
+							<span className="px-3 pb-1 text-micro font-medium uppercase tracking-wider text-fg-muted">
 								{g.group}
 							</span>
 							{g.items.map((s) => (
@@ -1923,7 +1931,7 @@ export function App() {
 							))}
 						</div>
 					))}
-					{groups.length === 0 ? <span className="px-3 py-1.5 text-sm text-fg-subtle">No matches</span> : null}
+					{groups.length === 0 ? <span className="px-3 py-1.5 text-sm text-fg-muted">No matches</span> : null}
 				</nav>
 			</aside>
 
@@ -1933,14 +1941,14 @@ export function App() {
 					<span className="text-sm font-medium text-fg">
 						{activeTitle ? (
 							<>
-								<span className="text-fg-subtle">{activeTitle.group}</span>
+								<span className="text-fg-muted">{activeTitle.group}</span>
 								<span className="px-1.5 text-fg-subtle">/</span>
 								{activeTitle.title}
 							</>
 						) : null}
 					</span>
 					<div className="flex items-center gap-2">
-						<span className="text-micro uppercase tracking-wide text-fg-subtle">Background</span>
+						<span className="text-micro uppercase tracking-wide text-fg-muted">Background</span>
 						<div className="flex gap-1 rounded-md border border-border p-0.5">
 							{BACKGROUNDS.map((b) => (
 								<button
@@ -1969,7 +1977,7 @@ export function App() {
 						{SECTIONS.map((s) => (
 							<section key={s.id} id={s.id} data-section className="flex scroll-mt-8 flex-col gap-8">
 								<div className="flex flex-col gap-1.5">
-									<span className="text-micro font-medium uppercase tracking-wider text-fg-subtle">{s.group}</span>
+									<span className="text-micro font-medium uppercase tracking-wider text-fg-muted">{s.group}</span>
 									<h2 className="text-heading3 font-medium text-fg">{s.title}</h2>
 									{s.subtitle ? <p className="max-w-2xl text-sm leading-relaxed text-fg-muted">{s.subtitle}</p> : null}
 								</div>

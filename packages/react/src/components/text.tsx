@@ -68,10 +68,16 @@ export const Text = uic('span', {
 			semibold: 'font-medium',
 			bold: 'font-medium',
 		},
+		// `fg-subtle` (#b3b3b3) is 2.10:1 on `surface` — below even the 3:1
+		// large-text floor — so it can never carry meaningful copy. `subtle` is
+		// therefore an AA-safe alias of `muted` (same approach as the semibold /
+		// bold aliases above: the key survives so consumers don't break), and the
+		// light grey moved behind the explicit `decorative` key. See <Subtle>.
 		tone: {
 			default: 'text-fg',
 			muted: 'text-fg-muted',
-			subtle: 'text-fg-subtle',
+			subtle: 'text-fg-muted',
+			decorative: 'text-fg-subtle',
 			inverted: 'text-fg-inverted',
 		},
 	},
