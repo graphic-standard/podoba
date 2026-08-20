@@ -56,7 +56,9 @@ function luminance([r, g, b]: Rgb): number {
  */
 function opaque(name: string, hex: string): string {
 	if (hex.length !== 7) {
-		throw new Error(`token ${name} is translucent (${hex}) — assert it as a blend over a known surface, not as a solid pair`)
+		throw new Error(
+			`token ${name} is translucent (${hex}) — its effective colour depends on what it composites over, so it cannot be an operand of a static pair`,
+		)
 	}
 	return hex
 }
@@ -81,7 +83,9 @@ const SOLID_PAIRS: Array<[fg: string, bg: string]> = [
 	['fg-on-brand', 'accent-yellow'],
 	// flipping inverted surface × flipping inverted ink (Badge dark, Tile dark)
 	['fg-inverted', 'surface-inverted'],
-	// grey Badge (fg-muted on surface-muted was ~3.7:1 — below AA for caption text)
+	// grey Badge — full `fg` ink. #19 lifted `fg-muted` on `surface-muted` from 3.64:1
+	// to 4.96:1, so the pair is no longer disqualified, but a Badge is caption-size and
+	// keeps the stronger ink; this pair is what that choice is asserted against.
 	['fg', 'surface-muted'],
 	// general body-copy sanity
 	['fg', 'surface'],
@@ -93,14 +97,11 @@ const SOLID_PAIRS: Array<[fg: string, bg: string]> = [
 	['fg-muted', 'surface'],
 	['fg-muted', 'surface-card'],
 	['fg-muted', 'surface-muted'],
+	// NOT listed: ['fg-muted', 'border'] — in light `border` IS #eceae1, so the pair
+	// is numerically identical to the line above, and in dark it is a translucent
+	// #ffffff1a hairline that `opaque()` rejects. `bg-border` is only ever a 1px rule
+	// in this repo (separator.tsx, dropdown-menu.tsx), never a text background.
 ]
-
-/**
- * Asserted in the LIGHT theme only. `border` is an opaque #eceae1 hairline in light
- * — the binding surface `fg-muted` was tuned against — but a translucent #ffffff1a
- * in dark, where the pair is composite-dependent (see `opaque()`).
- */
-const LIGHT_ONLY_SOLID_PAIRS: Array<[fg: string, bg: string]> = [['fg-muted', 'border']]
 
 /** Alpha-blended muted tones used by Tile (`/60` dark, `/70` teal/yellow). */
 const BLENDED_PAIRS: Array<[fg: string, alpha: number, bg: string]> = [
@@ -123,17 +124,19 @@ const BLENDED_PAIRS: Array<[fg: string, alpha: number, bg: string]> = [
 
 for (const [themeName, tokens] of Object.entries(THEMES)) {
 	describe(`${themeName} theme`, () => {
-		const solidPairs =
-			themeName === 'light' ? [...SOLID_PAIRS, ...LIGHT_ONLY_SOLID_PAIRS] : SOLID_PAIRS
-
-		test.each(solidPairs)('%s on %s ≥ 4.5:1', (fg, bg) => {
+		test.each(SOLID_PAIRS)('%s on %s ≥ 4.5:1', (fg, bg) => {
 			expect(tokens[fg]).toBeDefined()
 			expect(tokens[bg]).toBeDefined()
 			expect(ratio(opaque(fg, tokens[fg]), opaque(bg, tokens[bg]))).toBeGreaterThanOrEqual(4.5)
 		})
 
 		test.each(BLENDED_PAIRS)('%s at %d over %s ≥ 4.5:1', (fg, alpha, bg) => {
-			expect(ratio(blend(tokens[fg], alpha, tokens[bg]), tokens[bg])).toBeGreaterThanOrEqual(4.5)
+			// `blend()` applies the alpha ITSELF, so both operands must be opaque here
+			// for the same reason they must be in the solid test — `rgb()` slices bytes
+			// 1–7 and would silently discard a token's own alpha channel.
+			const [inkHex, bgHex] = [opaque(fg, tokens[fg]), opaque(bg, tokens[bg])]
+
+			expect(ratio(blend(inkHex, alpha, bgHex), bgHex)).toBeGreaterThanOrEqual(4.5)
 		})
 	})
 }

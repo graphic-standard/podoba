@@ -105,10 +105,12 @@ function titleTone(theme: TileTheme, subtle: boolean): string {
 }
 
 /**
- * Muted supporting text / footer tone per surface. `fg-muted` is tuned for white —
- * on the colored surfaces it drops below AA, so those blend their own paired ink
- * instead (/60 · /70 keep ≥4.5:1 in both themes — verified by the contrast test
- * in @podoba/tokens).
+ * Muted supporting text / footer tone per surface. `fg-muted` is tuned for the READING
+ * surfaces — after #19 it clears AA on all of them, white included, but the binding one
+ * is `surface-muted`/`border` #eceae1, not white. On the colored and inverted surfaces
+ * it still drops below AA (2.60:1 on `surface-inverted`), so those blend their own
+ * paired ink instead (/60 · /70 keep ≥4.5:1 in both themes — verified by the contrast
+ * test in @podoba/tokens).
  */
 function mutedTone(theme: TileTheme): string {
 	if (theme === 'dark') return 'text-fg-inverted/60'
@@ -386,8 +388,9 @@ const BADGE: Record<BadgeColor, string> = {
 	// brand green for every green tag (New, Active, Published), matching gs 1:1.
 	// Pairing rule (same as Tile THEME): fixed light surfaces take the stable
 	// `fg-on-brand` ink, the flipping inverted surface takes `fg-inverted`, and grey
-	// takes full `fg` — `fg-muted` on `surface-muted` was ~3.7:1, under the 4.5:1
-	// AA floor for caption-size text.
+	// takes full `fg`. #19 lifted `fg-muted` on `surface-muted` from 3.64:1 to 4.96:1,
+	// so it is no longer disqualified outright — a Badge is caption-size and keeps the
+	// stronger ink deliberately, for the margin rather than for compliance.
 	green: 'bg-brand-green text-fg-on-brand',
 	yellow: 'bg-accent-yellow text-fg-on-brand',
 	grey: 'bg-surface-muted text-fg',

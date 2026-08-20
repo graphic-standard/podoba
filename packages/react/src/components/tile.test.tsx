@@ -53,7 +53,8 @@ describe('semantic foreground pairing (WCAG AA — issues #14/#15)', () => {
 		// fixed light surfaces → stable on-brand ink (theme-flipping fg went white-on-pastel)
 		expect(renderToStaticMarkup(<Badge label="Live" color="green" />)).toContain('bg-brand-green text-fg-on-brand')
 		expect(renderToStaticMarkup(<Badge label="Todo" color="yellow" />)).toContain('bg-accent-yellow text-fg-on-brand')
-		// grey → full fg (fg-muted on surface-muted was ~3.7:1, under AA for caption text)
+		// grey → full fg. #19 lifted fg-muted on surface-muted to 4.96:1, so this is now a
+		// deliberate margin choice for caption-size text, not the only compliant option.
 		expect(renderToStaticMarkup(<Badge label="Draft" color="grey" />)).toContain('bg-surface-muted text-fg')
 		// flipping inverted surface → flipping inverted ink, never hardcoded white
 		const darkBadge = renderToStaticMarkup(<Badge label="v3" color="dark" />)
