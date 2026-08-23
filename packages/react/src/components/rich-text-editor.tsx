@@ -145,7 +145,7 @@ export function RichTextEditor({
 				</div>
 				<div
 					ref={ref}
-					className="prose prose-sm max-w-none px-4 py-3.5 text-small leading-relaxed text-fg outline-none empty:before:text-fg-subtle empty:before:content-[attr(data-placeholder)]"
+					className="prose prose-sm max-w-none px-4 py-3.5 text-small leading-relaxed text-fg outline-none empty:before:text-fg-muted empty:before:content-[attr(data-placeholder)]"
 					style={{ minHeight: bodyMinHeight }}
 					contentEditable
 					suppressContentEditableWarning

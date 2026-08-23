@@ -459,7 +459,7 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 										aria-label="Link URL"
 										aria-invalid={linkError ? true : undefined}
 										placeholder="https://, mailto:, /path"
-										className="h-8 w-56 rounded-md border border-border bg-surface px-2 text-small text-fg outline-none placeholder:text-fg-subtle focus:border-brand-green"
+										className="h-8 w-56 rounded-md border border-border bg-surface px-2 text-small text-fg outline-none placeholder:text-fg-muted focus:border-brand-green"
 										onChange={(e) => {
 											setLinkDraft(e.target.value)
 											setLinkError(null)
@@ -551,7 +551,7 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 										onClick={() => runSlash(cmd)}
 									>
 										<span className="text-small text-fg">{cmd.title}</span>
-										<span className="text-caption text-fg-subtle">{cmd.hint}</span>
+										<span className="text-caption text-fg-muted">{cmd.hint}</span>
 									</div>
 								))}
 							</div>,

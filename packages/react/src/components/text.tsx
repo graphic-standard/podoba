@@ -68,11 +68,24 @@ export const Text = uic('span', {
 			semibold: 'font-medium',
 			bold: 'font-medium',
 		},
+		// `fg-subtle` (#b3b3b3) is 2.10:1 on `surface` — below even the 3:1
+		// large-text floor — so it can never carry meaningful copy. `subtle` is
+		// therefore an AA-safe alias of `muted` (same approach as the semibold /
+		// bold aliases above: the key survives so consumers don't break), and the
+		// light grey moved behind the explicit `decorative` key. See <Subtle>.
+		// NOTE: `default`/`muted` are the READING-surface inks. Surfaces that carry
+		// their own ink need the matching tone — `fg-muted` is 2.60:1 on
+		// `surface-inverted` and 3.60–4.01:1 on the fixed brand fills. Pair
+		// `inverted` there, `on-brand` on brand-green / accent-yellow /
+		// brand-secondary. (`Subtle` has de-emphasised /60 · /70 variants of the
+		// same two for a softened run.)
 		tone: {
 			default: 'text-fg',
 			muted: 'text-fg-muted',
-			subtle: 'text-fg-subtle',
+			subtle: 'text-fg-muted',
+			decorative: 'text-fg-subtle',
 			inverted: 'text-fg-inverted',
+			'on-brand': 'text-fg-on-brand',
 		},
 	},
 	defaultVariants: { size: 'body', weight: 'regular', tone: 'default' },

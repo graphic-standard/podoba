@@ -42,9 +42,11 @@ const Chevron = ({ dir }: { dir: 'left' | 'right' }) => (
 
 const calendarCellClass =
 	'flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-small text-fg outline-none transition-colors ' +
-	'data-[outside-month]:text-fg-subtle data-[hovered]:bg-surface-muted ' +
+	// #25: out-of-month and unavailable days stay de-emphasised, but they are dates a
+	// user reads and (outside-month) can click — `fg-muted`, not the 2.10:1 decorative grey.
+	'data-[outside-month]:text-fg-muted data-[hovered]:bg-surface-muted ' +
 	'data-[selected]:bg-fg data-[selected]:text-fg-inverted data-[selected]:font-medium ' +
-	'data-[unavailable]:text-fg-subtle data-[unavailable]:line-through ' +
+	'data-[unavailable]:text-fg-muted data-[unavailable]:line-through ' +
 	'data-[disabled]:opacity-40 data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring'
 
 function CalendarBody() {
@@ -62,7 +64,7 @@ function CalendarBody() {
 			<CalendarGrid className="w-full border-collapse">
 				<CalendarGridHeader>
 					{(day) => (
-						<CalendarHeaderCell className="pb-1 text-micro font-medium uppercase tracking-wide text-fg-subtle">
+						<CalendarHeaderCell className="pb-1 text-micro font-medium uppercase tracking-wide text-fg-muted">
 							{day}
 						</CalendarHeaderCell>
 					)}

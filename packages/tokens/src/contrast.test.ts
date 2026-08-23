@@ -19,8 +19,20 @@ function parseBlock(selector: string): Record<string, string> {
 	const m = css.match(new RegExp(`${selector}\\s*\\{([^}]*)\\}`))
 	if (!m) throw new Error(`selector ${selector} not found in variables.css`)
 	const vars: Record<string, string> = {}
-	for (const [, name, hex] of m[1].matchAll(/--color-([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})\b/g)) {
-		vars[name] = hex
+	// EVERY `--color-*` declaration is captured, whatever its value shape, and an
+	// unrecognised one is a hard error. Matching a narrow value pattern instead
+	// drops the token from `vars` with no signal — and for a token that appears
+	// only as a DARK override, the pair then silently re-tests the inherited LIGHT
+	// value and reports a fiction. That is the failure this harness exists to
+	// prevent, so it must not be able to happen to the harness itself.
+	for (const [, name, raw] of m[1].matchAll(/--color-([a-z0-9-]+):\s*([^;]+);/g)) {
+		const value = raw.trim()
+		if (!/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})?$/.test(value)) {
+			throw new Error(
+				`--color-${name} in ${selector} is \`${value}\` — this harness only understands 6- or 8-digit hex. Teach it that form (and how to composite it) before the token lands.`,
+			)
+		}
+		vars[name] = value
 	}
 	return vars
 }
@@ -46,6 +58,20 @@ function luminance([r, g, b]: Rgb): number {
 	return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb
 }
 
+/**
+ * A static pair only means something for an OPAQUE value: a translucent token's
+ * effective colour depends on whatever it is composited over, which is a property
+ * of the layout, not of the token. Fail loudly rather than measure a fiction.
+ */
+function opaque(name: string, hex: string): string {
+	if (hex.length !== 7) {
+		throw new Error(
+			`token ${name} is translucent (${hex}) — its effective colour depends on what it composites over, so it cannot be an operand of a static pair`,
+		)
+	}
+	return hex
+}
+
 function ratio(fgHex: string, bgHex: string): number {
 	const [a, b] = [luminance(rgb(fgHex)), luminance(rgb(bgHex))]
 	return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
@@ -66,14 +92,24 @@ const SOLID_PAIRS: Array<[fg: string, bg: string]> = [
 	['fg-on-brand', 'accent-yellow'],
 	// flipping inverted surface × flipping inverted ink (Badge dark, Tile dark)
 	['fg-inverted', 'surface-inverted'],
-	// grey Badge (fg-muted on surface-muted was ~3.7:1 — below AA for caption text)
+	// grey Badge — full `fg` ink. #19 lifted `fg-muted` on `surface-muted` from 3.64:1
+	// to 4.96:1, so the pair is no longer disqualified, but a Badge is caption-size and
+	// keeps the stronger ink; this pair is what that choice is asserted against.
 	['fg', 'surface-muted'],
 	// general body-copy sanity
 	['fg', 'surface'],
-	// NOT listed: ['fg-muted', 'surface'] — #7d786f on #ffffff measures ~4.39:1,
-	// just under AA, despite the token's "AA-compliant grey on white" description.
-	// Pre-existing, system-wide, and owned by the upstream token source — tracked
-	// as its own issue; add the pair here once the value is corrected.
+	// #19: `fg-muted` was #7d786f, which cleared NONE of its own surfaces (4.39:1 on
+	// white, 4.06:1 on surface-card, 3.64:1 on surface-muted) while its description
+	// called itself "AA-compliant grey on white". The upstream token source darkened
+	// it to #67635b; these four pairs are the ones that value was tuned against, and
+	// the binding one is `border`/`surface-muted` (#eceae1), not white.
+	['fg-muted', 'surface'],
+	['fg-muted', 'surface-card'],
+	['fg-muted', 'surface-muted'],
+	// NOT listed: ['fg-muted', 'border'] — in light `border` IS #eceae1, so the pair
+	// is numerically identical to the line above, and in dark it is a translucent
+	// #ffffff1a hairline that `opaque()` rejects. `bg-border` is only ever a 1px rule
+	// in this repo (separator.tsx, dropdown-menu.tsx), never a text background.
 ]
 
 /** Alpha-blended muted tones used by Tile (`/60` dark, `/70` teal/yellow). */
@@ -100,11 +136,19 @@ for (const [themeName, tokens] of Object.entries(THEMES)) {
 		test.each(SOLID_PAIRS)('%s on %s ≥ 4.5:1', (fg, bg) => {
 			expect(tokens[fg]).toBeDefined()
 			expect(tokens[bg]).toBeDefined()
-			expect(ratio(tokens[fg], tokens[bg])).toBeGreaterThanOrEqual(4.5)
+			expect(ratio(opaque(fg, tokens[fg]), opaque(bg, tokens[bg]))).toBeGreaterThanOrEqual(4.5)
 		})
 
 		test.each(BLENDED_PAIRS)('%s at %d over %s ≥ 4.5:1', (fg, alpha, bg) => {
-			expect(ratio(blend(tokens[fg], alpha, tokens[bg]), tokens[bg])).toBeGreaterThanOrEqual(4.5)
+			expect(tokens[fg]).toBeDefined()
+			expect(tokens[bg]).toBeDefined()
+
+			// `blend()` applies the alpha ITSELF, so both operands must be opaque here
+			// for the same reason they must be in the solid test — `rgb()` slices bytes
+			// 1–7 and would silently discard a token's own alpha channel.
+			const [inkHex, bgHex] = [opaque(fg, tokens[fg]), opaque(bg, tokens[bg])]
+
+			expect(ratio(blend(inkHex, alpha, bgHex), bgHex)).toBeGreaterThanOrEqual(4.5)
 		})
 	})
 }

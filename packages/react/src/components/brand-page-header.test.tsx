@@ -100,13 +100,22 @@ describe('BrandPageHeader heading semantics', () => {
 		expect(html).toMatch(/aria-controls="[^"]+"/)
 	})
 
-	test('uses the source decorative grey for the parent row', () => {
+	// #25: this row used the source's decorative grey (#b3b3b3, 2.10:1 on `surface`).
+	// It is a navigation LINK, so it takes the readable `fg-muted` (5.98:1) — and the
+	// nested anchor must inherit it, not fall back to the browser's default link blue.
+	test('uses the readable muted grey for the parent row, anchor included', () => {
 		const html = renderToStaticMarkup(
 			<BrandPageHeader greeting="Colors" parentLink={<a href="/tokens">Tokens</a>} />,
 		)
 
-		expect(html).toContain('text-fg-subtle')
-		expect(html).toContain('[&amp;_a]:text-fg-subtle')
-		expect(html).not.toContain('[&amp;_a]:text-fg-muted')
+		// Scoped to the parent-link span, NOT the whole component: a legitimately
+		// ornamental `fg-subtle` elsewhere in the header must not fail a test that
+		// names this row.
+		const parentRow = html.match(/<span class="([^"]*\[&amp;_a\][^"]*)"/)?.[1]
+
+		expect(parentRow).toBeDefined()
+		expect(parentRow).toContain('text-fg-muted')
+		expect(parentRow).toContain('[&amp;_a]:text-fg-muted')
+		expect(parentRow).not.toContain('text-fg-subtle')
 	})
 })
