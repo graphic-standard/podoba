@@ -5,7 +5,9 @@ import { uic } from '../utils/uic'
 export const dialogActionVariantSchema = z.enum(['primary', 'secondary'])
 
 /** Source UI dialog action, distinct from the frontend dashboard CTA Button.
- * Palette uses semantic tokens; keyboard focus retains the shared RAC treatment.
+ * Shares Button's semantic palette (brand-primary / surface-card) so the two never
+ * drift apart; only the geometry — pill radius, 24/12 padding — is specific here.
+ * Keyboard focus retains the shared RAC treatment.
  */
 export const DialogActionButton = uic(AriaButton, {
 	displayName: 'DialogActionButton',
@@ -13,8 +15,8 @@ export const DialogActionButton = uic(AriaButton, {
 		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2 ' +
 		'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed data-[pending]:cursor-progress',
 	variants: { variant: {
-		primary: 'border-0 bg-(--color-action-solid) text-(--color-action-solid-fg) data-[hovered]:bg-(--color-action-solid-hover) data-[pressed]:bg-(--color-action-solid-pressed)',
-		secondary: 'border border-border bg-(--color-action-soft) text-fg data-[hovered]:bg-(--color-action-soft-hover) data-[hovered]:border-(--color-action-soft-border-hover) data-[pressed]:bg-(--color-action-soft-pressed)',
+		primary: 'border-0 bg-brand-primary text-fg-inverted data-[hovered]:bg-neutral-600 data-[pressed]:bg-brand-primary',
+		secondary: 'border border-border bg-surface-card text-fg data-[hovered]:bg-surface-muted data-[hovered]:border-border-muted data-[pressed]:bg-surface-muted',
 	} },
 	defaultVariants: { variant: 'primary' },
 })

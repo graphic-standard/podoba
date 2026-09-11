@@ -88,7 +88,7 @@ export function AssetLibraryPreview({ label, selected, aspectRatio, tags, onPres
 }) {
 	return <AriaButton aria-label={label} aria-pressed={selected} onPress={onPress}
 		style={{ aspectRatio }}
-		className={`group relative block min-h-[150px] max-h-[800px] w-full overflow-hidden rounded-lg border p-0 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-(--color-action-soft-border-hover) active:translate-y-0 focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 motion-reduce:transition-none ${selected ? 'border-accent-blue bg-accent-blue/10' : 'border-border bg-surface-card'}`}>
+		className={`group relative block min-h-[150px] max-h-[800px] w-full overflow-hidden rounded-lg border p-0 transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-border-muted active:translate-y-0 focus-visible:ring-2 focus-visible:ring-accent-blue focus-visible:ring-offset-2 motion-reduce:transition-none ${selected ? 'border-accent-blue bg-accent-blue/10' : 'border-border bg-surface-card'}`}>
 		{children}
 		{tags.length ? <span data-testid="asset-card-overlay" className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-1 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 transition-opacity duration-250 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none">
 			{tags.slice(0, 3).map(tag => <span key={tag} className="ms-3 inline-flex h-6 items-center rounded-full bg-surface-muted px-2.5 text-label font-medium leading-5 text-(--color-neutral-600)">{tag}</span>)}
@@ -149,7 +149,7 @@ export function AssetSelectionGrid({ items, selectedId, onSelect, onContextMenu 
 	})
 	return <div ref={container} className="relative w-full" style={{ height: Math.max(0, ...bottoms) - (items.length ? gap : 0) }}>
 		{positioned.map(({ item, top, left, height }) => {
-			const className = `group relative block h-full w-full overflow-hidden rounded-lg border bg-surface-card p-0 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transition-none ${onSelect ? 'hover:shadow-xs hover:border-(--color-action-soft-border-hover)' : ''} ${selectedId === item.id ? 'border-accent-blue' : 'border-border'}`
+			const className = `group relative block h-full w-full overflow-hidden rounded-lg border bg-surface-card p-0 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transition-none ${onSelect ? 'hover:shadow-xs hover:border-border-muted' : ''} ${selectedId === item.id ? 'border-accent-blue' : 'border-border'}`
 			const contents = <>{item.preview}
 				{item.tags.length ? <span className="pointer-events-none absolute inset-x-0 bottom-0 flex flex-wrap items-center gap-1 bg-gradient-to-t from-black/70 to-transparent p-3 opacity-0 transition-opacity duration-250 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none">
 					{item.tags.slice(0, 3).map(tag => <span key={tag} className="ms-3 inline-flex h-6 items-center rounded-full bg-surface-muted px-2.5 text-label font-medium leading-5 text-(--color-neutral-600)">{tag}</span>)}
