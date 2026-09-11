@@ -74,6 +74,7 @@ export * from "./components/context-action-glyph";
 export * from "./components/subtle";
 export * from "./components/stats-card";
 export * from "./components/settings-dialog-surface";
+export * from "./components/template-catalog-card";
 export * from "./components/tile";
 export * from "./components/empty-panel-action";
 export * from "./components/table";
