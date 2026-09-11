@@ -127,4 +127,58 @@ describe('BrandPageHeader heading semantics', () => {
 		expect(parentRow).toContain('[&amp;_a]:text-fg-muted')
 		expect(parentRow).not.toContain('text-fg-subtle')
 	})
+
+	// The `breadcrumbs` prop had NO coverage, which is how a silent collapse to a
+	// single crumb shipped. These name the contract: every crumb the caller passes
+	// is rendered, separated, exactly once, in one landmark, on the readable token.
+	test('renders every crumb of the trail, separated', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader
+				greeting="Colors"
+				breadcrumbs={[
+					{ label: 'Home', onPress: () => {} },
+					{ label: 'Tokens', onPress: () => {} },
+					{ label: 'Colors' },
+				]}
+			/>,
+		)
+
+		expect(html).toContain('Home')
+		expect(html).toContain('Tokens')
+		expect(html).toContain('<span aria-hidden="true">/</span>')
+	})
+
+	test('renders a single non-pressable crumb', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader greeting="Colors" breadcrumbs={[{ label: 'Tokens' }]} />,
+		)
+
+		expect(html).toContain('aria-label="Breadcrumb"')
+		expect(html).toContain('Tokens')
+	})
+
+	test('renders exactly one Breadcrumb landmark when given both trail and parentLink', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader
+				greeting="Colors"
+				parentLink={<a href="/tokens">Tokens</a>}
+				breadcrumbs={[{ label: 'Tokens', onPress: () => {} }]}
+			/>,
+		)
+
+		// Duplicate landmarks sharing an accessible name are an a11y defect.
+		expect(html.match(/aria-label="Breadcrumb"/g)).toHaveLength(1)
+	})
+
+	test('keeps crumbs off the failing fg-subtle token', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader greeting="Colors" breadcrumbs={[{ label: 'Tokens', onPress: () => {} }]} />,
+		)
+
+		const nav = html.match(/<nav aria-label="Breadcrumb" class="([^"]*)"/)?.[1]
+
+		expect(nav).toBeDefined()
+		expect(nav).toContain('text-fg-muted')
+		expect(nav).not.toContain('text-fg-subtle')
+	})
 })

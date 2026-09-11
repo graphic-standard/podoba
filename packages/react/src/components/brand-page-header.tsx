@@ -121,11 +121,11 @@ export function BrandPageHeader({
 					toggle: () => setExpanded(!expanded),
 				})
 			: cta
-	const visibleBreadcrumbs = breadcrumbs && breadcrumbs.length >= 2
-		? [breadcrumbs[breadcrumbs.length - 2]!]
-		: breadcrumbs?.[0]?.onPress
-			? [breadcrumbs[0]]
-			: []
+	// Render the WHOLE trail the caller passed. Collapsing it to `breadcrumbs[-2]`
+	// silently dropped every other crumb (a three-crumb trail rendered one) and
+	// dropped a single crumb entirely unless it happened to be pressable. A caller
+	// that wants only the parent passes only the parent.
+	const visibleBreadcrumbs = breadcrumbs?.filter(Boolean) ?? []
 
 	useEffect(() => {
 		if (!expanded || !hasExpandable || typeof window === 'undefined') return
@@ -266,15 +266,22 @@ export function BrandPageHeader({
 				} ${variant === 'dashboard' ? 'md:gap-x-5' : 'md:gap-x-4'}`}
 			>
 				<div className="col-start-1 row-[1/-1] flex w-full min-w-0 flex-col gap-0">
+					{/* EXACTLY ONE Breadcrumb landmark. Rendering the trail and `parentLink`
+					    as siblings produced two <nav aria-label="Breadcrumb"> in one header —
+					    duplicate landmarks sharing an accessible name. `breadcrumbs` is the
+					    richer API, so it wins when a caller passes both.
+					    Ink is `fg-muted` (5.98:1), NOT `fg-subtle` (2.10:1 on surface): a
+					    crumb is a navigation link, which #25 keeps on the readable token. */}
 					{visibleBreadcrumbs.length > 0 ? (
-						<nav aria-label="Breadcrumb" className="m-0 flex w-full min-w-0 flex-wrap items-center text-display-large font-medium tracking-wide text-fg-subtle">
+						<nav aria-label="Breadcrumb" className="m-0 flex w-full min-w-0 flex-wrap items-center gap-1 text-display-large font-medium tracking-wide text-fg-muted">
 							{visibleBreadcrumbs.map((crumb, i) => (
-								<span key={i} className="inline-flex items-center">
+								<span key={i} className="inline-flex items-center gap-1">
+									{i > 0 ? <span aria-hidden="true">/</span> : null}
 									{crumb.onPress ? (
 										<Button
 											variant="ghost"
 											onPress={crumb.onPress}
-											className="h-auto rounded-sm p-0 text-display-large font-medium tracking-wide text-fg-subtle data-[hovered]:bg-transparent data-[hovered]:text-fg"
+											className="h-auto rounded-sm p-0 text-display-large font-medium tracking-wide text-fg-muted data-[hovered]:bg-transparent data-[hovered]:text-fg"
 										>
 											{crumb.label}
 										</Button>
@@ -284,8 +291,7 @@ export function BrandPageHeader({
 								</span>
 							))}
 						</nav>
-					) : null}
-{parentLink ? (
+					) : parentLink ? (
 						// gs "title to go back". MERGE NOTE: the breadcrumb is a NAV LANDMARK,
 						// not part of the <h1> — a page title should not contain its own parent
 						// link. #25 still applies to the colour: the source's decorative grey is
