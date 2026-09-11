@@ -12,6 +12,7 @@ export { uic, uiconfig, type ConfigVariants, type NoInfer } from "./utils/uic";
 // --- primitives ---
 export * from "./components/button";
 export * from "./components/input";
+export * from "./components/field-appearance";
 export * from "./components/textarea";
 export * from "./components/rich-text-editor";
 export * from "./components/focus-field";
