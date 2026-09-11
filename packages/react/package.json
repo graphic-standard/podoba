@@ -31,7 +31,8 @@
 		"class-variance-authority": "catalog:ui",
 		"clsx": "catalog:ui",
 		"tailwind-merge": "catalog:ui",
-		"@radix-ui/react-slot": "catalog:ui"
+		"@radix-ui/react-slot": "catalog:ui",
+		"zod": "catalog:ui"
 	},
 	"//tiptap": "Only `@podoba/react/editor` (BlockEditor) needs Tiptap. Optional peers, not dependencies: the base package must not make every consumer install ProseMirror, and a peer keeps ONE @tiptap/pm in the tree — two copies of prosemirror-model break instanceof across the editor.",
 	"peerDependencies": {
