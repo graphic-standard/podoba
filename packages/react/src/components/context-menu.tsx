@@ -1,4 +1,4 @@
-import { type ReactNode, useCallback, useEffect, useRef, useState } from 'react'
+import { type CSSProperties, type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
 	Header,
 	Menu as RACMenu,
@@ -15,10 +15,9 @@ import { uic } from '../utils/uic'
  * hand-rolling outside-click / Escape / viewport-clamping (its `EDGE_GAP = 8`). We
  * re-implement on a React Aria standalone `Popover` + `Menu`, which provides the
  * WAI-ARIA menu pattern for free: roving focus, arrow / Home / End navigation,
- * type-ahead, Escape-to-close, outside-press dismissal, focus restoration and —
- * crucially — viewport-aware collision handling (the popover flips / shifts to stay
- * on-screen, replacing the manual edge clamp). The popover is anchored to a
- * zero-size element placed at the click coordinates.
+ * type-ahead, Escape-to-close, outside-press dismissal and focus restoration.
+ * The source cursor clamp is retained instead of RAC's anchor flip: close to the
+ * lower edge, the panel slides up only as far as needed to keep an 8px gutter.
  *
  * Two ways to drive it, sharing one renderer:
  *  - **Controlled** (the documented API): pass `isOpen` + `position` + `onClose`
@@ -41,11 +40,13 @@ export interface ContextMenuItem {
 	label: ReactNode
 	icon?: ReactNode
 	/**
-	 * Trailing pill (e.g. a count or status). When omitted, a disabled item falls
-	 * back to the `soonLabel` pill so unbuilt actions read as upcoming.
+	 * Explicit trailing pill (e.g. a count or status). A disabled item only falls
+	 * back to a pill when its caller supplies `soonLabel`; disabled is not "unbuilt".
 	 */
 	badge?: ReactNode
 	disabled?: boolean
+	/** Native hover hint for disabled/unavailable actions. */
+	title?: string
 	/** Styled with the danger token (red text). */
 	destructive?: boolean
 	/** Filtered out before render. */
@@ -81,7 +82,7 @@ export interface ContextMenuProps {
 	onClose: () => void
 	/** Names the menu for assistive tech. Defaults to "Actions". */
 	'aria-label'?: string
-	/** Label shown on the fallback pill of disabled items. Defaults to "Soon". */
+	/** Optional fallback pill for disabled items. No implicit badge. */
 	soonLabel?: ReactNode
 	className?: string
 }
@@ -89,38 +90,12 @@ export interface ContextMenuProps {
 /** Wrapper API — wrap a target; the component owns the open state. */
 interface ContextMenuWrapperProps {
 	groups: ContextMenuGroup[] | ContextMenuGroupsResolver
+	/** Leave native text/editing menus untouched for excluded targets. */
+	shouldOpen?: (target: HTMLElement) => boolean
 	children: ReactNode
 	soonLabel?: ReactNode
 	'aria-label'?: string
 	className?: string
-}
-
-/**
- * Lock page scroll while the menu is open — an open action menu should pin the view
- * (gs `ContextActionPanel` behaviour), not let the content scroll out from under the
- * cursor-anchored panel. Wheel + touch scrolling is prevented everywhere EXCEPT inside
- * `allowRef` (the panel itself, so a long/overflowing menu still scrolls). No dep on
- * react-aria's `usePreventScroll` (not a direct dependency here).
- */
-function useScrollLock(active: boolean, allowRef: React.RefObject<HTMLElement | null>): void {
-	useEffect(() => {
-		if (!active) {
-			return
-		}
-		const prevent = (e: Event) => {
-			const target = e.target as Node | null
-			if (target && allowRef.current?.contains(target)) {
-				return
-			}
-			e.preventDefault()
-		}
-		document.addEventListener('wheel', prevent, { passive: false })
-		document.addEventListener('touchmove', prevent, { passive: false })
-		return () => {
-			document.removeEventListener('wheel', prevent)
-			document.removeEventListener('touchmove', prevent)
-		}
-	}, [active, allowRef])
 }
 
 const itemId = (item: ContextMenuItem, fallback: number): string => item.id ?? item.key ?? String(fallback)
@@ -134,33 +109,130 @@ const visibleGroupsOf = (groups: ContextMenuGroup[]): ContextMenuGroup[] =>
 
 const MenuItem = uic(RACMenuItem, {
 	displayName: 'ContextMenuItem',
-	// Dark panel (gs `ContextActionPanel`): light text on the inverted surface, a
-	// solid #2f2f2f wash + weight bump on hover / focus (gs `.itemButton:hover`).
+	// Source `.itemButton`: normal ink weight, with a weight bump on hover/focus.
 	baseClass:
-		'flex min-h-[34px] cursor-pointer select-none items-center gap-2.5 rounded-[10px] px-3 py-1.5 ' +
-		'text-compact text-white outline-none ' +
-		'data-[focused]:bg-[#2f2f2f] data-[focused]:font-medium data-[hovered]:bg-[#2f2f2f] data-[hovered]:font-medium ' +
+		'flex min-h-8.5 cursor-pointer select-none items-center gap-2.5 rounded-(--radius-context-menu-item) px-3 py-1.5 ' +
+		'text-compact leading-4 tracking-normal font-normal text-(--color-context-menu-fg) outline-none ' +
+		'data-[focused]:bg-(--color-context-menu-hover) data-[focused]:font-medium data-[hovered]:bg-(--color-context-menu-hover) data-[hovered]:font-medium ' +
 		'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-45',
 	variants: {
-		// gs uses `--color-error-light` (#ffb5b5) — a light red tuned for the dark
-		// panel; our `text-danger` (#dc2626) is a light-surface red that fails
-		// contrast here, and there is no danger-light token.
-		destructive: { true: 'text-[#ffb5b5] data-[focused]:text-[#ffb5b5]' },
+		destructive: { true: 'text-(--color-context-menu-danger)' },
 	},
 }) as (
 	props: React.ComponentProps<typeof RACMenuItem> & { destructive?: boolean },
 ) => ReturnType<typeof RACMenuItem>
 
-// gs `.panel`: 258px, radius 12px, 8px/6px padding, 180deg #242424→#1f1f1f
-// gradient, 0 12px 28px rgba(0,0,0,.22) shadow. No token covers the gradient/shadow.
+// Constrain/scroll the entire source panel, INCLUDING its 8px top/bottom padding.
+// Constraining the inner Menu instead makes a long panel exceed the viewport gutter.
 const panelClass =
-	'w-[258px] max-w-[calc(100vw-16px)] rounded-lg bg-gradient-to-b from-[#242424] to-[#1f1f1f] ' +
-	'px-1.5 py-2 shadow-[0_12px_28px_rgba(0,0,0,0.22)] outline-none'
-const menuClass = 'grid max-h-[calc(100vh-16px)] gap-0.5 overflow-y-auto outline-none'
+	'w-(--dimension-context-menu-width) max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)] box-border overflow-y-auto rounded-xl ' +
+	'bg-gradient-to-b from-(--color-context-menu-top) to-(--color-context-menu-bottom) ' +
+	'px-1.5 py-2 shadow-(--shadow-context-menu) outline-none'
+const menuClass = 'grid gap-0.5 outline-none'
+
+const CursorPopoverSurface = uic(RACPopover, {
+	displayName: 'ContextMenuPopoverSurface',
+	baseClass: panelClass,
+})
+
+/** RAC owns interaction; source-style fixed cursor geometry owns placement. */
+function CursorMenuPopover({
+	position,
+	panelRef,
+	...props
+}: Omit<React.ComponentProps<typeof RACPopover>, 'ref' | 'key' | 'children' | 'className'> & {
+	position: { x: number; y: number }
+	panelRef: React.RefObject<HTMLElement | null>
+	/**
+	 * Plain children only. `uic` intersects RAC's `ChildrenOrFunction` with a bare
+	 * `ReactNode`, which is an impossible type (a render function AND a string), so
+	 * the render-prop form cannot be forwarded through this wrapper — and this menu
+	 * never uses it.
+	 */
+	children?: ReactNode
+	/** Plain class string only, for the same reason as `children` above. */
+	className?: string
+}) {
+	// This menu is anchored to a viewport coordinate, not a scrollable DOM trigger.
+	// With automatic positioning disabled, a null trigger also avoids RAC dismissing
+	// it when a trigger ancestor scrolls. Focus restoration belongs to RAC's FocusScope.
+	const cursorAnchorRef = useRef<HTMLElement | null>(null)
+	const [panel, setPanel] = useState<HTMLElement | null>(null)
+	const [measured, setMeasured] = useState<{
+		panel: HTMLElement; sourceX: number; sourceY: number; x: number; y: number
+	} | null>(null)
+	const ref = useCallback((element: HTMLElement | null) => {
+		panelRef.current = element
+		setPanel(element)
+	}, [panelRef])
+	const { x: sourceX, y: sourceY } = position
+	useLayoutEffect(() => {
+		if (!panel || !props.isOpen) return
+		let active = true
+		const measure = () => {
+			if (!active) return
+			// offsetHeight includes the padding and respects the panel's viewport cap.
+			const x = Math.max(8, Math.min(sourceX, window.innerWidth - panel.offsetWidth - 8))
+			const y = Math.max(8, Math.min(sourceY, window.innerHeight - panel.offsetHeight - 8))
+			setMeasured(previous => previous?.panel === panel && previous.sourceX === sourceX && previous.sourceY === sourceY && previous.x === x && previous.y === y
+				? previous : { panel, sourceX, sourceY, x, y })
+		}
+		measure()
+		window.addEventListener('resize', measure)
+		// Dynamic permissions, translated labels or group counts can resize an open menu.
+		const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(measure)
+		observer?.observe(panel)
+		return () => {
+			active = false
+			window.removeEventListener('resize', measure)
+			observer?.disconnect()
+		}
+	}, [panel, props.isOpen, sourceX, sourceY])
+	const onOpenChange = props.onOpenChange
+	useEffect(() => {
+		if (!panel || !props.isOpen) return
+		// Source uses outside mousedown, without consuming the background's action.
+		// Non-modal RAC keeps its blur/Escape/focus handling but does not supply this listener.
+		const dismissOutside = (event: Event) => {
+			if (event.target instanceof Node && !panel.contains(event.target)) onOpenChange?.(false)
+		}
+		const dismissTouch = (event: PointerEvent) => {
+			if (event.pointerType !== 'mouse') dismissOutside(event)
+		}
+		document.addEventListener('mousedown', dismissOutside)
+		document.addEventListener('pointerdown', dismissTouch)
+		return () => {
+			document.removeEventListener('mousedown', dismissOutside)
+			document.removeEventListener('pointerdown', dismissTouch)
+		}
+	}, [panel, props.isOpen, onOpenChange])
+	const resolved = measured && measured.panel === panel && measured.sourceX === sourceX && measured.sourceY === sourceY ? measured : null
+	// Annotated rather than inlined: RAC types `style` as a union with a render-prop
+	// function, so an inline literal is not contextually narrowed and `position`
+	// widens to `string`.
+	const panelStyle: CSSProperties = {
+		position: 'fixed',
+		left: resolved?.x ?? sourceX,
+		top: resolved?.y ?? sourceY,
+		// Override RAC's unmeasured inline 100vh, which would otherwise beat the CSS cap.
+		maxHeight: 'calc(100vh - 16px)',
+		opacity: resolved ? 1 : 0, // Unlike visibility:hidden, keeps RAC's initial autofocus possible.
+	}
+	return <CursorPopoverSurface
+		{...props}
+		ref={ref}
+		triggerRef={cursorAnchorRef}
+		data-context-menu-panel=""
+		shouldUpdatePosition={false}
+		shouldFlip={false}
+		isNonModal
+		style={panelStyle}
+	/>
+}
 
 /**
  * The popover body shared by both modes — the RAC `Menu` of grouped items. `onItem`
- * fires after an item's own handler so the controlled mode can close the menu.
+ * fires after an item's own handler so either mode can close the menu.
  */
 function ContextMenuBody({
 	groups,
@@ -169,23 +241,24 @@ function ContextMenuBody({
 	onItem,
 }: {
 	groups: ContextMenuGroup[]
-	soonLabel: ReactNode
+	soonLabel?: ReactNode
 	ariaLabel: string
 	onItem?: () => void
 }) {
 	return (
-		<RACMenu aria-label={ariaLabel} className={menuClass}>
+		<RACMenu aria-label={ariaLabel} className={menuClass} autoFocus onClose={onItem}>
 			{groups.map((group, gi) => (
 				// gs separates groups with an 18px top margin (`.group + .group`), not a
 				// rule line — so the first group sits flush, the rest gain the gap.
-				<RACMenuSection key={groupId(group, gi)} className={gi > 0 ? 'mt-[18px] grid gap-0.5' : 'grid gap-0.5'}>
+				<RACMenuSection key={groupId(group, gi)} className={gi > 0 ? 'mt-4.5 grid gap-0.5' : 'grid gap-0.5'}>
 					{group.label ? (
-						<Header className="mx-2 mt-1.5 mb-1 text-compact font-medium text-white">{group.label}</Header>
+						// The grid contributes 2px: 2px margin + 2px gap = source 4px below label.
+						<Header className="mx-2 mt-1.5 mb-0.5 text-compact leading-4 tracking-normal font-medium text-(--color-context-menu-fg)">{group.label}</Header>
 					) : null}
 					{group.items.map((item, ii) => {
 						const id = itemId(item, ii)
 						const select = item.onSelect ?? item.onAction
-						const badge = item.badge ?? (item.disabled ? soonLabel : null)
+						const badge = item.badge ?? (item.disabled && !select ? soonLabel : null)
 						return (
 							<MenuItem
 								key={id}
@@ -199,14 +272,13 @@ function ContextMenuBody({
 								}}
 							>
 								{item.icon ? (
-									<span className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center">
+									<span className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center [&>svg]:size-full">
 										{item.icon}
 									</span>
 								) : null}
-								<span className="min-w-0 flex-1 truncate">{item.label}</span>
+								<span className="min-w-0 flex-1 truncate" title={item.title}>{item.label}</span>
 								{badge ? (
-									// gs `.badge`: 24px pill, #333437 bg / #c8c8ca text, 10px (text-micro).
-									<span className="ml-auto inline-flex h-6 items-center justify-center rounded-full bg-[#333437] px-3 py-0.5 text-micro font-medium leading-5 tracking-tight text-[#c8c8ca]">
+									<span className="ml-auto inline-flex h-6 items-center justify-center rounded-full bg-(--color-context-menu-badge-bg) px-3 py-0.5 text-micro font-medium leading-5 tracking-tight text-(--color-context-menu-badge-fg)">
 										{badge}
 									</span>
 								) : null}
@@ -225,58 +297,47 @@ function ControlledContextMenu({
 	isOpen,
 	position,
 	onClose,
-	soonLabel = 'Soon',
+	soonLabel,
 	'aria-label': ariaLabel = 'Actions',
 	className,
 }: ContextMenuProps): React.JSX.Element | null {
-	const anchorRef = useRef<HTMLSpanElement>(null)
 	const popoverRef = useRef<HTMLElement>(null)
 	const visibleGroups = visibleGroupsOf(groups)
-	// Lock scroll while open (hook runs unconditionally — before the empty-groups return).
-	useScrollLock(isOpen && visibleGroups.length > 0, popoverRef)
 	if (visibleGroups.length === 0) {
 		return null
 	}
 	const pos = position ?? { x: 0, y: 0 }
 	return (
-		<>
-			{/* Zero-size anchor at the cursor; the Popover attaches here. Keyed by
-			    position so a re-open at a new spot re-measures (RAC only measures the
-			    anchor when the popover opens). */}
-			<span
-				ref={anchorRef}
-				aria-hidden="true"
-				style={{ position: 'fixed', left: pos.x, top: pos.y, width: 0, height: 0 }}
-			/>
-			<RACPopover
+			<CursorMenuPopover
 				key={`${pos.x}:${pos.y}`}
-				ref={popoverRef}
+				panelRef={popoverRef}
+				position={pos}
 				isOpen={isOpen}
 				onOpenChange={(open) => {
 					if (!open) {
 						onClose()
 					}
 				}}
-				triggerRef={anchorRef}
 				placement="bottom start"
-				className={className ? `${panelClass} ${className}` : panelClass}
+				offset={0}
+				containerPadding={8}
+				className={className}
 			>
 				<ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={onClose} />
-			</RACPopover>
-		</>
+			</CursorMenuPopover>
 	)
 }
 
 /** Wrapper context menu — wraps a target and owns its own open state. */
 function WrapperContextMenu({
 	groups,
+	shouldOpen,
 	children,
-	soonLabel = 'Soon',
+	soonLabel,
 	'aria-label': ariaLabel = 'Actions',
 	className,
 }: ContextMenuWrapperProps): React.JSX.Element {
 	const [isOpen, setOpen] = useState(false)
-	const anchorRef = useRef<HTMLSpanElement>(null)
 	const wrapperRef = useRef<HTMLDivElement>(null)
 	const popoverRef = useRef<HTMLElement>(null)
 	const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -288,6 +349,8 @@ function WrapperContextMenu({
 	// every parent render (resolvers are usually inline functions).
 	const groupsRef = useRef(groups)
 	groupsRef.current = groups
+	const shouldOpenRef = useRef(shouldOpen)
+	shouldOpenRef.current = shouldOpen
 
 	const openAt = (x: number, y: number, target: HTMLElement) => {
 		if (typeof groupsRef.current === 'function') {
@@ -298,15 +361,30 @@ function WrapperContextMenu({
 	}
 
 	const onContextMenu = (e: React.MouseEvent) => {
+		if (e.defaultPrevented) return
+		const target = e.target instanceof HTMLElement ? e.target : e.currentTarget as HTMLElement
+		if (shouldOpenRef.current?.(target) === false) {
+			setOpen(false)
+			return
+		}
 		e.preventDefault()
-		openAt(e.clientX, e.clientY, e.target as HTMLElement)
+		openAt(e.clientX, e.clientY, target)
+	}
+
+	const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+		if (e.defaultPrevented || (e.key !== 'ContextMenu' && !(e.key === 'F10' && e.shiftKey))) return
+		const target = e.target instanceof HTMLElement ? e.target : e.currentTarget
+		if (shouldOpenRef.current?.(target) === false) return
+		e.preventDefault()
+		e.stopPropagation()
+		const rect = target.getBoundingClientRect()
+		openAt(rect.left, rect.bottom, target)
 	}
 
 	// While the panel is open, a second right-click would otherwise be swallowed by
 	// the overlay's outside-press dismissal and surface the BROWSER's native menu.
-	// Intercept it ourselves: keep the OS menu suppressed and re-anchor our panel to
-	// the new cursor. Re-anchoring needs a close + reopen across a frame so the
-	// popover recomputes its position (it only measures the anchor on open). A
+	// Intercept it ourselves: keep the OS menu suppressed and move our panel to
+	// the new cursor in-place (no queued close/reopen frame). A
 	// right-click on our own panel just suppresses the OS menu; one outside our
 	// region closes the panel and behaves normally.
 	useEffect(() => {
@@ -326,20 +404,19 @@ function WrapperContextMenu({
 				setOpen(false)
 				return
 			}
-			// In our region with the panel open: take over fully. stopImmediatePropagation
-			// keeps the wrapper's bubble onContextMenu from re-opening synchronously —
-			// otherwise isOpen never commits `false` and the popover never re-anchors.
+			if (shouldOpenRef.current?.(target) === false) {
+				setOpen(false)
+				return
+			}
+			// In our region with the panel open: update target and pointer atomically.
+			// The cursor clamp reacts to position changes without dismissing the menu.
 			e.preventDefault()
 			e.stopImmediatePropagation()
-			setOpen(false)
 			const { clientX, clientY } = e
-			requestAnimationFrame(() => {
-				if (typeof groupsRef.current === 'function') {
-					setResolved(groupsRef.current({ target }))
-				}
-				setPosition({ x: clientX, y: clientY })
-				setOpen(true)
-			})
+			if (typeof groupsRef.current === 'function') {
+				setResolved(groupsRef.current({ target }))
+			}
+			setPosition({ x: clientX, y: clientY })
 		}
 		document.addEventListener('contextmenu', handle, true)
 		return () => document.removeEventListener('contextmenu', handle, true)
@@ -347,29 +424,22 @@ function WrapperContextMenu({
 
 	const sourceGroups = typeof groups === 'function' ? resolved : groups
 	const visibleGroups = visibleGroupsOf(sourceGroups)
-	// Lock scroll while the panel is open (still scrollable inside a long menu).
-	useScrollLock(isOpen && visibleGroups.length > 0, popoverRef)
 
 	return (
-		<div ref={wrapperRef} className={className} onContextMenu={onContextMenu}>
+		<div ref={wrapperRef} className={className} onContextMenu={onContextMenu} onKeyDown={onKeyDown}>
 			{children}
-			{/* Zero-size anchor positioned at the cursor; the Popover attaches here. */}
-			<span
-				ref={anchorRef}
-				aria-hidden="true"
-				style={{ position: 'fixed', left: position.x, top: position.y, width: 0, height: 0 }}
-			/>
 			{visibleGroups.length > 0 ? (
-				<RACPopover
-					ref={popoverRef}
+				<CursorMenuPopover
+					panelRef={popoverRef}
+					position={position}
 					isOpen={isOpen}
 					onOpenChange={setOpen}
-					triggerRef={anchorRef}
 					placement="bottom start"
-					className={panelClass}
+					offset={0}
+					containerPadding={8}
 				>
-					<ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} />
-				</RACPopover>
+					<ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={() => setOpen(false)} />
+				</CursorMenuPopover>
 			) : null}
 		</div>
 	)
