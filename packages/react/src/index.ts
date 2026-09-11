@@ -86,4 +86,5 @@ export * from "./components/delivery/download-modal";
 export * from "./components/delivery/send-to-print-modal";
 export * from "./components/delivery/publish-modal";
 export * from "./components/delivery/delivery-status-module";
+export * from './components/date-selection-calendar'
 export * from './components/compact-settings-dialog'
