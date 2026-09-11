@@ -11,8 +11,11 @@
 // follow-up `changes` task returned by the command.
 //
 // a11y: the textarea is label-associated (htmlFor/id), marked `required` +
-// `aria-invalid` while empty; the server error is role="alert"; confirm shows a
-// pending state and is disabled while in flight or while the note is empty.
+// the server error is role="alert"; confirm shows a pending state and is disabled
+// while in flight or while the note is empty. The note is marked `isRequired`
+// (→ aria-required), NOT aria-invalid-while-empty as the raw textarea used to be:
+// an untouched required field is incomplete, not invalid, and RAC coupling
+// `isInvalid` to the danger ring would alarm the field before anyone typed.
 
 import { useLayoutEffect, useRef, useState } from 'react'
 import { Button } from './button'
