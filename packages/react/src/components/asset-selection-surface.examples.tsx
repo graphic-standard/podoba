@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { AssetSelectionSurface, AssetSelectionGrid, AssetSelectionEmpty, AssetLibraryPreview } from './asset-selection-surface'
 import { Button } from './button'
+import { Subtle } from './subtle'
 import { SectionTabs } from './section-tabs'
 
 function Example({ linked = false, pending = false, error = false }) {
@@ -9,7 +10,7 @@ function Example({ linked = false, pending = false, error = false }) {
 	return <>
 		<Button onPress={() => setOpen(true)}>Open asset selection</Button>
 		<AssetSelectionSurface isOpen={open} onOpenChange={setOpen} closeLabel="Close" isPending={pending}
-			title={linked ? <>Review linked assets <span className="text-fg-subtle">and add more</span><br />to this <span className="text-fg-subtle">project.</span></> : <>Choose assets <span className="text-fg-subtle">from storage</span><br />and add them to <span className="text-fg-subtle">this project.</span></>}
+			title={linked ? <>Review linked assets <Subtle>and add more</Subtle><br />to this <Subtle>project.</Subtle></> : <>Choose assets <Subtle>from storage</Subtle><br />and add them to <Subtle>this project.</Subtle></>}
 			filters={<SectionTabs active="all" onChange={() => {}} tabs={[{key:'all',label:'All'},{key:'print',label:'Print'}]} />}
 			error={error ? 'The selected asset could not be added. Please try again.' : undefined}
 			footer={<><Button variant="secondary" isDisabled={pending} onPress={() => setOpen(false)}>Close</Button><Button isDisabled={pending} isPending={pending}>{pending ? 'Adding…' : linked ? 'Add another asset' : 'Add selected asset'}</Button></>}

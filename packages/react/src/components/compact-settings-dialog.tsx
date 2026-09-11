@@ -17,9 +17,11 @@ export const TeamSelectionCard = uic(AriaButton, {
 })
 export const MemberSelectionInfo = uic('span', { displayName: 'MemberSelectionInfo', baseClass: 'min-w-0 flex-1' })
 export const MemberSelectionName = uic('span', { displayName: 'MemberSelectionName', baseClass: 'mb-1 block text-heading5 font-medium text-fg' })
-export const MemberSelectionEmail = uic('span', { displayName: 'MemberSelectionEmail', baseClass: 'block text-compact font-normal text-fg-subtle' })
+// #25: an email address and a team's meta line are CONTENT — `fg-muted` (5.98:1 on
+// surface, 5.53:1 on surface-card), never the ornamental `fg-subtle` (2.10 / 1.94:1).
+export const MemberSelectionEmail = uic('span', { displayName: 'MemberSelectionEmail', baseClass: 'block text-compact font-normal text-fg-muted' })
 export const TeamSelectionName = uic('span', { displayName: 'TeamSelectionName', baseClass: 'mb-1 block font-medium text-fg' })
-export const TeamSelectionMeta = uic('span', { displayName: 'TeamSelectionMeta', baseClass: 'block text-small font-normal text-fg-subtle' })
+export const TeamSelectionMeta = uic('span', { displayName: 'TeamSelectionMeta', baseClass: 'block text-small font-normal text-fg-muted' })
 
 /** Intrinsic-height form surface. The tall settings and catalog surfaces remain separate. */
 export function CompactSettingsDialog({ isOpen, onOpenChange, isPending = false, title, description, closeLabel, children }: {

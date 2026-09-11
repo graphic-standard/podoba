@@ -65,7 +65,8 @@ export function CatalogMetadataSummary({ title, ariaLabel, items }: {
 				const second = !item.fullWidth && column % 2 === 1
 				column = item.fullWidth ? 0 : column + 1
 				return <div key={item.label} className={`flex min-w-0 flex-col gap-1 border-b border-border py-3 ${item.fullWidth ? 'col-span-full' : ''} ${second ? 'min-[641px]:border-l min-[641px]:pl-3' : ''}`}>
-					<dt className="m-0 text-body font-normal text-fg-subtle">{item.label}</dt>
+					{/* #25: the term of a definition list is meaningful copy — AA `fg-muted`. */}
+					<dt className="m-0 text-body font-normal text-fg-muted">{item.label}</dt>
 					<dd className="m-0 text-body font-normal text-fg [overflow-wrap:anywhere]">{item.value}</dd>
 				</div>
 			})}
@@ -99,7 +100,7 @@ export function TemplateReferenceItem({ title, meta, preview, view, isDisabled, 
 }) {
 	return <ReferenceButton type="button" view={view} isDisabled={isDisabled} onPress={onOpen} aria-label={title} data-template-id={templateId}>
 		<span aria-hidden="true" className={view === 'compact_list' ? 'flex size-12 items-center justify-center overflow-hidden rounded-sm bg-surface-card [&>div]:w-full' : 'flex h-full w-full items-center justify-center [&>div]:w-full'}>{preview}</span>
-		{view === 'compact_list' ? <span className="flex min-w-0 flex-col gap-1"><span className="truncate text-small font-medium text-fg">{title}</span><span className="truncate text-label font-medium text-fg-subtle">{meta}</span></span> : null}
+		{view === 'compact_list' ? <span className="flex min-w-0 flex-col gap-1"><span className="truncate text-small font-medium text-fg">{title}</span><span className="truncate text-label font-medium text-fg-muted">{meta}</span></span> : null}
 	</ReferenceButton>
 }
 
