@@ -65,6 +65,7 @@ export * from "./components/icons";
 export * from "./components/context-action-glyph";
 export * from "./components/subtle";
 export * from "./components/stats-card";
+export * from "./components/settings-dialog-surface";
 export * from "./components/tile";
 export * from "./components/table";
 export * from "./components/dashboard-grid";
@@ -74,3 +75,4 @@ export * from "./components/delivery/download-modal";
 export * from "./components/delivery/send-to-print-modal";
 export * from "./components/delivery/publish-modal";
 export * from "./components/delivery/delivery-status-module";
+export * from './components/compact-settings-dialog'
