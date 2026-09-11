@@ -34,6 +34,8 @@ export * from "./components/reload-icon";
 export * from "./components/date-field";
 export * from "./components/date-picker";
 export * from "./components/dialog";
+export { AssetSelectionSurface, AssetSelectionEmpty, AssetLibraryPreview, AssetSelectionFilters, AssetSelectionGrid, type AssetSelectionSurfaceProps } from "./components/asset-selection-surface";
+export { AssetMasonryGrid, assetMasonryColumns, assetMasonryPositions } from './components/asset-masonry-grid';
 export * from "./components/side-panel";
 export * from "./components/dropdown-menu";
 export * from "./components/context-menu";
