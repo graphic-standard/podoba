@@ -1,7 +1,5 @@
-import { z } from 'zod'
-
-export const FieldAppearanceSchema = z.enum(['outlined', 'filled'])
-export type FieldAppearance = z.infer<typeof FieldAppearanceSchema>
+export const FIELD_APPEARANCES = ['outlined', 'filled'] as const
+export type FieldAppearance = (typeof FIELD_APPEARANCES)[number]
 
 /** Borderless Manager field skin. Hover yields to focus; focus uses an offset
  * outline instead of combining the browser outline with a second inset ring.

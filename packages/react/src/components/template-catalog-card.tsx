@@ -1,10 +1,10 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { Button as AriaButton } from 'react-aria-components'
-import { z } from 'zod'
 import { uic } from '../utils/uic'
 import { Tile } from './tile'
 
-export const TemplateCatalogSelectionSchema = z.enum(['available', 'selected'])
+export const TEMPLATE_CATALOG_SELECTIONS = ['available', 'selected'] as const
+export type TemplateCatalogSelection = (typeof TEMPLATE_CATALOG_SELECTIONS)[number]
 
 /** Legacy StatsCard label-1 value, distinct from the Tile heading ramp. */
 export const CatalogMetricValue = uic('span', {
@@ -12,7 +12,8 @@ export const CatalogMetricValue = uic('span', {
 	baseClass: 'block w-full text-center text-display-large font-medium leading-(--line-height-display-large) tracking-wider',
 })
 
-export const CatalogMetricFooterSchema = z.enum(['present', 'missing'])
+export const CATALOG_METRIC_FOOTERS = ['present', 'missing'] as const
+export type CatalogMetricFooter = (typeof CATALOG_METRIC_FOOTERS)[number]
 const MetricContent = uic('div', {
 	displayName: 'CatalogMetricContent',
 	baseClass: 'flex min-h-0 w-full flex-1 flex-col items-center justify-center text-center',
@@ -72,7 +73,8 @@ export function CatalogMetadataSummary({ title, ariaLabel, items }: {
 	</MetadataSection>
 }
 
-export const TemplateReferenceViewSchema = z.enum(['preview_grid', 'compact_list'])
+export const TEMPLATE_REFERENCE_VIEWS = ['preview_grid', 'compact_list'] as const
+export type TemplateReferenceView = (typeof TEMPLATE_REFERENCE_VIEWS)[number]
 export const TemplateReferenceGrid = uic('div', {
 	displayName: 'TemplateReferenceGrid',
 	baseClass: 'grid w-full grid-cols-1 gap-3',
@@ -92,7 +94,7 @@ const ReferenceButton = uic(AriaButton, {
 })
 /** Read-only browsing surfaces: activation opens a preview, never selects it. */
 export function TemplateReferenceItem({ title, meta, preview, view, isDisabled, onOpen, templateId }: {
-	title: string; meta: string; preview: ReactNode; view: z.infer<typeof TemplateReferenceViewSchema>
+	title: string; meta: string; preview: ReactNode; view: TemplateReferenceView
 	isDisabled?: boolean; onOpen: () => void; templateId: string
 }) {
 	return <ReferenceButton type="button" view={view} isDisabled={isDisabled} onPress={onOpen} aria-label={title} data-template-id={templateId}>

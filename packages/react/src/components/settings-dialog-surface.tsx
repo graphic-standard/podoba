@@ -1,13 +1,12 @@
 import { createContext, useContext, useEffect, useId, useState, type ComponentProps, type CSSProperties, type ReactNode, type RefObject } from 'react'
-import { z } from 'zod'
 import { Button } from './button'
 import { Button as AriaButton, Disclosure as AriaDisclosure, DisclosurePanel as AriaDisclosurePanel } from 'react-aria-components'
 import { ModalDialog, ModalOverlay, ModalSurface } from './dialog'
 import { DisplayHeading, Heading } from './text'
 import { uic } from '../utils/uic'
 
-export const SettingsDialogVariantSchema = z.enum(['create', 'edit', 'catalog', 'csv', 'basic'])
-export type SettingsDialogVariant = z.infer<typeof SettingsDialogVariantSchema>
+export const SETTINGS_DIALOG_VARIANTS = ['create', 'edit', 'catalog', 'csv', 'basic'] as const
+export type SettingsDialogVariant = (typeof SETTINGS_DIALOG_VARIANTS)[number]
 
 const LayoutContext = createContext({ variant: 'edit' as SettingsDialogVariant, compact: false })
 const Panel = uic(ModalSurface, { displayName: 'SettingsDialogPanel', baseClass: 'box-border flex flex-col overflow-hidden p-0' })

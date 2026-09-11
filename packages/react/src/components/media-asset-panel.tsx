@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react'
 import { Button as AriaButton } from 'react-aria-components'
-import { z } from 'zod'
 import { uic } from '../utils/uic'
 import { Button } from './button'
 import { MediaGallery, type MediaGalleryItem } from './media-gallery'
 
-export const MediaAssetPanelModeSchema = z.enum(['media', 'grid', 'carousel'])
+export const MEDIA_ASSET_PANEL_MODES = ['media', 'grid', 'carousel'] as const
+export type MediaAssetPanelMode = (typeof MEDIA_ASSET_PANEL_MODES)[number]
 export type MediaAssetPanelProps = {
 	items: readonly MediaGalleryItem[]
-	mode: z.infer<typeof MediaAssetPanelModeSchema>
+	mode: MediaAssetPanelMode
 	empty: boolean
 	heading: ReactNode
 	emptyDescription: ReactNode

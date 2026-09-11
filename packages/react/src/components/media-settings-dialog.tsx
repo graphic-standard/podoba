@@ -1,17 +1,17 @@
 import { useState, type ReactNode } from 'react'
-import { z } from 'zod'
-
 import { Button } from './button'
 import { SettingsDialogSurface } from './settings-dialog-surface'
 import { Select, SelectItem } from './select'
 import { uic } from '../utils/uic'
 
-export const MediaSettingsValueSchema = z.object({
-	displayMode: z.enum(['media', 'gallery']),
-	mediaWidth: z.enum(['text', 'wide', 'full']),
-	galleryLayout: z.enum(['carousel', 'grid']),
-})
-export type MediaSettingsValue = z.infer<typeof MediaSettingsValueSchema>
+export const MEDIA_SETTINGS_DISPLAY_MODES = ['media', 'gallery'] as const
+export const MEDIA_SETTINGS_WIDTHS = ['text', 'wide', 'full'] as const
+export const MEDIA_SETTINGS_LAYOUTS = ['carousel', 'grid'] as const
+export type MediaSettingsValue = {
+	displayMode: (typeof MEDIA_SETTINGS_DISPLAY_MODES)[number]
+	mediaWidth: (typeof MEDIA_SETTINGS_WIDTHS)[number]
+	galleryLayout: (typeof MEDIA_SETTINGS_LAYOUTS)[number]
+}
 
 export type MediaSettingsLabels = {
 	title: ReactNode

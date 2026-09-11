@@ -1,8 +1,8 @@
 import { Button as AriaButton } from 'react-aria-components'
-import { z } from 'zod'
 import { uic } from '../utils/uic'
 
-export const compactActionVariantSchema = z.enum(['primary', 'linear'])
+export const COMPACT_ACTION_VARIANTS = ['primary', 'linear'] as const
+export type CompactActionVariant = (typeof COMPACT_ACTION_VARIANTS)[number]
 
 /** Compact Manager action; separate from the larger primitive dialog actions.
  * Same semantic palette as Button / DialogActionButton. The hover shadow is the

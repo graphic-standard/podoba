@@ -1,8 +1,8 @@
 import { Button as AriaButton } from 'react-aria-components'
-import { z } from 'zod'
 import { uic } from '../utils/uic'
 
-export const dialogActionVariantSchema = z.enum(['primary', 'secondary'])
+export const DIALOG_ACTION_VARIANTS = ['primary', 'secondary'] as const
+export type DialogActionVariant = (typeof DIALOG_ACTION_VARIANTS)[number]
 
 /** Source UI dialog action, distinct from the frontend dashboard CTA Button.
  * Shares Button's semantic palette (brand-primary / surface-card) so the two never

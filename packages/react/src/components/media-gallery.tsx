@@ -1,11 +1,9 @@
 import { useEffect, useState, type ReactNode, type SyntheticEvent } from 'react'
-import { z } from 'zod'
-
 import { Button as AriaButton } from 'react-aria-components'
 import { uic } from '../utils/uic'
 
-export const MediaGalleryModeSchema = z.enum(['grid', 'carousel'])
-export type MediaGalleryMode = z.infer<typeof MediaGalleryModeSchema>
+export const MEDIA_GALLERY_MODES = ['grid', 'carousel'] as const
+export type MediaGalleryMode = (typeof MEDIA_GALLERY_MODES)[number]
 export type MediaGalleryItem = { id: string; content: ReactNode }
 export type MediaGalleryProps = {
 	items: readonly MediaGalleryItem[]

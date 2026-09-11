@@ -1,8 +1,7 @@
 import { useMemo, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react'
 import { ChevronDownIcon, ChevronUpIcon } from './icons'
-import { z } from 'zod'
-
-export const tableAppearanceSchema = z.enum(['default', 'worksheet', 'team'])
+export const TABLE_APPEARANCES = ['default', 'worksheet', 'team'] as const
+export type TableAppearance = (typeof TABLE_APPEARANCES)[number]
 
 /**
  * Table — the design-system data table (port of gs-platform's `GSTable`). A light,
@@ -39,7 +38,7 @@ export type TableColumn<Row> = {
 
 export type TableProps<Row> = {
 	/** Worksheet matches Manager's plain GSTable; default preserves existing consumers. */
-	appearance?: z.infer<typeof tableAppearanceSchema>
+	appearance?: TableAppearance
 	columns: TableColumn<Row>[]
 	data: Row[]
 	/** Stable per-row key. Defaults to the row index (fine for static lists). */
