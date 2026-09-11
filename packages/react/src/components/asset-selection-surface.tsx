@@ -4,6 +4,7 @@ import { Button as AriaButton } from 'react-aria-components'
 import { ModalDialog, ModalOverlay, ModalSurface } from './dialog'
 import { DisplayHeading } from './text'
 import { uic } from '../utils/uic'
+import { assetMasonryColumns, assetMasonryPositions } from './asset-masonry-grid'
 
 const Body = uic('div', {
 	displayName: 'AssetSelectionBody',
@@ -135,19 +136,24 @@ export function AssetSelectionGrid({ items, selectedId, onSelect, onContextMenu 
 		observer.observe(element)
 		return () => observer.disconnect()
 	}, [])
-	const gap = 12
-	const minimum = width < 768 ? 200 : width < 1024 ? 250 : 280
-	const count = Math.max(width < 768 ? 1 : width < 1024 ? 2 : 3, Math.floor((width + gap) / (minimum + gap)))
-	const columnWidth = width ? (width - (count - 1) * gap) / count : 200
-	const bottoms = Array.from({ length: count }, () => 0)
-	const positioned = items.map(item => {
-		const column = bottoms.indexOf(Math.min(...bottoms))
-		const top = bottoms[column]!
-		const height = item.width && item.height ? Math.min(800, Math.max(150, columnWidth * item.height / item.width)) : columnWidth
-		bottoms[column] = top + height + gap
-		return { item, top, left: column * (columnWidth + gap), height }
-	})
-	return <div ref={container} className="relative w-full" style={{ height: Math.max(0, ...bottoms) - (items.length ? gap : 0) }}>
+	// Shared with AssetMasonryGrid rather than restated: the two had already drifted.
+	// Only the HEIGHT rule is local — this grid gets explicit width/height per item
+	// (square fallback when either is missing), the other derives from aspectRatio.
+	const columns = assetMasonryColumns(width)
+	const columnWidth = columns.width
+	const heights = items.map(item =>
+		item.width && item.height
+			? Math.min(800, Math.max(150, columnWidth * item.height / item.width))
+			: columnWidth,
+	)
+	const layout = assetMasonryPositions(heights, columns.count, columns.gap)
+	const positioned = items.map((item, index) => ({
+		item,
+		top: layout.positions[index]?.top ?? 0,
+		left: (layout.positions[index]?.column ?? 0) * (columnWidth + columns.gap),
+		height: heights[index] ?? columnWidth,
+	}))
+	return <div ref={container} className="relative w-full" style={{ height: layout.height }}>
 		{positioned.map(({ item, top, left, height }) => {
 			const className = `group relative block h-full w-full overflow-hidden rounded-lg border bg-surface-card p-0 transition-transform duration-200 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transition-none ${onSelect ? 'hover:shadow-xs hover:border-border-muted' : ''} ${selectedId === item.id ? 'border-accent-blue' : 'border-border'}`
 			const contents = <>{item.preview}

@@ -42,6 +42,6 @@ export function DateSelectionCalendar({ monthLabel, weekdays, weeks, previousLab
    ? <Day key={day.id} aria-label={day.accessibleLabel} aria-pressed={day.selected} aria-current={day.today ? 'date' : undefined} isDisabled={isDisabled} onPress={() => onSelect(day.id)}
       style={day.selected ? { boxShadow: 'inset 0 calc(var(--spacing) * -0.5) 0 var(--color-brand-green)' } : undefined}
       className={day.selected ? 'bg-surface-card' : day.today ? 'bg-brand-green/14 ring-1 ring-inset ring-brand-green data-[hovered]:bg-brand-green/18' : undefined}>{day.label}</Day>
-   : <Placeholder key={column} />)}</Week>)}
+   : <Placeholder key={`blank-${column}`} />)}</Week>)}
  </Frame>
 }

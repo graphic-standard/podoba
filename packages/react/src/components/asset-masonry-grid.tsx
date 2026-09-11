@@ -28,6 +28,10 @@ export function AssetMasonryGrid({ items, label }: {
 	const [width, setWidth] = useState(0)
 	const [measured, setMeasured] = useState<Record<string, { width: number; height: number }>>({})
 	const columns = assetMasonryColumns(width)
+	// Callers build `items` inline, so depending on the ARRAY identity tore down the
+	// ResizeObserver, rebuilt it and re-observed every child on each parent render.
+	// The observer only cares about which children exist — key on the id list.
+	const itemsKey = items.map(item => item.id).join('\u0000')
 	useLayoutEffect(() => {
 		const node = container.current
 		if (!node) return
@@ -45,7 +49,7 @@ export function AssetMasonryGrid({ items, label }: {
 		observer?.observe(node)
 		for (const child of node.children) observer?.observe(child)
 		return () => observer?.disconnect()
-	}, [items, columns.width])
+	}, [itemsKey, columns.width])
 	const heights = items.map(item => {
 		const size = measured[item.id]
 		if (size && Math.abs(size.width - columns.width) < 1 && size.height > 0) return size.height
