@@ -39,26 +39,25 @@ import { uic } from '../utils/uic'
 // right — with a 1px bottom border (`--color-border`). gs sets
 // `padding: 0 spacing-6`; the horizontal page padding is supplied by AppShell's
 // sticky topbar row, so only the fixed height + border live here. The border sits
-// on this header so it aligns (inset) with the padded content below. Height is the
-// gs AppHeader bar (~52px) → `h-14` (56px).
+// on this header so it aligns (inset) with the padded content below. The source
+// Embedded Manager topbar contract is exactly 77px.
 const TopbarRoot = uic('header', {
 	displayName: 'Topbar',
-	baseClass: 'flex h-14 w-full items-center gap-5 border-b border-border',
+	baseClass: 'flex h-[77px] w-full items-center gap-5 border-b border-border px-6',
 })
 
-// gs-manager `.logo`: nav-tab-sized label (13px compact, weight-500, tight
-// tracking) — matches the AppHeader nav-item scale, NOT a page heading.
+// Embedded Hub brand treatment: 14/18, medium, normal tracking.
 const TopbarBrand = uic('div', {
 	displayName: 'Topbar.Brand',
 	baseClass:
-		'flex min-w-0 items-center gap-3 text-compact leading-4 font-medium tracking-tight text-fg',
+		'flex min-w-0 items-center gap-3 text-small leading-[18px] font-medium tracking-[0] text-fg',
 })
 
 // `ml-auto` pushes the nav (and the actions after it) to the right, matching gs's
 // title-left / nav-right layout.
 const TopbarNavBase = uic('nav', {
 	displayName: 'Topbar.Nav',
-	baseClass: 'ml-auto flex min-w-0 items-center gap-2 overflow-x-auto',
+	baseClass: 'ml-auto flex h-9 min-w-0 items-start gap-2 overflow-x-auto',
 })
 
 // `@app/ui` ships no i18n — the accessible name of the nav landmark is REQUIRED
@@ -73,10 +72,8 @@ const TopbarActions = uic('div', {
 
 /**
  * NavLink — a single primary-navigation item. Mirrors gs-manager's AppHeader
- * nav-tab styling (`Button.module.scss` `_tab`): `6px 13px` padding
- * (→ `py-[6px] px-[13px]`), `radius-sm` (2px) corners, 13px dense text, neutral-400
- * foreground → neutral-100 fill on hover/active. The active tab is the SAME weight
- * as the resting tab (only the fill + color change — gs `_tab` has no weight bump).
+ * nav-tab styling: 6px × 13px padding, 2px corners and 13/16 typography.
+ * Hover and active share the neutral-100 fill without changing font weight.
  * gs maps BOTH `--color-background-hover` and `--color-background-active` to
  * `--color-neutral-100`, so a single `surface-muted` token covers both states
  * (no distinct active token to map). Renders an `<a>` by default; pass `asChild`
@@ -90,7 +87,7 @@ const TopbarActions = uic('div', {
 const TopbarNavLink = uic('a', {
 	displayName: 'Topbar.NavLink',
 	baseClass:
-		'inline-flex items-center rounded-sm px-[13px] py-[6px] text-compact leading-4 whitespace-nowrap ' +
+		'inline-flex items-center rounded-sm px-[13px] py-[6px] text-compact leading-4 tracking-[0] whitespace-nowrap ' +
 		'text-fg no-underline transition-colors hover:bg-surface-muted hover:text-fg outline-none ' +
 		'focus-visible:ring-2 focus-visible:ring-ring ' +
 		'data-[active]:bg-surface-muted data-[active]:text-fg',

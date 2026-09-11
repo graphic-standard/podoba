@@ -158,7 +158,7 @@ export const AppShell = ({
 				    from showing through while pinned. z-20 sits above scrolling content but
 				    below the mobile drawer (z-40/z-50); gs's literal z-10001 is to clear a
 				    fullscreen overlay we don't have. */}
-				<div className="sticky top-0 z-20 flex shrink-0 items-center bg-surface px-6">
+				<div className="sticky top-0 z-20 flex shrink-0 items-center bg-surface">
 					{hasSidebar ? (
 						<RACButton
 							aria-label={drawerToggleLabel}
