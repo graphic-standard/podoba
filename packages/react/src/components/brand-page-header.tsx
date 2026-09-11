@@ -33,9 +33,13 @@ export type BrandPageHeaderCtaRenderProps = {
 	toggle: () => void
 }
 
+export type BrandPageHeaderVariant = 'dashboard' | 'default' | 'navigation'
+
 export type BrandPageHeaderProps = {
 	/** The large greeting / page-title slot (e.g. "Good morning Jonas 👋"). */
 	greeting: ReactNode
+	/** Header geometry preset. Dashboard uses the source 20px desktop gutter. */
+	variant?: BrandPageHeaderVariant
 	/** Semantic heading level. Use 2 or 3 when the header is nested below a page title. */
 	headingLevel?: 1 | 2 | 3
 	/**
@@ -77,6 +81,7 @@ export type BrandPageHeaderProps = {
 
 export function BrandPageHeader({
 	greeting,
+	variant = 'default',
 	headingLevel = 1,
 	parentLink,
 	breadcrumbs,
@@ -116,6 +121,11 @@ export function BrandPageHeader({
 					toggle: () => setExpanded(!expanded),
 				})
 			: cta
+	// Render the WHOLE trail the caller passed. Collapsing it to `breadcrumbs[-2]`
+	// silently dropped every other crumb (a three-crumb trail rendered one) and
+	// dropped a single crumb entirely unless it happened to be pressable. A caller
+	// that wants only the parent passes only the parent.
+	const visibleBreadcrumbs = breadcrumbs?.filter(Boolean) ?? []
 
 	useEffect(() => {
 		if (!expanded || !hasExpandable || typeof window === 'undefined') return
@@ -237,25 +247,41 @@ export function BrandPageHeader({
 	return (
 		<div
 			className={[
-				'mb-6 w-full',
-				sticky ? 'sticky top-0 z-30 bg-surface' : '',
+				'mb-6 box-border w-auto min-w-0',
+				sticky
+					? [
+						'relative -mx-3 px-3',
+						'md:sticky md:top-0 md:z-30 md:-mx-6 md:bg-surface md:px-6 md:pb-6 md:mb-0',
+						expanded ? 'md:pb-0' : '',
+					].join(' ')
+					: '',
 				className,
 			]
 				.filter(Boolean)
 				.join(' ')}
 		>
-			<div className="flex flex-col gap-2 md:grid md:grid-cols-3 md:items-stretch md:gap-4">
-				<div className="flex min-w-0 flex-1 flex-col gap-1 md:col-span-2">
-					{breadcrumbs && breadcrumbs.length > 0 ? (
-						<nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-1 text-compact text-fg-muted">
-							{breadcrumbs.map((crumb, i) => (
+			<div
+				className={`grid grid-cols-1 grid-rows-[auto_auto] items-start gap-y-2 ${
+					variant === 'navigation' ? 'md:grid-cols-2' : 'md:grid-cols-[2fr_1fr]'
+				} ${variant === 'dashboard' ? 'md:gap-x-5' : 'md:gap-x-4'}`}
+			>
+				<div className="col-start-1 row-[1/-1] flex w-full min-w-0 flex-col gap-0">
+					{/* EXACTLY ONE Breadcrumb landmark. Rendering the trail and `parentLink`
+					    as siblings produced two <nav aria-label="Breadcrumb"> in one header —
+					    duplicate landmarks sharing an accessible name. `breadcrumbs` is the
+					    richer API, so it wins when a caller passes both.
+					    Ink is `fg-muted` (5.98:1), NOT `fg-subtle` (2.10:1 on surface): a
+					    crumb is a navigation link, which #25 keeps on the readable token. */}
+					{visibleBreadcrumbs.length > 0 ? (
+						<nav aria-label="Breadcrumb" className="m-0 flex w-full min-w-0 flex-wrap items-center gap-1 text-display-large font-medium tracking-wide text-fg-muted">
+							{visibleBreadcrumbs.map((crumb, i) => (
 								<span key={i} className="inline-flex items-center gap-1">
 									{i > 0 ? <span aria-hidden="true">/</span> : null}
 									{crumb.onPress ? (
 										<Button
 											variant="ghost"
 											onPress={crumb.onPress}
-											className="h-auto rounded-sm p-0 text-compact font-normal text-fg-muted data-[hovered]:bg-transparent data-[hovered]:text-fg data-[hovered]:underline"
+											className="h-auto rounded-sm p-0 text-display-large font-medium tracking-wide text-fg-muted data-[hovered]:bg-transparent data-[hovered]:text-fg"
 										>
 											{crumb.label}
 										</Button>
@@ -265,25 +291,27 @@ export function BrandPageHeader({
 								</span>
 							))}
 						</nav>
+					) : parentLink ? (
+						// gs "title to go back". MERGE NOTE: the breadcrumb is a NAV LANDMARK,
+						// not part of the <h1> — a page title should not contain its own parent
+						// link. #25 still applies to the colour: the source's decorative grey is
+						// 2.10:1 on `surface`, and this row is a navigation LINK, so it keeps the
+						// readable `fg-muted` (5.98:1) rather than `fg-subtle`.
+						<nav
+							aria-label="Breadcrumb"
+							className="h-8 text-display-large font-medium leading-8 tracking-wide text-fg-muted transition-colors [&_a:hover]:text-fg [&_a]:block [&_a]:h-8 [&_a]:text-fg-muted [&_a]:no-underline [&_a]:outline-none [&_a:focus-visible]:underline"
+						>
+							{parentLink}
+						</nav>
 					) : null}
-					<DisplayHeading asChild className="tracking-tight">
-						<HeadingTag>
-							{parentLink ? (
-								// gs "title to go back": muted clickable parent line above the title.
-								// `[&_a]` styles the nested router <Link> (anchor) without @app/ui
-								// importing the router. #25: the source's decorative grey is 2.10:1
-								// on `surface` — this row is a navigation LINK, so it takes the
-								// readable `fg-muted` (5.98:1) instead.
-								<>
-									<span className="text-fg-muted transition-colors [&_a:hover]:text-fg [&_a]:text-fg-muted [&_a]:no-underline [&_a]:outline-none [&_a:focus-visible]:underline">
-										{parentLink}
-									</span>
-									<br />
-								</>
-							) : null}
-							{greeting}
-						</HeadingTag>
-					</DisplayHeading>
+					<div className="flex w-full min-w-0 items-start overflow-visible">
+						<DisplayHeading
+							asChild
+							className="m-0 min-w-0 flex-1 overflow-visible break-words pb-0.5 tracking-[0]"
+						>
+							<HeadingTag>{greeting}</HeadingTag>
+						</DisplayHeading>
+					</div>
 				</div>
 
 				{cta ? (
@@ -292,8 +320,8 @@ export function BrandPageHeader({
 						className={
 							[
 								mobileCtaDocked
-									? 'fixed inset-x-0 bottom-0 z-40 min-w-0 px-3 pb-mobile-cta-bottom md:static md:inset-auto md:z-auto md:h-full md:p-0'
-									: 'h-full min-w-0',
+									? 'fixed inset-x-0 bottom-0 z-40 min-w-0 px-3 pb-mobile-cta-bottom md:static md:inset-auto md:col-start-2 md:row-[1/-1] md:z-auto md:flex md:h-full md:max-w-full md:items-stretch md:justify-end md:self-stretch md:p-0'
+									: 'min-w-0 md:col-start-2 md:row-[1/-1] md:flex md:h-full md:max-w-full md:items-stretch md:justify-end md:self-stretch',
 								expanded ? 'hidden' : '',
 							].join(' ')
 						}
@@ -301,7 +329,7 @@ export function BrandPageHeader({
 						{renderedCta}
 					</div>
 				) : ctaLabel ? (
-					<div className="shrink-0">
+					<div className="shrink-0 md:col-start-2 md:row-[1/-1] md:flex md:items-start md:justify-end">
 						{hasExpandable ? (
 							<Button
 								onPress={() => setExpanded(!expanded)}

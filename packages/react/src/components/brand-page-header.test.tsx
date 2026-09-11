@@ -12,7 +12,9 @@ describe('BrandPageHeader heading semantics', () => {
 		expect(html).toContain('<h1')
 		expect(html).toContain('>Projects</h1>')
 		expect(html).toContain('text-display-large')
-		expect(html).toContain('tracking-tight')
+		// Tracking moved from `tracking-tight` to `tracking-[0]` with the GS Manager
+		// port; the contract this test names is the heading level + type scale.
+		expect(html).toContain('tracking-[0]')
 	})
 
 	test('supports a nested h2 without changing the visual component', () => {
@@ -30,8 +32,11 @@ describe('BrandPageHeader heading semantics', () => {
 			<BrandPageHeader greeting="Design system and templates" cta={<div>CTA</div>} />,
 		)
 
-		expect(html).toContain('md:grid-cols-3')
-		expect(html).toContain('md:col-span-2')
+		// Still two-thirds hero / one-third CTA — expressed as an explicit 2fr_1fr
+		// track list now that the header also supports a `navigation` variant, rather
+		// than the old fixed 3-column grid with a col-span-2 hero.
+		expect(html).toContain('md:grid-cols-[2fr_1fr]')
+		expect(html).toContain('md:col-start-2')
 		expect(html).toContain('inset-x-0')
 		expect(html).toContain('pb-mobile-cta-bottom')
 		expect(html).toContain('md:h-full')
@@ -46,7 +51,10 @@ describe('BrandPageHeader heading semantics', () => {
 			/>,
 		)
 
-		expect(html).toContain('h-full min-w-0')
+		// The undocked CTA still owns the second column for its full height; it simply
+		// loses the fixed mobile bar.
+		expect(html).toContain('md:col-start-2')
+		expect(html).toContain('md:h-full')
 		expect(html).not.toContain('pb-mobile-cta-bottom')
 	})
 
@@ -108,14 +116,69 @@ describe('BrandPageHeader heading semantics', () => {
 			<BrandPageHeader greeting="Colors" parentLink={<a href="/tokens">Tokens</a>} />,
 		)
 
-		// Scoped to the parent-link span, NOT the whole component: a legitimately
-		// ornamental `fg-subtle` elsewhere in the header must not fail a test that
-		// names this row.
-		const parentRow = html.match(/<span class="([^"]*\[&amp;_a\][^"]*)"/)?.[1]
+		// The parent link is now a Breadcrumb NAV LANDMARK rather than a span inside
+		// the <h1> — a page title must not contain its own parent link. Scoped to that
+		// nav, NOT the whole component: a legitimately ornamental `fg-subtle`
+		// elsewhere in the header must not fail a test that names this row.
+		const parentRow = html.match(/<nav aria-label="Breadcrumb" class="([^"]*\[&amp;_a\][^"]*)"/)?.[1]
 
 		expect(parentRow).toBeDefined()
 		expect(parentRow).toContain('text-fg-muted')
 		expect(parentRow).toContain('[&amp;_a]:text-fg-muted')
 		expect(parentRow).not.toContain('text-fg-subtle')
+	})
+
+	// The `breadcrumbs` prop had NO coverage, which is how a silent collapse to a
+	// single crumb shipped. These name the contract: every crumb the caller passes
+	// is rendered, separated, exactly once, in one landmark, on the readable token.
+	test('renders every crumb of the trail, separated', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader
+				greeting="Colors"
+				breadcrumbs={[
+					{ label: 'Home', onPress: () => {} },
+					{ label: 'Tokens', onPress: () => {} },
+					{ label: 'Colors' },
+				]}
+			/>,
+		)
+
+		expect(html).toContain('Home')
+		expect(html).toContain('Tokens')
+		expect(html).toContain('<span aria-hidden="true">/</span>')
+	})
+
+	test('renders a single non-pressable crumb', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader greeting="Colors" breadcrumbs={[{ label: 'Tokens' }]} />,
+		)
+
+		expect(html).toContain('aria-label="Breadcrumb"')
+		expect(html).toContain('Tokens')
+	})
+
+	test('renders exactly one Breadcrumb landmark when given both trail and parentLink', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader
+				greeting="Colors"
+				parentLink={<a href="/tokens">Tokens</a>}
+				breadcrumbs={[{ label: 'Tokens', onPress: () => {} }]}
+			/>,
+		)
+
+		// Duplicate landmarks sharing an accessible name are an a11y defect.
+		expect(html.match(/aria-label="Breadcrumb"/g)).toHaveLength(1)
+	})
+
+	test('keeps crumbs off the failing fg-subtle token', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader greeting="Colors" breadcrumbs={[{ label: 'Tokens', onPress: () => {} }]} />,
+		)
+
+		const nav = html.match(/<nav aria-label="Breadcrumb" class="([^"]*)"/)?.[1]
+
+		expect(nav).toBeDefined()
+		expect(nav).toContain('text-fg-muted')
+		expect(nav).not.toContain('text-fg-subtle')
 	})
 })

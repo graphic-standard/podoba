@@ -32,7 +32,7 @@ export const ModalOverlay = uic(RACModalOverlay, {
 export const ModalSurface = uic(RACModal, {
 	displayName: 'DialogModal',
 	baseClass:
-		'rounded-lg bg-surface p-5 outline-none shadow-modal-surface ' +
+		'relative rounded-lg bg-surface p-5 outline-none shadow-modal-surface ' +
 		'data-[entering]:animate-modal-surface-in data-[exiting]:animate-modal-surface-out',
 })
 
@@ -92,6 +92,10 @@ export type DialogProps = RACDialogProps & {
 	badge?: ReactNode
 	/** Width preset — `md` (default) for forms; `sm` for tight confirms; `lg`/`xl` for wide stepper content. */
 	size?: DialogSize
+	/** Optional form-specific width cap; the viewport width preset still applies. */
+	maxWidth?: number
+	/** Responsive intrinsic detail envelope, independent of title sizing. */
+	widthPreset?: 'responsive-detail' | 'custom-task-detail'
 	children: ReactNode | ((opts: { close: () => void }) => ReactNode)
 	/**
 	 * Controlled open state. Provide together with `onOpenChange` to drive the
@@ -115,6 +119,8 @@ export const Dialog = ({
 	badge,
 	// gs DialogContent defaults to `md` (586px form width).
 	size = 'md',
+	maxWidth,
+	widthPreset,
 	children,
 	isOpen,
 	defaultOpen,
@@ -126,6 +132,11 @@ export const Dialog = ({
 	// `full` is a fixed-height flex canvas: the body fills and scrolls internally so
 	// the header (+ a footer the content pins) stay put. Other sizes are content-height.
 	const isFlex = size === 'full'
+	// The Manager header treatment — block layout, floated close, label-ramp
+	// description — belongs to the OPT-IN width presets, not to "any dialog that
+	// isn't `full`". Gating it on `isFlex` made every sm/md/lg/xl dialog render a
+	// display-scale title and stranded `TITLE_CLASS` on the single `full` size.
+	const isCompact = widthPreset !== undefined
 	return (
 		// `isOpen`/`defaultOpen`/`onOpenChange` go to the RAC ModalOverlay: when
 		// provided the dialog is controlled (renders independently of a DialogTrigger);
@@ -142,19 +153,28 @@ export const Dialog = ({
 			onOpenChange={onOpenChange}
 			isDismissable={isDismissable}
 		>
-			<ModalSurface className={SIZE_CLASS[size]}>
+			<ModalSurface
+				className={
+					widthPreset === 'responsive-detail'
+						? 'w-[90vw] max-w-125 md:max-w-150 lg:max-w-160 xl:max-w-180 max-h-[85vh] overflow-y-auto'
+						: widthPreset === 'custom-task-detail'
+							? 'w-[90vw] min-w-[400px] max-w-[500px] md:max-w-[600px] lg:max-w-[640px] xl:max-w-[720px] max-h-[85vh] overflow-y-auto max-[460px]:min-w-0'
+							: SIZE_CLASS[size]
+				}
+				style={maxWidth === undefined ? undefined : { maxWidth }}
+			>
 				<ModalDialog
 					{...props}
 					className={isFlex ? 'flex min-h-0 flex-1 flex-col outline-none' : 'outline-none'}
 				>
 					{(renderProps) => (
 						<>
-							<div className="mb-4 flex shrink-0 items-start justify-between gap-4">
+							<div className={isCompact ? 'block' : 'mb-4 flex shrink-0 items-start justify-between gap-4'}>
 								{title || description ? (
 									<div className="min-w-0">
 										{title ? (
 											<div className="flex items-center gap-2">
-												<Heading slot="title" className={`${TITLE_CLASS[size]} text-fg`}>
+												<Heading slot="title" className={isCompact ? 'm-0 mb-4 max-w-5/6 text-heading1 font-medium tracking-normal text-fg' : `${TITLE_CLASS[size]} text-fg`}>
 													{title}
 												</Heading>
 												{badge ? (
@@ -165,8 +185,8 @@ export const Dialog = ({
 											</div>
 										) : null}
 										{description ? (
-											// gs `.description` = base 16px, text-secondary (=fg).
-											<p className="mt-1 text-body text-fg">{description}</p>
+											// Source ordinary descriptions use the 14px/18px label ramp.
+											<p className={isCompact ? 'm-0 mb-6 max-w-5/6 text-small leading-4.5 font-normal text-fg-workflow-muted' : 'mt-1 text-body text-fg'}>{description}</p>
 										) : null}
 									</div>
 								) : (
@@ -179,19 +199,19 @@ export const Dialog = ({
 									// gs close: 32px square (`h-8 w-8`), medium radius (`rounded-md`),
 									// tertiary icon color (`text-fg-subtle`) → primary (`text-fg`) +
 									// subtle hover bg on hover. Smooth color transition.
-									className="-mr-1 -mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring"
+									className={`${isCompact ? 'absolute top-[calc(var(--spacing)*3.375)] end-4 max-md:end-3' : '-mr-1 -mt-1'} inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none`}
 								>
 									<svg
-										width="18"
-										height="18"
-										viewBox="0 0 24 24"
+										width={isCompact ? 15 : 18}
+										height={isCompact ? 15 : 18}
+										viewBox={isCompact ? '0 0 15 15' : '0 0 24 24'}
 										fill="none"
-										stroke="currentColor"
+										stroke={isCompact ? undefined : 'currentColor'}
 										strokeWidth="2"
 										strokeLinecap="round"
 										aria-hidden="true"
 									>
-										<path d="M6 6l12 12M18 6 6 18" />
+										<path fill={isCompact ? 'currentColor' : undefined} d={isCompact ? 'M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z' : 'M6 6l12 12M18 6 6 18'} />
 									</svg>
 								</button>
 							</div>

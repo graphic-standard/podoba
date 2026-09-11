@@ -151,14 +151,18 @@ export const AppShell = ({
 				{banner ? <div className="shrink-0">{banner}</div> : null}
 
 				{/* Sticky topbar — pins to the top of the viewport once the banner
-				    scrolls past. 24px horizontal page padding (gs `.topbar` `padding: 0
-				    spacing-6`, zero vertical — the Topbar header carries its own 72px
-				    height + bottom border). The border lives on the Topbar header so it
-				    aligns (inset) with the padded content below. `bg-surface` keeps content
-				    from showing through while pinned. z-20 sits above scrolling content but
-				    below the mobile drawer (z-40/z-50); gs's literal z-10001 is to clear a
-				    fullscreen overlay we don't have. */}
-				<div className="sticky top-0 z-20 flex shrink-0 items-center bg-surface px-6">
+				    scrolls past. The Topbar header now carries its own 24px horizontal
+				    padding (matching `Main`) plus its height and bottom border, so this row
+				    supplies NO padding of its own — it would double up. The drawer toggle is
+				    a sibling of the topbar, so it takes the same 24px gutter explicitly;
+				    without it the toggle sat at 8px while every other page element started
+				    at 24px. KNOWN SEAM: because the toggle sits outside the Topbar, the
+				    Topbar's bottom border starts after it on mobile. Closing that would mean
+				    restyling `topbar`, which is an opaque ReactNode here. `bg-surface` keeps
+				    content from showing through while pinned. z-20 sits above scrolling
+				    content but below the mobile drawer (z-40/z-50); gs's literal z-10001 is
+				    to clear a fullscreen overlay we don't have. */}
+				<div className="sticky top-0 z-20 flex shrink-0 items-center bg-surface">
 					{hasSidebar ? (
 						<RACButton
 							aria-label={drawerToggleLabel}
@@ -166,7 +170,7 @@ export const AppShell = ({
 							aria-controls={drawerOpen ? drawerId : undefined}
 							onPress={() => setDrawerOpen((open) => !open)}
 							className={
-								'ml-2 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-fg outline-none ' +
+								'ms-6 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-fg outline-none ' +
 								'transition-colors hover:bg-surface-muted md:hidden ' +
 								'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring'
 							}

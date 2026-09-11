@@ -1,0 +1,14 @@
+export const FIELD_APPEARANCES = ['outlined', 'filled'] as const
+export type FieldAppearance = (typeof FIELD_APPEARANCES)[number]
+
+/** Borderless Manager field skin. Hover yields to focus; focus uses an offset
+ * outline instead of combining the browser outline with a second inset ring.
+ * Placeholder/error colors retain the library's accessible semantic tokens.
+ */
+export const filledFieldClasses =
+	'border-0 bg-surface-card text-small font-normal leading-4.5 text-fg ' +
+	'outline-none transition-colors duration-200 motion-reduce:transition-none placeholder:text-fg-muted placeholder:font-normal ' +
+	'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-card ' +
+	'focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ' +
+	'data-[invalid]:ring-1 data-[invalid]:ring-danger data-[invalid]:outline-danger ' +
+	'data-[disabled]:bg-surface-muted data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed'

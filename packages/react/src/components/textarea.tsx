@@ -8,6 +8,7 @@ import {
 	type TextFieldProps,
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
+import { filledFieldClasses, type FieldAppearance } from './field-appearance'
 
 /**
  * Textarea — labelled multi-line text field.
@@ -26,16 +27,23 @@ const StyledTextArea = uic(RACTextArea, {
 	// (surface), disabled = muted cream. border #eceae1 → border · hover #aba89c →
 	// fg-subtle · focus #75e7b8 → brand-green · error → danger. min-h-[120px] is a
 	// control dimension (not a design token) — gs uses a literal 120px here too.
-	baseClass:
-		'min-h-[120px] w-full resize-y rounded-lg border border-border bg-surface px-4 py-3 text-small text-fg ' +
+	baseClass: 'min-h-30 w-full resize-y rounded-lg px-4 py-3',
+	variants: {
+		appearance: {
+			filled: filledFieldClasses,
+			outlined: 'border border-border bg-surface text-small text-fg ' +
 		'outline-none transition-colors duration-200 placeholder:text-fg-muted ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
 		'data-[invalid]:border-danger data-[invalid]:ring-danger ' +
 		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
+		},
+	},
+	defaultVariants: { appearance: 'outlined' },
 })
 
 export type TextareaProps = TextFieldProps & {
+	appearance?: FieldAppearance
 	/** Visible field label (required for accessibility). */
 	label: ReactNode
 	/** Helper text rendered under the field. */
@@ -45,12 +53,14 @@ export type TextareaProps = TextFieldProps & {
 	placeholder?: string
 	/** Initial visible row count (the field still grows / resizes vertically). */
 	rows?: number
+	/** Optional class for the inner native textarea, used by source-specific modal layouts. */
+	textAreaClassName?: string
 }
 
-export const Textarea = ({ label, description, errorMessage, placeholder, rows, ...props }: TextareaProps) => (
-	<TextField {...props} className="flex w-full flex-col gap-2">
-		<Label className="text-small font-medium text-fg">{label}</Label>
-		<StyledTextArea placeholder={placeholder} rows={rows} />
+export const Textarea = ({ label, description, errorMessage, placeholder, rows, textAreaClassName, appearance = 'outlined', ...props }: TextareaProps) => (
+	<TextField {...props} className={`flex w-full flex-col ${appearance === 'filled' ? 'gap-3' : 'gap-2'}`}>
+		<Label className={`${appearance === 'filled' ? 'text-panel-heading' : 'text-small'} font-medium text-fg`}>{label}</Label>
+		<StyledTextArea className={textAreaClassName} placeholder={placeholder} rows={rows} appearance={appearance} />
 		{description ? (
 			<Text slot="description" className="text-label text-fg-muted">
 				{description}

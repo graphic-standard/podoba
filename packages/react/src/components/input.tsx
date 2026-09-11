@@ -8,6 +8,7 @@ import {
 	type TextFieldProps,
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
+import { filledFieldClasses, type FieldAppearance } from './field-appearance'
 
 /**
  * Input — labelled single-line text field.
@@ -28,29 +29,36 @@ const StyledInput = uic(RACInput, {
 	// fg-subtle · focus #75e7b8 → brand-green · error → danger. This is the shared
 	// filled-field skin (textarea / combobox / date-field / number-field /
 	// search-field); `fieldSize` adds the single-line height on top.
-	baseClass:
-		'w-full rounded-lg border border-border bg-surface px-4 text-small text-fg ' +
+	baseClass: 'w-full rounded-lg px-4',
+	variants: {
+		appearance: {
+			filled: filledFieldClasses,
+			outlined: 'border border-border bg-surface text-small text-fg ' +
 		'outline-none transition-colors duration-200 placeholder:text-fg-muted ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
 		'data-[invalid]:border-danger data-[invalid]:ring-2 data-[invalid]:ring-danger ' +
 		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
-	variants: {
+		},
 		// `fieldSize` (not `size`) to avoid colliding with the native <input size>
 		// attribute, which RAC's Input inherits (a numeric prop).
 		fieldSize: {
 			sm: 'h-8',
 			md: 'h-10',
+			filled: 'h-10.5 py-3',
 			lg: 'h-12',
 			tall: 'h-control-tall',
 		},
 	},
 	defaultVariants: {
+		appearance: 'outlined',
 		fieldSize: 'md',
 	},
 })
 
 export type InputProps = TextFieldProps & {
+	/** Filled matches the original Manager dialog fields; outlined remains the default. */
+	appearance?: FieldAppearance
 	/** Visible field label (required for accessibility). */
 	label: ReactNode
 	/** Helper text rendered under the field. */
@@ -65,10 +73,10 @@ export type InputProps = TextFieldProps & {
 	inputClassName?: string
 }
 
-export const Input = ({ label, description, errorMessage, placeholder, size, rootClassName, inputClassName, ...props }: InputProps) => (
+export const Input = ({ label, description, errorMessage, placeholder, size, appearance = 'outlined', rootClassName, inputClassName, ...props }: InputProps) => (
 	<TextField {...props} className={`flex w-full flex-col gap-3 ${rootClassName ?? ''}`}>
 		<Label className="text-panel-heading font-medium text-fg">{label}</Label>
-		<StyledInput className={inputClassName} placeholder={placeholder} fieldSize={size} />
+		<StyledInput className={inputClassName} placeholder={placeholder} appearance={appearance} fieldSize={size ?? (appearance === 'filled' ? 'filled' : undefined)} />
 		{description ? (
 			<Text slot="description" className="text-label text-fg-muted">
 				{description}

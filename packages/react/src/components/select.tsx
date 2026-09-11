@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { createContext, useContext, type CSSProperties, type ReactNode } from 'react'
 import {
 	Button as RACButton,
 	FieldError,
@@ -14,6 +14,12 @@ import {
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
 import { useInFocusOverlay } from './focus-context'
+import type { FieldAppearance } from './field-appearance'
+
+const SelectAppearanceContext = createContext<FieldAppearance>('outlined')
+const filledPopoverStyle: CSSProperties & { '--select-popup-max-width': string } = {
+	'--select-popup-max-width': 'calc(100vw - var(--spacing) * 6)',
+}
 
 /**
  * Select — accessible dropdown built on React Aria Components `Select`.
@@ -29,32 +35,77 @@ import { useInFocusOverlay } from './focus-context'
  */
 const SelectTrigger = uic(RACButton, {
 	displayName: 'SelectTrigger',
-	// gs source control geometry (58px tall, 20px inline padding, 8px radius) with
-	// the shared bordered fill: gs draws it borderless on cream, but our Card is
-	// also surface-card and dark theme collapses surface-card onto surface, so a
-	// borderless cream trigger disappears. White fill + border keeps it visible and
-	// consistent with the other form controls; hover darkens the border.
+	// Filled follows the Manager's borderless control; outlined preserves the
+	// existing default for consumers which have not opted into that appearance.
 	baseClass:
-		'flex h-control-tall w-full items-center justify-between gap-2.5 rounded-lg border border-border bg-surface px-5 ' +
-		'text-small text-fg outline-none transition-colors ' +
+		'flex w-full items-center justify-between gap-2.5 rounded-lg px-5 text-small text-fg outline-none transition-colors',
+	variants: {
+		appearance: {
+			filled: 'min-h-control-tall border-0 bg-surface-card py-5 font-normal leading-4.5 duration-200 motion-reduce:transition-none ' +
+				'data-[hovered]:bg-surface-muted group-data-[open]:bg-surface-card ' +
+				'data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:outline-offset-2 ' +
+				'group-data-[invalid]:ring-1 group-data-[invalid]:ring-danger ' +
+				'data-[disabled]:bg-surface-card data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
+			outlined: 'h-control-tall border border-border bg-surface ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
 		'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
 		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
+		},
+	},
+	defaultVariants: { appearance: 'outlined' },
 })
 
-export const SelectItem = uic(ListBoxItem, {
+const StyledSelectItem = uic(ListBoxItem, {
 	displayName: 'SelectItem',
-	// gs item: 0/20px padding (px-5, no vertical pad), 6px radius, selected =
-	// medium weight. We add a `surface-muted` focus background (gs highlights with
-	// weight only) so keyboard focus stays clearly visible on the cream content.
+	// Filled highlights through weight, as in Manager. Retain a keyboard outline
+	// and larger narrow-screen hit targets as explicit accessibility exceptions.
 	baseClass:
-		'flex cursor-pointer select-none items-center rounded-md px-3 py-2 text-small text-fg outline-none ' +
+		'flex cursor-pointer select-none items-center rounded-md text-small text-fg outline-none data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
+	variants: {
+		appearance: {
+			filled: 'min-w-0 overflow-hidden px-5 py-0 font-normal leading-4.5 max-md:min-h-11 ' +
+				'data-[hovered]:font-medium data-[focused]:font-medium data-[selected]:font-medium ' +
+				'data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:-outline-offset-2',
+			outlined: 'px-3 py-2 ' +
 		'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
-}) as (props: ListBoxItemProps) => ReactNode
+		},
+	},
+	defaultVariants: { appearance: 'outlined' },
+}) as (props: ListBoxItemProps & { appearance?: FieldAppearance }) => ReactNode
+
+export const SelectItem = (props: ListBoxItemProps): ReactNode => {
+	const appearance = useContext(SelectAppearanceContext)
+	if (appearance === 'outlined') return <StyledSelectItem {...props} appearance={appearance} />
+	// Manager's ItemText is a single ellipsized line. Keep the full value in the
+	// label/textValue so keyboard search and assistive technology don't see a cut-off label.
+	const { children, textValue, ...rest } = props
+	return <StyledSelectItem {...rest} appearance={appearance} textValue={textValue ?? (typeof children === 'string' ? children : undefined)}>
+		{state => <Text slot="label" className="min-w-0 truncate">{typeof children === 'function' ? children(state) : children}</Text>}
+	</StyledSelectItem>
+}
+
+const SelectListBox = uic(ListBox, {
+	displayName: 'SelectListBox',
+	baseClass: 'flex flex-col overflow-auto overscroll-contain outline-none',
+	variants: { appearance: { outlined: 'max-h-72 gap-0.5 p-1', filled: 'gap-3 px-0 py-5' } },
+	defaultVariants: { appearance: 'outlined' },
+})
+const SelectPopover = uic(Popover, {
+	displayName: 'SelectPopover',
+	baseClass: 'overflow-hidden rounded-lg bg-surface-card shadow-lg',
+	variants: { appearance: {
+		outlined: 'min-w-(--trigger-width)',
+		filled: 'w-(--trigger-width) max-w-(--select-popup-max-width)',
+	} },
+	defaultVariants: { appearance: 'outlined' },
+})
 
 export type SelectProps<T extends object> = RACSelectProps<T> & {
+	appearance?: FieldAppearance
+	/** Keep the accessible label without reserving an empty label row. */
+	isLabelHidden?: boolean
 	/** Visible label (required for accessibility). */
 	label: ReactNode
 	description?: ReactNode
@@ -80,14 +131,16 @@ export const Select = <T extends object>({
 	children,
 	rootClassName,
 	triggerClassName,
+	appearance = 'outlined',
+	isLabelHidden = false,
 	...props
 }: SelectProps<T>) => {
 	// In a focus overlay, show the options inline (seamless) instead of a popover.
 	const inFocus = useInFocusOverlay()
 	const listbox = (
-		<ListBox className="flex max-h-72 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none">
+		<SelectListBox appearance={appearance} style={appearance === 'filled' ? { maxHeight: 'inherit' } : undefined}>
 			{children}
-		</ListBox>
+		</SelectListBox>
 	)
 	const desc = description ? (
 		<Text slot="description" className="text-label text-fg-muted">
@@ -97,8 +150,9 @@ export const Select = <T extends object>({
 	const err = <FieldError className="text-label text-danger">{errorMessage}</FieldError>
 
 	return (
+		<SelectAppearanceContext.Provider value={appearance}>
 		<RACSelect {...props} placeholder={placeholder} className={`group flex flex-col gap-3 ${rootClassName ?? ''}`}>
-			<Label className="text-panel-heading font-medium text-fg">{label}</Label>
+			<Label className={isLabelHidden ? 'sr-only' : 'text-panel-heading font-medium text-fg'}>{label}</Label>
 			{inFocus ? (
 				<>
 					{listbox}
@@ -107,7 +161,7 @@ export const Select = <T extends object>({
 				</>
 			) : (
 				<>
-					<SelectTrigger className={triggerClassName}>
+					<SelectTrigger className={triggerClassName} appearance={appearance}>
 						<SelectValue className="data-[placeholder]:text-fg-muted" />
 						{/* gs chevron: 9.5px caret, dark (neutral-400 → fg), non-interactive. */}
 						<svg
@@ -123,13 +177,15 @@ export const Select = <T extends object>({
 					</SelectTrigger>
 					{desc}
 					{err}
-					{/* Cream fill, 8px radius, shadow-lg, NO border. 4px inset so each option's
-					    highlight sits as a padded pill; small gap for an even list rhythm. */}
-					<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
+					{/* Filled uses the trigger width and Manager's 4px popup offset. */}
+					<SelectPopover appearance={appearance} offset={appearance === 'filled' ? 4 : undefined}
+						containerPadding={appearance === 'filled' ? 12 : undefined}
+						style={appearance === 'filled' ? filledPopoverStyle : undefined}>
 						{listbox}
-					</Popover>
+					</SelectPopover>
 				</>
 			)}
 		</RACSelect>
+		</SelectAppearanceContext.Provider>
 	)
 }

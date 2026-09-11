@@ -1,5 +1,7 @@
-import { useMemo, useState, type ReactNode } from 'react'
+import { useMemo, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react'
 import { ChevronDownIcon, ChevronUpIcon } from './icons'
+export const TABLE_APPEARANCES = ['default', 'worksheet', 'team'] as const
+export type TableAppearance = (typeof TABLE_APPEARANCES)[number]
 
 /**
  * Table — the design-system data table (port of gs-platform's `GSTable`). A light,
@@ -35,10 +37,15 @@ export type TableColumn<Row> = {
 }
 
 export type TableProps<Row> = {
+	/** Worksheet matches Manager's plain GSTable; default preserves existing consumers. */
+	appearance?: TableAppearance
 	columns: TableColumn<Row>[]
 	data: Row[]
 	/** Stable per-row key. Defaults to the row index (fine for static lists). */
 	getRowKey?: (row: Row, index: number) => string
+	/** Additional semantic/event props for each rendered row. */
+	getRowProps?: (row: Row) => HTMLAttributes<HTMLTableRowElement>
+	columnTemplate?: string
 	/** Enable client-side sorting on `sortable` columns. */
 	enableSorting?: boolean
 	/** Whole-row press handler — renders rows as interactive (hover + keyboard). */
@@ -69,10 +76,13 @@ export function Table<Row>({
 	columns,
 	data,
 	getRowKey,
+	getRowProps,
+	columnTemplate,
 	enableSorting = false,
 	onRowClick,
 	emptyMessage = 'No rows.',
 	className,
+	appearance = 'default',
 	...aria
 }: TableProps<Row>) {
 	const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(null)
@@ -100,12 +110,15 @@ export function Table<Row>({
 
 	const rowKey = getRowKey ?? ((_row: Row, index: number) => String(index))
 	const interactive = Boolean(onRowClick)
+	const worksheet = appearance === 'worksheet'
+	const team = appearance === 'team'
+	const gridTemplate = columnTemplate ?? `repeat(${columns.length}, minmax(0, 1fr))`
 
 	return (
 		<div className={['w-full overflow-x-auto', className].filter(Boolean).join(' ')}>
-			<table className="w-full border-collapse text-small" {...aria}>
-				<thead>
-					<tr className="border-b border-border">
+			<table style={team ? { '--table-columns': gridTemplate } as CSSProperties : undefined} className={`w-full border-collapse text-small ${worksheet ? 'border-b border-border font-normal leading-4.5' : ''} ${team ? 'block border-b border-border font-normal leading-4.5' : ''}`} {...aria}>
+				<thead className={team ? 'block' : undefined}>
+					<tr className={`${worksheet ? '' : 'border-b border-border'} ${team ? 'grid grid-cols-[var(--table-columns)] gap-3 bg-surface-muted px-4 max-[1023px]:hidden' : ''}`}>
 						{columns.map((column) => {
 							const align = column.align ?? 'left'
 							const canSort = enableSorting && column.sortable
@@ -118,7 +131,7 @@ export function Table<Row>({
 									aria-sort={
 										canSort ? (active ? (sort?.dir === 'asc' ? 'ascending' : 'descending') : 'none') : undefined
 									}
-									className={`${ALIGN_CLASS[align]} px-4 py-3 text-label font-medium tracking-wide text-fg-muted uppercase`}
+									className={`${ALIGN_CLASS[align]} ${worksheet ? 'border-0 px-3 py-4 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case bg-surface whitespace-nowrap' : team ? 'border-0 px-4 py-3 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case whitespace-nowrap' : 'px-4 py-3 text-label font-medium tracking-wide text-fg-muted uppercase'}`}
 								>
 									{canSort ? (
 										<button
@@ -145,17 +158,20 @@ export function Table<Row>({
 						})}
 					</tr>
 				</thead>
-				<tbody>
+				<tbody className={team ? 'block' : undefined}>
 					{sorted.length === 0 ? (
 						<tr>
-							<td colSpan={columns.length} className="px-4 py-10 text-center text-small text-fg-muted">
+							<td colSpan={columns.length} className={worksheet ? 'border-y border-border px-6 py-4 text-small font-normal leading-4.5 text-fg' : 'px-4 py-10 text-center text-small text-fg-muted'}>
 								{emptyMessage}
 							</td>
 						</tr>
 					) : (
-						sorted.map((row, index) => (
+						sorted.map((row, index) => {
+						const rowProps = getRowProps?.(row)
+						return (
 							<tr
 								key={rowKey(row, index)}
+								{...rowProps}
 								{...(interactive
 									? {
 											tabIndex: 0,
@@ -169,22 +185,23 @@ export function Table<Row>({
 											},
 										}
 									: {})}
-								className={`border-b border-border/60 outline-none ${
+								className={`${worksheet ? 'min-h-15' : team ? 'grid grid-cols-[var(--table-columns)] gap-3 border-b border-border px-4 py-3 text-label font-normal leading-4.5 max-[1023px]:grid max-[1023px]:grid-cols-1 max-[1023px]:gap-2 max-[1023px]:p-4' : 'border-b border-border/60'} ${team ? 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring' : ''} outline-none ${
 									interactive
 										? 'cursor-pointer transition-colors hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring'
 										: ''
-								}`}
+								}${rowProps?.className ? ` ${rowProps.className}` : ''}`}
 							>
 								{columns.map((column) => {
 									const align = column.align ?? 'left'
 									return (
-										<td key={column.key} className={`${ALIGN_CLASS[align]} px-4 py-3 align-middle text-fg`}>
+										<td key={column.key} className={`${ALIGN_CLASS[align]} ${worksheet ? 'border border-border first:border-l-0 last:border-r-0 px-6 py-4 text-small font-normal leading-4.5' : team ? 'px-0 py-0 align-middle text-small font-normal leading-4.5 max-[1023px]:block' : 'px-4 py-3'} align-middle text-fg`}>
 											{column.render ? column.render(row) : String(defaultSortValue(column, row))}
 										</td>
 									)
 								})}
 							</tr>
-						))
+						)
+						})
 					)}
 				</tbody>
 			</table>
