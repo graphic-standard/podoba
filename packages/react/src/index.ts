@@ -11,6 +11,7 @@ export { uic, uiconfig, type ConfigVariants, type NoInfer } from "./utils/uic";
 
 // --- primitives ---
 export * from "./components/button";
+export * from "./components/compact-action-button";
 export * from "./components/input";
 export * from "./components/field-appearance";
 export * from "./components/textarea";
@@ -28,6 +29,7 @@ export * from "./components/search-field";
 export * from "./components/slider";
 export * from "./components/tag-group";
 export * from "./components/file-upload";
+export * from "./components/dialog-action-button";
 export * from "./components/reload-icon";
 export * from "./components/date-field";
 export * from "./components/date-picker";
