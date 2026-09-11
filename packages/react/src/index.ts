@@ -41,6 +41,7 @@ export { AssetMasonryGrid, assetMasonryColumns, assetMasonryPositions } from './
 export * from "./components/side-panel";
 export * from "./components/dropdown-menu";
 export * from "./components/context-menu";
+export * from "./components/context-search-panel";
 export * from "./components/media-gallery";
 export * from "./components/media-settings-dialog";
 export * from "./components/media-asset-panel";
