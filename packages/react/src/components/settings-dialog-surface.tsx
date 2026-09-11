@@ -88,7 +88,7 @@ export function SettingsDialogSurface({ variant, isOpen, onOpenChange, isPending
 					<header className={catalog ? 'flex shrink-0 flex-col gap-2' : basic ? headerBottomPadding ? 'shrink-0 pb-4' : 'shrink-0' : create || csv ? 'shrink-0 pb-4' : 'shrink-0 pb-10 max-md:pb-8'}>
 						<Container className={containerClass}>
 							{catalog ? <Heading id={titleId} level="1" className="m-0 mb-4 max-w-5/6 whitespace-pre-line" style={{ letterSpacing: 0 }}>{title}</Heading>
-								: <DisplayHeading id={titleId} className={`m-0 whitespace-pre-line pb-0.5 text-fg-subtle ${create ? 'mb-4 max-w-5/6' : ''}`} style={{ letterSpacing: 0, ...(basic ? { maxWidth: '18ch' } : csv && isWide ? { maxWidth: '34ch' } : {}) }}>{title}</DisplayHeading>}
+								: <DisplayHeading id={titleId} className={`m-0 whitespace-pre-line pb-0.5 text-fg-muted ${create ? 'mb-4 max-w-5/6' : ''}`} style={{ letterSpacing: 0, ...(basic ? { maxWidth: '18ch' } : csv && isWide ? { maxWidth: '34ch' } : {}) }}>{title}</DisplayHeading>}
 							{description ? <p id={descriptionId} className="mb-0 mt-3 text-small font-normal text-fg-workflow-muted" style={{ maxWidth: '48ch' }}>{description}</p> : null}
 						</Container>
 						{filters ? <div className="w-full max-w-80">{filters}</div> : null}
@@ -128,7 +128,7 @@ export function WizardFormDialog({ isOpen, onOpenChange, isPending = false, isEx
 				<Button variant="ghost" aria-label={closeLabel} isDisabled={isPending} onPress={() => onOpenChange(false)} className="absolute end-4 top-3.5 z-10 h-8 w-8 rounded-md p-0 text-fg-subtle">
 					<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
 				</Button>
-				<header className="shrink-0"><Container className="max-w-384 px-5 min-[901px]:px-6"><DisplayHeading id={titleId} className="m-0 whitespace-pre-line pb-0.5 text-fg-subtle" style={{ letterSpacing: 0 }}>{title}</DisplayHeading></Container></header>
+				<header className="shrink-0"><Container className="max-w-384 px-5 min-[901px]:px-6"><DisplayHeading id={titleId} className="m-0 whitespace-pre-line pb-0.5 text-fg-muted" style={{ letterSpacing: 0 }}>{title}</DisplayHeading></Container></header>
 				<ScrollBody style={{ scrollbarGutter: 'stable' }}><Container className="max-w-384 px-5 min-[901px]:px-6"><Body className="gap-8">{children}</Body></Container></ScrollBody>
 				<footer className="shrink-0 border-t border-border bg-surface pt-5"><Container className="max-w-384 px-5 min-[901px]:px-6"><div className="flex flex-wrap justify-end gap-2">{footer}</div></Container></footer>
 			</Layout>
