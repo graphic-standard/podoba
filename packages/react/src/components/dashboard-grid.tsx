@@ -34,7 +34,7 @@ export type DashboardGridProps = {
 
 export function DashboardGrid({ children, className }: DashboardGridProps) {
 	return (
-		<div className={['grid grid-cols-12 gap-4', className].filter(Boolean).join(' ')}>{children}</div>
+		<div className={['grid grid-cols-12 gap-3', className].filter(Boolean).join(' ')}>{children}</div>
 	)
 }
 

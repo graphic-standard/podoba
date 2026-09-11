@@ -29,16 +29,14 @@ export type TileTheme = 'light' | 'dark' | 'teal' | 'yellow'
 export type TileAlign = 'top' | 'center'
 
 const THEME: Record<TileTheme, string> = {
-	// Light tiles carry a visible hairline; dark/colored use a transparent border so
-	// every tile keeps the same box size (no 1px shift between themes).
 	// Every surface pairs with ITS semantic foreground (never raw white / bare fg):
 	// `surface-inverted` flips with the theme so it needs the flipping `fg-inverted`;
 	// teal/yellow are FIXED light surfaces so they need the stable `fg-on-brand` ink
 	// (theme-flipping `fg` went white-on-pastel in a dark shell).
-	light: 'border border-border bg-surface-card text-fg',
-	dark: 'border border-transparent bg-surface-inverted text-fg-inverted',
-	teal: 'border border-transparent bg-brand-secondary text-fg-on-brand',
-	yellow: 'border border-transparent bg-accent-yellow text-fg-on-brand',
+	light: 'bg-surface-card text-fg',
+	dark: 'bg-surface-inverted text-fg-inverted',
+	teal: 'bg-brand-green text-fg-on-brand',
+	yellow: 'bg-accent-yellow text-fg-on-brand',
 }
 
 // The shared inner for EVERY tile (gs `DashboardContentCard`): 16px padding
@@ -46,10 +44,8 @@ const THEME: Record<TileTheme, string> = {
 // grid cell; `min-h` floors it.
 const baseSurface = 'flex h-full min-h-[200px] flex-col gap-6 overflow-hidden rounded-lg p-4'
 
-/** Hover-lift + focus ring applied only when the tile is interactive. */
-const interactive =
-	'no-underline outline-none transition-[transform,box-shadow] duration-150 ' +
-	'hover:-translate-y-1 hover:shadow-lg focus-visible:ring-2 focus-visible:ring-ring'
+/** Focus treatment for interactive tiles; generic tiles do not lift or cast a shadow. */
+const interactive = 'no-underline outline-none focus-visible:ring-2 focus-visible:ring-ring'
 
 export type TileProps = {
 	/** Surface theme (gs's Figma palette). */
@@ -136,7 +132,7 @@ function TileBands({
 > & { theme: TileTheme }) {
 	const titleNode =
 		title != null ? (
-			<p className={`${tileStatClass} ${theme === 'dark' ? 'tracking-normal' : 'tracking-wide'} ${titleTone(theme, subtleTitle)}`}>
+			<p className={`${tileStatClass} ${titleTone(theme, subtleTitle)}`}>
 				{title}
 			</p>
 		) : null
