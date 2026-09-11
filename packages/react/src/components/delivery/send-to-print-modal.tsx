@@ -168,7 +168,12 @@ export function SendToPrintModal({
 }: SendToPrintModalProps): React.ReactNode {
 	const titleId = useId()
 	const descriptionId = useId()
-	const [materialId, setMaterialId] = useState(materialOptions[0]?.id ?? '')
+	// `materialOptions` is normally fetched, so it is [] on mount. Seeding useState
+	// from it captures that empty first render forever; deriving the fallback each
+	// render selects the first option as soon as the list arrives. '' means
+	// "untouched", not "nothing selected".
+	const [materialId, setMaterialId] = useState('')
+	const [sizeRaw, setSizeRaw] = useState('')
 	const [quantityRaw, setQuantityRaw] = useState(String(initialQuantity))
 	const [company, setCompany] = useState('')
 	const [street, setStreet] = useState('')
@@ -179,16 +184,23 @@ export function SendToPrintModal({
 	const [note, setNote] = useState('')
 
 	const quantity = useMemo(() => parseQuantity(quantityRaw), [quantityRaw])
+	const effectiveMaterialId = materialId || (materialOptions[0]?.id ?? '')
 	const selectedMaterial = useMemo(
-		() => materialOptions.find((option) => option.id === materialId) ?? null,
-		[materialId, materialOptions],
+		() => materialOptions.find((option) => option.id === effectiveMaterialId) ?? null,
+		[effectiveMaterialId, materialOptions],
 	)
+	// `size` is the caller's output description when it supplies one, and a collected
+	// field otherwise — the documented `print_specs` rule is that it is non-blank, and
+	// `outputDescription` is optional, so it cannot be the only source.
+	const derivedSize = outputDescription?.trim() ?? ''
+	const size = derivedSize || sizeRaw.trim()
 	// Surface the quantity error only once the user has typed something invalid
 	// (not on the initial blank state — that would scream before any input).
 	const quantityInvalid = quantityRaw.trim().length > 0 && quantity === null
 
 	const reset = (): void => {
-		setMaterialId(materialOptions[0]?.id ?? '')
+		setMaterialId('')
+		setSizeRaw('')
 		setQuantityRaw(String(initialQuantity))
 		setCompany('')
 		setStreet('')
@@ -201,6 +213,7 @@ export function SendToPrintModal({
 
 	const canConfirm =
 		!isPending &&
+		size.length > 0 &&
 		quantity !== null &&
 		selectedMaterial !== null &&
 		company.trim().length > 0 &&
@@ -222,7 +235,7 @@ export function SendToPrintModal({
 			.filter(Boolean)
 			.join(', ')
 		onConfirm({
-			size: outputDescription?.trim() ?? '',
+			size,
 			material: selectedMaterial.label.trim(),
 			quantity,
 			address,
@@ -310,6 +323,16 @@ export function SendToPrintModal({
 									</div>
 
 									<div className="grid gap-3">
+										{derivedSize ? null : (
+											<Input
+												label={labels.sizeLabel}
+												placeholder={labels.sizePlaceholder}
+												value={sizeRaw}
+												onChange={setSizeRaw}
+												data-testid="delivery-print-size"
+											/>
+										)}
+
 										<Input
 											label={labels.quantityLabel}
 											placeholder={labels.quantityPlaceholder}
@@ -326,10 +349,10 @@ export function SendToPrintModal({
 											<label className="grid gap-1.5 text-small font-medium text-fg">
 												<span>{labels.materialLabel}</span>
 												<select
-													value={materialId}
+													value={effectiveMaterialId}
 													onChange={(event) => setMaterialId(event.currentTarget.value)}
 													data-testid="delivery-print-material"
-													className="h-12 rounded-md border border-border bg-surface px-3 text-body font-normal text-fg outline-none transition-colors hover:border-border-strong focus:border-fg focus:ring-2 focus:ring-ring"
+													className="h-12 rounded-md border border-border bg-surface px-3 text-body font-normal text-fg outline-none transition-colors hover:border-border-muted focus:border-fg focus:ring-2 focus:ring-ring"
 												>
 													{materialOptions.map((option) => (
 														<option key={option.id} value={option.id}>
@@ -423,8 +446,11 @@ export function SendToPrintModal({
 							<div className="sticky bottom-0 mt-0 w-full border-border border-t bg-surface pt-4">
 								<div className="mx-auto box-border flex w-full max-w-[50rem] items-center justify-between gap-4 px-5">
 									<div className="flex min-w-0 flex-col gap-1 text-small text-fg-muted">
-										<span>{labels.priceEyebrow ?? labels.sizeLabel}</span>
-										<span className="truncate">{labels.priceIdle ?? labels.materialPlaceholder}</span>
+										{/* No fallback: borrowing `sizeLabel` / `materialPlaceholder` put
+										    "Size" and "e.g. Matte 250g" in a money slot for every consumer
+										    that had not adopted the new label set. */}
+										{labels.priceEyebrow ? <span>{labels.priceEyebrow}</span> : null}
+										{labels.priceIdle ? <span className="truncate">{labels.priceIdle}</span> : null}
 									</div>
 									<div className="flex shrink-0 justify-end gap-2">
 										<Button
