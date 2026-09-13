@@ -39,5 +39,5 @@ export const Tab = uic(RACTab, {
 
 export const TabPanel = uic(RACTabPanel, {
 	displayName: 'TabPanel',
-	baseClass: 'py-4 text-small text-fg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
+	baseClass: 'py-6 text-small text-fg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
 }) as (props: TabPanelProps) => ReturnType<typeof RACTabPanel>
