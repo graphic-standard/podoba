@@ -38,9 +38,25 @@ const SummaryHead = uic('div', { displayName: 'CatalogSummaryHead', baseClass: '
 export const CatalogSummaryBadge = uic('span', { displayName: 'CatalogSummaryBadge', baseClass: 'ml-3 flex h-6 shrink-0 items-center rounded-2xl px-2.5 text-micro font-medium leading-5', style: { fontFeatureSettings: '"liga" off, "clig" off' }, variants: { color: { green: 'bg-brand-green text-fg-on-brand', grey: 'bg-surface-muted text-(--color-neutral-600)' } }, defaultVariants: { color: 'grey' } })
 const SummaryTitle = uic('h2', { displayName: 'CatalogSummaryTitle', baseClass: 'm-0 min-w-0 truncate text-heading5 font-medium' })
 const SummaryTail = uic('div', { displayName: 'CatalogSummaryTail', baseClass: 'mt-auto flex flex-col gap-1 text-small font-normal text-fg-workflow-muted' })
-/** Display-only catalog tile. No synthetic imagery when a preview is absent. */
-export function CatalogSummaryCard({ title, badge, description, details }: { title: string; badge: ReactNode; description?: string; details: ReactNode }) {
-	return <SummaryCard><SummaryHead><SummaryTitle>{title}</SummaryTitle><span className="shrink-0">{badge}</span></SummaryHead><SummaryTail>{description ? <p className="m-0">{description}</p> : null}<span>{details}</span></SummaryTail></SummaryCard>
+/** Source gs Tile image cover: caller artwork under a transparent → 30% → 50% black gradient. */
+function CatalogCover({ preview }: { preview: ReactNode }) {
+	return <>
+		<div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden [&_canvas]:size-full [&_canvas]:object-cover [&_img]:size-full [&_img]:object-cover">{preview}</div>
+		<div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-b from-black/0 via-black/30 to-black/50" />
+	</>
+}
+
+/**
+ * Display-only catalog tile. No synthetic imagery when a preview is absent. An optional
+ * real `preview` covers the card with the source gradient and switches the ink to white.
+ */
+export function CatalogSummaryCard({ title, badge, description, details, preview }: { title: string; badge: ReactNode; description?: string; details: ReactNode; preview?: ReactNode }) {
+	const covered = preview != null
+	return <SummaryCard data-preview={covered || undefined} className={covered ? 'relative isolate' : undefined}>
+		{covered ? <CatalogCover preview={preview} /> : null}
+		<SummaryHead><SummaryTitle className={covered ? 'text-white' : undefined}>{title}</SummaryTitle><span className="shrink-0">{badge}</span></SummaryHead>
+		<SummaryTail className={covered ? 'text-white/88' : undefined}>{description ? <p className="m-0">{description}</p> : null}<span>{details}</span></SummaryTail>
+	</SummaryCard>
 }
 
 /**
@@ -52,10 +68,7 @@ export function CatalogSummaryCard({ title, badge, description, details }: { tit
 export function CatalogLaunchCard({ title, description, details, action, preview }: { title: string; description?: string; details: ReactNode; action: ReactNode; preview?: ReactNode }) {
 	const covered = preview != null
 	return <SummaryCard data-testid="scenario-launch-card" data-preview={covered || undefined} className="relative isolate h-70 min-h-70 max-h-70 transition-colors duration-200 focus-within:ring-2 focus-within:ring-ring">
-		{covered ? <>
-			<div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden [&_canvas]:size-full [&_canvas]:object-cover [&_img]:size-full [&_img]:object-cover">{preview}</div>
-			<div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-b from-black/0 via-black/30 to-black/50" />
-		</> : null}
+		{covered ? <CatalogCover preview={preview} /> : null}
 		<SummaryHead><SummaryTitle asChild className={covered ? 'text-white' : undefined}><h3>{title}</h3></SummaryTitle></SummaryHead>
 		<SummaryTail className={covered ? 'text-white/88' : undefined}>{description ? <p className="m-0">{description}</p> : null}<span>{details}</span></SummaryTail>
 		{action}

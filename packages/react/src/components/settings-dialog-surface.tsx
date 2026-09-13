@@ -88,7 +88,7 @@ export function SettingsDialogSurface({ variant, isOpen, onOpenChange, isPending
 					<header className={catalog ? 'flex shrink-0 flex-col gap-2' : basic ? headerBottomPadding ? 'shrink-0 pb-4' : 'shrink-0' : create || csv ? 'shrink-0 pb-4' : 'shrink-0 pb-10 max-md:pb-8'}>
 						<Container className={containerClass}>
 							{catalog ? <Heading id={titleId} level="1" className="m-0 mb-4 max-w-5/6 whitespace-pre-line" style={{ letterSpacing: 0 }}>{title}</Heading>
-								: <DisplayHeading id={titleId} className={`m-0 whitespace-pre-line pb-0.5 text-fg-muted ${create ? 'mb-4 max-w-5/6' : ''}`} style={{ letterSpacing: 0, ...(basic ? { maxWidth: '18ch' } : csv && isWide ? { maxWidth: '34ch' } : {}) }}>{title}</DisplayHeading>}
+								: <DisplayHeading id={titleId} className={`m-0 whitespace-pre-line pb-0.5 text-fg-muted ${create ? 'mb-4 max-w-5/6' : ''}`} style={{ letterSpacing: 0, ...(basic ? { maxWidth: '83.333%' } : csv && isWide ? { maxWidth: '34ch' } : {}) }}>{title}</DisplayHeading>}
 							{description ? <p id={descriptionId} className="mb-0 mt-3 text-small font-normal text-fg-workflow-muted" style={{ maxWidth: '48ch' }}>{description}</p> : null}
 						</Container>
 						{filters ? <div className="w-full max-w-80">{filters}</div> : null}

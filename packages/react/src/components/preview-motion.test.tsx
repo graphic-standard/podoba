@@ -4,7 +4,7 @@ import { describe, expect, test } from 'bun:test'
 import { renderToStaticMarkup } from 'react-dom/server'
 
 import { PreviewReveal, PreviewSkeleton } from './preview-motion'
-import { CatalogLaunchCard } from './template-catalog-card'
+import { CatalogLaunchCard, CatalogSummaryCard } from './template-catalog-card'
 
 describe('preview motion', () => {
 	test('skeleton is the source mint shimmer and announces only when labelled', () => {
@@ -24,6 +24,14 @@ describe('preview motion', () => {
 		expect(html).toContain('alt="Poster"')
 		expect(html).toContain('aria-hidden="true"')
 		expect(html).not.toContain('animate-preview-particle')
+	})
+})
+
+describe('CatalogSummaryCard preview', () => {
+	test('covers the summary card with the artwork and white ink', () => {
+		const html = renderToStaticMarkup(<CatalogSummaryCard title="Print" badge={null} details="2 outputs" preview={<img alt="" src="/p.png" />} />)
+		expect(html).toContain('data-preview="true"')
+		expect(html).toContain('text-white/88')
 	})
 })
 
