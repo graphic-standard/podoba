@@ -52,6 +52,8 @@ import {
 	// ── product patterns (label-driven) ──
 	Badge,
 	Chip,
+	PreviewReveal,
+	PreviewSkeleton,
 	UserMenu,
 	UserMenuIdentity,
 	UserMenuItem,
@@ -1752,6 +1754,14 @@ const SECTIONS: SectionDef[] = [
 					<Chip label="Normal" />
 					<Chip label="In progress" color="green" />
 					<Chip label="Ready for delivery" color="green" />
+				</Demo>
+				<Demo label="Preview loading and reveal">
+					<div className="relative h-40 w-32 overflow-hidden rounded-lg border border-border">
+						<PreviewSkeleton label="Rendering preview" />
+					</div>
+					<PreviewReveal revealKey="demo" className="h-40 w-32 overflow-hidden rounded-lg border border-border">
+						<div className="grid h-full w-full place-items-center bg-surface-card text-small">Artwork</div>
+					</PreviewReveal>
 				</Demo>
 				<Demo label="Account menu (Topbar UserMenu)">
 					<UserMenu trigger={<span>OB</span>} triggerLabel="Account menu">

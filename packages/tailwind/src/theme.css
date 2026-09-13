@@ -205,6 +205,10 @@
 	/* gs DropdownMenu `slideDownAndFade` / `slideUpAndFade`: 200ms both ways. */
 	--animate-dropdown-in: dropdown-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
 	--animate-dropdown-out: dropdown-out 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+	/* gs preview loading and reveal (PreviewSkeletonGradient, TemplatePreview). */
+	--animate-preview-skeleton-shimmer: preview-skeleton-shimmer 2400ms ease-in-out infinite;
+	--animate-preview-sweep: preview-sweep 1350ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
+	--animate-preview-particle: preview-particle 1200ms ease-in-out infinite;
 	--animate-lightbox-in: lightbox-in 0.3s ease-out;
 	--animate-modal-overlay-in: modal-overlay-in var(--motion-modal-enter-duration)
 		var(--motion-modal-enter-easing) both;
@@ -327,6 +331,46 @@
 	to {
 		opacity: 0;
 		transform: translateY(-2px);
+	}
+}
+
+@keyframes preview-skeleton-shimmer {
+	from {
+		background-position: 100% 50%;
+	}
+	to {
+		background-position: 0% 50%;
+	}
+}
+
+@keyframes preview-sweep {
+	0% {
+		transform: translateX(0) rotate(12deg);
+		opacity: 0;
+	}
+	18%,
+	78% {
+		opacity: 1;
+	}
+	100% {
+		transform: translateX(420%) rotate(12deg);
+		opacity: 0;
+	}
+}
+
+@keyframes preview-particle {
+	0%,
+	100% {
+		transform: translate3d(var(--particle-dx, 0), var(--particle-dy, 0), 0) scale(0.35);
+		opacity: 0;
+	}
+	44% {
+		transform: translate3d(0, 0, 0) scale(1);
+		opacity: 0.74;
+	}
+	72% {
+		transform: translate3d(calc(var(--particle-dx, 0px) / -2), calc(var(--particle-dy, 0px) / -2), 0) scale(0.72);
+		opacity: 0.32;
 	}
 }
 

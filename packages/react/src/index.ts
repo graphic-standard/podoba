@@ -67,6 +67,7 @@ export * from "./layout/persistent-page-shell";
 export * from "./components/avatar";
 export * from "./components/brand-page-header";
 export * from "./components/count-up";
+export * from "./components/preview-motion";
 export * from "./components/cta-pill";
 export * from "./components/stat-stack";
 export * from "./components/icons";
