@@ -98,7 +98,8 @@ export function SettingsDialogSurface({ variant, isOpen, onOpenChange, isPending
 							<Body ref={bodyRef} className={bodyClass} data-testid={bodyTestId}>{children}</Body>
 						</Container>
 					</ScrollBody>
-					<footer className={catalog ? 'shrink-0 border-t border-border bg-surface pt-3' : create ? 'shrink-0 border-t border-border bg-surface pt-4' : 'shrink-0 border-t border-border bg-surface pt-5'}>
+					{/* gs dialog footers sit on the white surface with no rule above them. */}
+					<footer className={catalog ? 'shrink-0 bg-surface pt-3' : create ? 'shrink-0 bg-surface pt-4' : 'shrink-0 bg-surface pt-5'}>
 						<Container className={containerClass}>
 							<div className={`flex justify-end ${csv || basic ? 'items-center gap-1' : variant === 'edit' ? 'gap-3' : 'gap-2'}`}>{footer}</div>
 						</Container>
@@ -130,7 +131,7 @@ export function WizardFormDialog({ isOpen, onOpenChange, isPending = false, isEx
 				</Button>
 				<header className="shrink-0"><Container className="max-w-384 px-5 min-[901px]:px-6"><DisplayHeading id={titleId} className="m-0 whitespace-pre-line pb-0.5 text-fg-muted" style={{ letterSpacing: 0 }}>{title}</DisplayHeading></Container></header>
 				<ScrollBody style={{ scrollbarGutter: 'stable' }}><Container className="max-w-384 px-5 min-[901px]:px-6"><Body className="gap-8">{children}</Body></Container></ScrollBody>
-				<footer className="shrink-0 border-t border-border bg-surface pt-5"><Container className="max-w-384 px-5 min-[901px]:px-6"><div className="flex flex-wrap justify-end gap-2">{footer}</div></Container></footer>
+				<footer className="shrink-0 bg-surface pt-5"><Container className="max-w-384 px-5 min-[901px]:px-6"><div className="flex flex-wrap justify-end gap-2">{footer}</div></Container></footer>
 			</Layout>
 		</Panel>
 	</ModalOverlay>
@@ -220,7 +221,7 @@ export function ProductionSettingsDialog({ isOpen, onOpenChange, prefix, title, 
 }
 
 const DisclosureRoot = uic(AriaDisclosure, { displayName: 'SettingsDisclosureRoot', baseClass: 'group/settings-disclosure flex min-w-0 flex-col gap-3' })
-const DisclosureTrigger = uic(AriaButton, { displayName: 'SettingsDisclosureTrigger', baseClass: 'flex w-full cursor-pointer items-start justify-between gap-3 bg-transparent p-0 text-left outline-none data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:outline-offset-2' })
+const DisclosureTrigger = uic(AriaButton, { displayName: 'SettingsDisclosureTrigger', baseClass: 'flex w-full cursor-pointer items-start justify-between gap-3 bg-transparent p-0 text-left outline-none data-[focus-visible]:outline-solid data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:outline-offset-2' })
 const DisclosureCopy = uic('span', { displayName: 'SettingsDisclosureCopy', baseClass: 'flex min-w-0 flex-col gap-1' })
 const DisclosureTitle = uic('strong', { displayName: 'SettingsDisclosureTitle', baseClass: 'text-body font-medium leading-normal text-fg' })
 const DisclosureHint = uic('span', { displayName: 'SettingsDisclosureHint', baseClass: 'text-body font-normal leading-normal text-fg-workflow-muted' })

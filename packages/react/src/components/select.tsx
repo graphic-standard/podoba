@@ -43,7 +43,7 @@ const SelectTrigger = uic(RACButton, {
 		appearance: {
 			filled: 'min-h-control-tall border-0 bg-surface-card py-5 font-normal leading-4.5 duration-200 motion-reduce:transition-none ' +
 				'data-[hovered]:bg-surface-muted group-data-[open]:bg-surface-card ' +
-				'data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:outline-offset-2 ' +
+				'data-[focus-visible]:outline-solid data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:outline-offset-2 ' +
 				'group-data-[invalid]:ring-1 group-data-[invalid]:ring-danger ' +
 				'data-[disabled]:bg-surface-card data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
 			outlined: 'h-control-tall border border-border bg-surface ' +
@@ -66,7 +66,7 @@ const StyledSelectItem = uic(ListBoxItem, {
 		appearance: {
 			filled: 'min-w-0 overflow-hidden px-5 py-0 font-normal leading-4.5 max-md:min-h-11 ' +
 				'data-[hovered]:font-medium data-[focused]:font-medium data-[selected]:font-medium ' +
-				'data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:-outline-offset-2',
+				'data-[focus-visible]:outline-solid data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:-outline-offset-2',
 			outlined: 'px-3 py-2 ' +
 		'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
 		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
