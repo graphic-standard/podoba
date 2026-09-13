@@ -116,7 +116,7 @@ export function Table<Row>({
 
 	return (
 		<div className={['w-full overflow-x-auto', className].filter(Boolean).join(' ')}>
-			<table style={team ? { '--table-columns': gridTemplate } as CSSProperties : undefined} className={`w-full border-collapse text-small ${worksheet ? 'border-b border-border font-normal leading-4.5' : ''} ${team ? 'block border-b border-border font-normal leading-4.5' : ''}`} {...aria}>
+			<table style={team ? { '--table-columns': gridTemplate } as CSSProperties : undefined} className={`w-full border-collapse text-small ${worksheet ? 'border-b border-border font-normal leading-4.5' : ''} ${team ? 'block font-normal leading-4.5' : ''}`} {...aria}>
 				<thead className={team ? 'block' : undefined}>
 					<tr className={`${worksheet ? '' : 'border-b border-border'} ${team ? 'grid grid-cols-[var(--table-columns)] gap-3 bg-surface-muted px-4 max-[1023px]:hidden' : ''}`}>
 						{columns.map((column) => {
@@ -131,7 +131,7 @@ export function Table<Row>({
 									aria-sort={
 										canSort ? (active ? (sort?.dir === 'asc' ? 'ascending' : 'descending') : 'none') : undefined
 									}
-									className={`${ALIGN_CLASS[align]} ${worksheet ? 'border-0 px-3 py-4 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case bg-surface whitespace-nowrap' : team ? 'border-0 px-4 py-3 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case whitespace-nowrap' : 'px-4 py-3 text-label font-medium tracking-wide text-fg-muted uppercase'}`}
+									className={`${ALIGN_CLASS[align]} ${worksheet ? 'border-0 px-3 py-4 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case bg-surface whitespace-nowrap' : team ? 'border-0 px-0 py-3 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case whitespace-nowrap' : 'px-4 py-3 text-label font-medium tracking-wide text-fg-muted uppercase'}`}
 								>
 									{canSort ? (
 										<button
