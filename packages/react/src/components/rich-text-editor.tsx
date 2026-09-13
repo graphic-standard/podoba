@@ -2,6 +2,7 @@ import { type ClipboardEvent as ReactClipboardEvent, type ReactNode, useEffect, 
 import { clsx } from 'clsx'
 import { SAFE_LINK_HINT, safeLinkUrl } from '../utils/safe-link-url'
 import { useInFocusOverlay } from './focus-context'
+import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
 
 /**
  * RichTextEditor — a dependency-free contentEditable WYSIWYG that emits an HTML
@@ -155,8 +156,8 @@ export function RichTextEditor({
 					onPaste={onPaste}
 				/>
 			</div>
-			{description ? <span className="text-label text-fg-muted">{description}</span> : null}
-			{isInvalid && errorMessage ? <span className="text-label text-danger">{errorMessage}</span> : null}
+			{description ? <span className={fieldDescriptionClass}>{description}</span> : null}
+			{isInvalid && errorMessage ? <span className={fieldErrorClass}>{errorMessage}</span> : null}
 		</div>
 	)
 }

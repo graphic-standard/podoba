@@ -14,6 +14,7 @@ import {
 import { clsx } from 'clsx'
 import { uic } from '../utils/uic'
 import { useInFocusOverlay } from './focus-context'
+import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
 
 /**
  * MultiSelect — a dropdown that selects several options at once.
@@ -142,8 +143,8 @@ export const MultiSelect = ({
 		list
 	)
 
-	const desc = description ? <span className="text-label text-fg-muted">{description}</span> : null
-	const err = isInvalid && errorMessage ? <span className="text-label text-danger">{errorMessage}</span> : null
+	const desc = description ? <span className={fieldDescriptionClass}>{description}</span> : null
+	const err = isInvalid && errorMessage ? <span className={fieldErrorClass}>{errorMessage}</span> : null
 
 	return (
 		<div className={clsx('flex flex-col gap-2', className)}>

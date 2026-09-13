@@ -14,7 +14,7 @@ import {
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
 import { useInFocusOverlay } from './focus-context'
-import type { FieldAppearance } from './field-appearance'
+import { fieldDescriptionClass, fieldErrorClass, type FieldAppearance } from './field-appearance'
 
 const SelectAppearanceContext = createContext<FieldAppearance>('outlined')
 const filledPopoverStyle: CSSProperties & { '--select-popup-max-width': string } = {
@@ -143,11 +143,11 @@ export const Select = <T extends object>({
 		</SelectListBox>
 	)
 	const desc = description ? (
-		<Text slot="description" className="text-label text-fg-muted">
+		<Text slot="description" className={fieldDescriptionClass}>
 			{description}
 		</Text>
 	) : null
-	const err = <FieldError className="text-label text-danger">{errorMessage}</FieldError>
+	const err = <FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
 
 	return (
 		<SelectAppearanceContext.Provider value={appearance}>

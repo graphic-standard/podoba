@@ -7,6 +7,7 @@ import {
 	type SearchFieldProps as RACSearchFieldProps,
 	Text,
 } from 'react-aria-components'
+import { fieldDescriptionClass } from './field-appearance'
 
 /**
  * SearchField — a text input for search, with a clear (✕) button that appears
@@ -58,7 +59,7 @@ export const SearchField = ({ label, description, placeholder, ...props }: Searc
 			</RACButton>
 		</div>
 		{description ? (
-			<Text slot="description" className="text-label text-fg-muted">
+			<Text slot="description" className={fieldDescriptionClass}>
 				{description}
 			</Text>
 		) : null}

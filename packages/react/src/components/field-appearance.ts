@@ -15,3 +15,10 @@ export const filledFieldClasses =
 	'focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ' +
 	'data-[invalid]:ring-1 data-[invalid]:ring-danger data-[invalid]:outline-danger ' +
 	'data-[disabled]:bg-surface-muted data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed'
+
+/** gs `.helperText` (`--font-size-label-2`): 14px/18px under a field. The source ink
+ * `#7d786f` fails WCAG AA, so it keeps the readable `fg-muted`. */
+export const fieldDescriptionClass = 'text-small text-fg-muted'
+
+/** gs `.errorText`: 16px, line-height normal, error red (`danger`, 4.83:1 on white). */
+export const fieldErrorClass = 'text-body leading-[normal] text-danger'

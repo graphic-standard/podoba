@@ -8,6 +8,7 @@ import {
 	type RadioProps as RACRadioProps,
 	Text,
 } from 'react-aria-components'
+import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
 
 /**
  * RadioGroup + Radio — labelled single-choice control.
@@ -34,11 +35,11 @@ export const RadioGroup = ({ label, description, errorMessage, children, ...prop
 		{label ? <Label className="text-small font-medium text-fg">{label}</Label> : null}
 		<div className="flex flex-col gap-3">{children}</div>
 		{description ? (
-			<Text slot="description" className="text-label text-fg-muted">
+			<Text slot="description" className={fieldDescriptionClass}>
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
+		<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
 	</RACRadioGroup>
 )
 
