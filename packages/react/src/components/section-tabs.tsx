@@ -52,9 +52,12 @@ const GridGlyph = () => (
 	</svg>
 )
 
+// gs `.tabButton`: inactive ink `#242423` (the light-theme neutral that
+// `surface-inverted` carries; it flips to a light ink on the dark shell), selected
+// and hovered `fg` on `surface-muted`, background + colour eased over 120ms `ease`.
 const tabBase =
-	'inline-flex h-7 shrink-0 items-center gap-2 rounded-sm px-nav-x py-1.5 text-compact font-normal text-fg-muted outline-none ' +
-	'transition-colors duration-150 ease-in-out data-[hovered]:bg-surface-muted data-[hovered]:text-fg ' +
+	'inline-flex h-7 shrink-0 items-center gap-2 rounded-sm px-nav-x py-1.5 text-compact font-normal text-surface-inverted outline-none ' +
+	'transition-colors duration-120 ease-[ease] motion-reduce:transition-none data-[hovered]:bg-surface-muted data-[hovered]:text-fg ' +
 	'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
 	'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[disabled]:bg-transparent data-[disabled]:text-fg-muted'
 
@@ -90,7 +93,7 @@ export function SectionTabs({
 						aria-pressed={isResetSelected}
 						onPress={onReset}
 						className={[
-							resetContent ? tabBase : 'h-7 w-7 rounded-sm p-0 text-fg-muted data-[hovered]:text-fg',
+							resetContent ? tabBase : 'h-7 w-7 rounded-sm p-0 text-surface-inverted data-[hovered]:text-fg',
 							isResetSelected ? tabActive : '',
 						]
 							.filter(Boolean)
