@@ -39,11 +39,12 @@ export function CtaPill({ lead, emphasis, tail, children, mobileHeader = false }
 			className={[
 				'flex h-full w-full items-center justify-between gap-nav-x rounded-lg bg-brand-green',
 				mobileHeader
-					? 'min-h-mobile-cta px-12 py-5 shadow-mobile-cta md:min-h-16 md:py-2.5 md:pr-3 md:pl-4.5 md:shadow-none'
-					: 'min-h-16 py-2.5 pr-3 pl-4.5',
+					? 'min-h-mobile-cta px-12 py-5 shadow-mobile-cta md:min-h-16 md:py-2.75 md:pr-3 md:pl-4.5 md:shadow-none'
+					: 'min-h-16 py-2.75 pr-3 pl-4.5',
 			].join(' ')}
 		>
-			<p className="min-w-0 text-heading4 font-medium leading-5 tracking-tight text-fg-on-brand">
+			{/* gs `CTA`: 11px 12px 11px 18px box, 18px/20px medium heading at -0.36px (-0.02em). */}
+			<p className="min-w-0 text-heading4 font-medium leading-5 tracking-[-0.02em] text-fg-on-brand">
 				{lead} <span className="font-semibold">{emphasis}</span> {tail}
 			</p>
 			<div className="shrink-0">{children}</div>
