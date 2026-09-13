@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ElementType } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ElementType } from 'react'
 
 /**
  * CountUp — animates a number from 0 up to `value` on mount (and whenever `value`
@@ -20,6 +20,10 @@ export interface CountUpProps {
 
 const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3)
 
+// Layout effect in the browser so the reset to 0 commits before the first paint
+// (a passive effect painted the final value for one frame, then jumped to 0).
+const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
+
 export function CountUp({
 	value,
 	durationMs = 900,
@@ -31,13 +35,14 @@ export function CountUp({
 	const rafRef = useRef<number | null>(null)
 	const startRef = useRef<number | null>(null)
 
-	useEffect(() => {
+	useBrowserLayoutEffect(() => {
 		if (typeof window === 'undefined') return
 		const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 		if (reduce || durationMs <= 0) {
 			setDisplay(value)
 			return
 		}
+		setDisplay(0)
 		startRef.current = null
 		const tick = (now: number) => {
 			if (startRef.current === null) startRef.current = now
