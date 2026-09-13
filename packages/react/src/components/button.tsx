@@ -66,6 +66,9 @@ export const Button = uic(RACButton, {
 			// Task/workflow CTA: exact source 44px height, 24px inline padding,
 			// 17/20 medium text.
 			prominent: 'h-11 px-6 py-0 text-panel-heading font-medium',
+			// In-dialog secondary action (source New section "Add template"): 8px 16px
+			// padding with the 16px medium dialog label at normal line height.
+			'dialog-sm': 'py-2 px-4 text-body font-medium leading-[normal]',
 		},
 	},
 	defaultVariants: {
@@ -76,5 +79,5 @@ export const Button = uic(RACButton, {
 
 export type ButtonProps = RACButtonProps & {
 	variant?: 'primary' | 'secondary' | 'ghost' | 'destructive'
-	size?: 'sm' | 'md' | 'lg' | 'prominent'
+	size?: 'sm' | 'md' | 'lg' | 'prominent' | 'dialog-sm'
 }

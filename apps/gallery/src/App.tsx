@@ -1263,6 +1263,7 @@ const SECTIONS: SectionDef[] = [
 					<Button size="md">Medium</Button>
 					<Button size="lg">Large</Button>
 					<Button size="prominent">Workflow CTA</Button>
+					<Button size="dialog-sm">Add template</Button>
 				</Demo>
 			</>
 		),
