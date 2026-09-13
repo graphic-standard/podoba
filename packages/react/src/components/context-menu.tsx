@@ -118,16 +118,17 @@ const MenuItem = uic(RACMenuItem, {
 	// upstream API — a hand-written custom property has nowhere to be defined and
 	// silently resolves to nothing.
 	baseClass:
-		'flex min-h-8.5 cursor-pointer select-none items-center gap-2.5 rounded-[10px] px-3 py-1.5 ' +
+		'flex min-h-8.5 min-w-0 cursor-pointer select-none items-center gap-2.5 rounded-[10px] px-3 py-1.5 ' +
 		'text-compact leading-4 tracking-normal font-normal text-white outline-none ' +
 		'data-[focused]:bg-[#2f2f2f] data-[focused]:font-medium data-[hovered]:bg-[#2f2f2f] data-[hovered]:font-medium ' +
 		'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-45',
 	variants: {
-		// gs `--color-error-light` (#ffb5b5), a light red tuned for this dark panel.
-		// `--color-danger-light` DOES exist, but it flips to a ~15% translucent red
-		// under `[data-theme="dark"]` and would all but vanish here; `text-danger`
+		// gs `var(--color-error-light, #ffb5b5)`: the Manager defines `--color-error-light`
+		// as #fee2e2, so the rendered source ink is #fee2e2 (the #ffb5b5 fallback never
+		// applies). `--color-danger-light` DOES exist, but it flips to a ~15% translucent
+		// red under `[data-theme="dark"]` and would all but vanish here; `text-danger`
 		// (#dc2626) is a light-surface red that fails contrast on #242424.
-		destructive: { true: 'text-[#ffb5b5] data-[focused]:text-[#ffb5b5]' },
+		destructive: { true: 'text-[#fee2e2] data-[focused]:text-[#fee2e2]' },
 	},
 }) as (
 	props: React.ComponentProps<typeof RACMenuItem> & { destructive?: boolean },
@@ -142,7 +143,9 @@ const panelClass =
 	'w-[258px] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)] box-border overflow-y-auto rounded-xl ' +
 	'bg-gradient-to-b from-[#242424] to-[#1f1f1f] ' +
 	'px-1.5 py-2 shadow-[0_12px_28px_rgba(0,0,0,0.22)] outline-none'
-const menuClass = 'grid gap-0.5 outline-none'
+// `minmax(0, 1fr)` tracks: an `auto` grid column grows to the items' nowrap
+// min-content, so a long label plus a trailing pill pushed rows past the 258px panel.
+const menuClass = 'grid grid-cols-[minmax(0,1fr)] gap-0.5 outline-none'
 
 const CursorPopoverSurface = uic(RACPopover, {
 	displayName: 'ContextMenuPopoverSurface',
@@ -264,7 +267,7 @@ function ContextMenuBody({
 			{groups.map((group, gi) => (
 				// gs separates groups with an 18px top margin (`.group + .group`), not a
 				// rule line — so the first group sits flush, the rest gain the gap.
-				<RACMenuSection key={groupId(group, gi)} className={gi > 0 ? 'mt-4.5 grid gap-0.5' : 'grid gap-0.5'}>
+				<RACMenuSection key={groupId(group, gi)} className={gi > 0 ? 'mt-4.5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-0.5' : 'grid min-w-0 grid-cols-[minmax(0,1fr)] gap-0.5'}>
 					{group.label ? (
 						// The grid contributes 2px: 2px margin + 2px gap = source 4px below label.
 						<Header className="mx-2 mt-1.5 mb-0.5 text-compact leading-4 tracking-normal font-medium text-white">{group.label}</Header>
