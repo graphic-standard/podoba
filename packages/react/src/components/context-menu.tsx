@@ -96,6 +96,11 @@ interface ContextMenuWrapperProps {
 	soonLabel?: ReactNode
 	'aria-label'?: string
 	className?: string
+	/**
+	 * Notified when the wrapper's menu opens or closes. `target` is the element that
+	 * was right-clicked (null on close), so a surface can mark the item the menu acts on.
+	 */
+	onOpenChange?: (isOpen: boolean, target: HTMLElement | null) => void
 }
 
 const itemId = (item: ContextMenuItem, fallback: number): string => item.id ?? item.key ?? String(fallback)
@@ -353,8 +358,17 @@ function WrapperContextMenu({
 	soonLabel,
 	'aria-label': ariaLabel = 'Actions',
 	className,
+	onOpenChange,
 }: ContextMenuWrapperProps): React.JSX.Element {
-	const [isOpen, setOpen] = useState(false)
+	const [isOpen, setOpenState] = useState(false)
+	const onOpenChangeRef = useRef(onOpenChange)
+	onOpenChangeRef.current = onOpenChange
+	const targetRef = useRef<HTMLElement | null>(null)
+	const setOpen = useCallback((open: boolean) => {
+		setOpenState(open)
+		if (!open) targetRef.current = null
+		onOpenChangeRef.current?.(open, open ? targetRef.current : null)
+	}, [])
 	const wrapperRef = useRef<HTMLDivElement>(null)
 	const popoverRef = useRef<HTMLElement>(null)
 	const [position, setPosition] = useState({ x: 0, y: 0 })
@@ -374,6 +388,7 @@ function WrapperContextMenu({
 			setResolved(groupsRef.current({ target }))
 		}
 		setPosition({ x, y })
+		targetRef.current = target
 		setOpen(true)
 	}
 
@@ -434,6 +449,8 @@ function WrapperContextMenu({
 				setResolved(groupsRef.current({ target }))
 			}
 			setPosition({ x: clientX, y: clientY })
+			targetRef.current = target
+			onOpenChangeRef.current?.(true, target)
 		}
 		document.addEventListener('contextmenu', handle, true)
 		return () => document.removeEventListener('contextmenu', handle, true)

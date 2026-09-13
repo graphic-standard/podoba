@@ -27,10 +27,10 @@ describe('<CtaPill> foreground pairing (WCAG AA — issue #13)', () => {
 	test('uses the source CTA geometry and type treatment', () => {
 		expect(html).toContain('min-h-16')
 		expect(html).toContain('gap-nav-x')
-		expect(html).toContain('py-2.5')
+		expect(html).toContain('py-2.75')
 		expect(html).toContain('pl-4.5')
 		expect(html).toContain('leading-5')
-		expect(html).toContain('tracking-tight')
+		expect(html).toContain('tracking-[-0.02em]')
 	})
 
 	test('exposes the source mobile header density without forcing positioning', () => {

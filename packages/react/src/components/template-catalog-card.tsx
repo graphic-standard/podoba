@@ -43,11 +43,21 @@ export function CatalogSummaryCard({ title, badge, description, details }: { tit
 	return <SummaryCard><SummaryHead><SummaryTitle>{title}</SummaryTitle><span className="shrink-0">{badge}</span></SummaryHead><SummaryTail>{description ? <p className="m-0">{description}</p> : null}<span>{details}</span></SummaryTail></SummaryCard>
 }
 
-/** Compact launcher card. Missing artwork is not replaced by synthetic imagery. */
-export function CatalogLaunchCard({ title, description, details, action }: { title: string; description?: string; details: ReactNode; action: ReactNode }) {
-	return <SummaryCard data-testid="scenario-launch-card" className="relative h-70 min-h-70 max-h-70 transition-colors duration-200 focus-within:ring-2 focus-within:ring-ring">
-		<SummaryHead><SummaryTitle asChild><h3>{title}</h3></SummaryTitle></SummaryHead>
-		<SummaryTail>{description ? <p className="m-0">{description}</p> : null}<span>{details}</span></SummaryTail>
+/**
+ * Compact launcher card. Missing artwork is not replaced by synthetic imagery.
+ * `preview` (optional, caller-rendered real artwork) fills the card as a cover layer
+ * under the source gs Tile image gradient (transparent → 30% → 50% black), and the
+ * title and tail switch to the source white / white 88% ink.
+ */
+export function CatalogLaunchCard({ title, description, details, action, preview }: { title: string; description?: string; details: ReactNode; action: ReactNode; preview?: ReactNode }) {
+	const covered = preview != null
+	return <SummaryCard data-testid="scenario-launch-card" data-preview={covered || undefined} className="relative isolate h-70 min-h-70 max-h-70 transition-colors duration-200 focus-within:ring-2 focus-within:ring-ring">
+		{covered ? <>
+			<div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden [&_canvas]:size-full [&_canvas]:object-cover [&_img]:size-full [&_img]:object-cover">{preview}</div>
+			<div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-b from-black/0 via-black/30 to-black/50" />
+		</> : null}
+		<SummaryHead><SummaryTitle asChild className={covered ? 'text-white' : undefined}><h3>{title}</h3></SummaryTitle></SummaryHead>
+		<SummaryTail className={covered ? 'text-white/88' : undefined}>{description ? <p className="m-0">{description}</p> : null}<span>{details}</span></SummaryTail>
 		{action}
 	</SummaryCard>
 }

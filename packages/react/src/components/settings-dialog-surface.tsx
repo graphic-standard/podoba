@@ -137,9 +137,10 @@ export function WizardFormDialog({ isOpen, onOpenChange, isPending = false, isEx
 	</ModalOverlay>
 }
 
+// The source New section dialog separates its groups by spacing only, no hairlines.
 export function SettingsDialogIdentity({ children }: { children: ReactNode }) {
 	const { variant } = useContext(LayoutContext)
-	return <Group className={variant === 'create' ? 'gap-4 border-b border-border pb-3' : 'gap-8'}>{children}</Group>
+	return <Group className={variant === 'create' ? 'gap-4 pb-3' : 'gap-8'}>{children}</Group>
 }
 export function SettingsDialogDescription({ children }: { children: ReactNode }) {
 	const { variant } = useContext(LayoutContext)
@@ -152,7 +153,7 @@ export function SettingsDialogColumns({ children, metadata = false }: { children
 }
 export function SettingsDialogGroup({ children }: { children: ReactNode }) {
 	const { variant } = useContext(LayoutContext)
-	return <Group className={variant === 'create' ? 'gap-3 border-b border-border pb-3' : undefined}>{children}</Group>
+	return <Group className={variant === 'create' ? 'gap-3 pb-3' : undefined}>{children}</Group>
 }
 
 /** Two-column production metadata grid from the split settings family.
@@ -173,12 +174,18 @@ export function SettingsDialogControl({ children }: { children: ReactNode }) {
 	const { variant } = useContext(LayoutContext)
 	return <Group className={variant === 'edit' ? 'mt-6' : undefined}>{children}</Group>
 }
-export const SettingsDialogLabel = uic('p', { displayName: 'SettingsDialogLabel', baseClass: 'm-0 text-panel-heading font-medium text-fg' })
+const Label = uic('p', { displayName: 'SettingsDialogLabel', baseClass: 'm-0 text-panel-heading font-medium text-fg' })
+/** Group label. The create variant uses the source New section group label: 16px/22px semibold. */
+export function SettingsDialogLabel({ className, ...props }: ComponentProps<typeof Label>) {
+	const { variant } = useContext(LayoutContext)
+	return <Label {...props} className={[variant === 'create' ? 'text-body leading-5.5 font-semibold' : '', className].filter(Boolean).join(' ') || undefined} />
+}
 export const SettingsDialogEmphasis = uic('span', { displayName: 'SettingsDialogEmphasis', baseClass: 'text-fg' })
 const Hint = uic('p', { displayName: 'SettingsDialogHint', baseClass: 'm-0 text-small font-normal text-fg-workflow-muted' })
-export function SettingsDialogHint({ style, ...props }: ComponentProps<typeof Hint>) {
+/** Helper line. The create variant uses the source 16px/22px `#242423` hint. */
+export function SettingsDialogHint({ style, className, ...props }: ComponentProps<typeof Hint>) {
 	const { variant } = useContext(LayoutContext)
-	return <Hint {...props} style={{ ...(variant === 'basic' ? { maxWidth: '48ch' } : {}), ...style }} />
+	return <Hint {...props} className={[variant === 'create' ? 'text-body leading-5.5 text-surface-inverted' : '', className].filter(Boolean).join(' ') || undefined} style={{ ...(variant === 'basic' ? { maxWidth: '48ch' } : {}), ...style }} />
 }
 export const SettingsDialogAction = uic(Button, { displayName: 'SettingsDialogAction', baseClass: 'h-11.5 rounded-full px-6 text-base font-medium leading-5', style: { letterSpacing: 0 } })
 
