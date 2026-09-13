@@ -8,13 +8,16 @@ import {
 	ListBox,
 	ListBoxItem,
 	type ListBoxItemProps,
+	Header,
 	Menu as RACMenu,
 	MenuItem as RACMenuItem,
 	type MenuItemProps,
+	MenuSection,
 	MenuTrigger,
 	Popover,
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
+import { dropdownMenuItemClass, dropdownMenuPanelClass, DropdownMenuSeparator } from '../components/dropdown-menu'
 
 /**
  * Topbar — sticky application header (ported pattern from gs-manager's
@@ -87,8 +90,12 @@ const TopbarActions = uic('div', {
 const TopbarNavLink = uic('a', {
 	displayName: 'Topbar.NavLink',
 	baseClass:
+		// gs inactive ink is `#242423` (the neutral that `surface-inverted` carries in
+		// light theme and flips to a light ink on the dark shell); hover/active darken to
+		// `fg`. gs `Button.module.scss` eases bg + colour over 120ms `ease`.
 		'inline-flex items-center rounded-sm px-[13px] py-[6px] text-compact leading-4 tracking-[0] whitespace-nowrap ' +
-		'text-fg no-underline transition-colors hover:bg-surface-muted hover:text-fg outline-none ' +
+		'text-surface-inverted no-underline transition-colors duration-120 ease-[ease] motion-reduce:transition-none ' +
+		'hover:bg-surface-muted hover:text-fg outline-none ' +
 		'focus-visible:ring-2 focus-visible:ring-ring ' +
 		'data-[active]:bg-surface-muted data-[active]:text-fg',
 	// `active` is accepted both as an explicit prop (uic emits `data-active=""` when
@@ -194,7 +201,8 @@ export const UserMenu = ({ trigger, triggerLabel, onAction, children }: UserMenu
 		>
 			{trigger}
 		</RACButton>
-		<Popover className="min-w-40 rounded-md border border-border bg-surface p-1 shadow-lg">
+		{/* gs Hub account menu = the shared gs DropdownMenu panel, bottom-end aligned. */}
+		<Popover placement="bottom end" className={dropdownMenuPanelClass}>
 			<RACMenu onAction={onAction} className="outline-none">
 				{children}
 			</RACMenu>
@@ -204,10 +212,45 @@ export const UserMenu = ({ trigger, triggerLabel, onAction, children }: UserMenu
 
 export const UserMenuItem = uic(RACMenuItem, {
 	displayName: 'UserMenu.Item',
-	baseClass:
-		'flex cursor-pointer select-none items-center rounded-sm px-3 py-2 text-small text-fg outline-none ' +
-		'data-[focused]:bg-surface-muted data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
+	baseClass: `${dropdownMenuItemClass} data-[disabled]:pointer-events-none`,
 }) as (props: MenuItemProps) => ReactNode
+
+/**
+ * Two-line item copy (gs `.menuItemStack`): a primary label with a small muted hint
+ * underneath, e.g. "Manager / Current" or "Settings / Opens in GS Manager".
+ */
+export const UserMenuItemText = ({ label, hint }: { label: ReactNode; hint?: ReactNode }) => (
+	<span className="flex min-w-0 flex-col items-start gap-1">
+		<span>{label}</span>
+		{hint ? <span className="text-micro leading-5 font-normal text-fg-muted">{hint}</span> : null}
+	</span>
+)
+
+/**
+ * Non-interactive identity block at the top of the account menu (gs
+ * `.userMenuLabel`): the person's name (13px medium) over a muted detail line.
+ */
+export const UserMenuIdentity = ({ name, detail }: { name: ReactNode; detail?: ReactNode }) => (
+	<MenuSection>
+		<Header className="flex flex-col gap-1 px-4 py-3">
+			<span className="text-compact font-medium text-fg">{name}</span>
+			{detail ? <span className="mt-1 text-micro leading-5 font-medium text-fg-muted">{detail}</span> : null}
+		</Header>
+	</MenuSection>
+)
+
+export type UserMenuSectionProps = { label?: ReactNode; children: ReactNode; 'aria-label'?: string }
+
+/** A labelled group of account-menu items (gs `.menuSectionLabel`, e.g. "Apps"). */
+export const UserMenuSection = ({ label, children, ...props }: UserMenuSectionProps) => (
+	<MenuSection {...props}>
+		{label ? <Header className="px-2 pt-2 pb-1 text-micro leading-5 font-medium text-fg-muted">{label}</Header> : null}
+		{children}
+	</MenuSection>
+)
+
+/** 1px rule between account-menu groups (gs `.separator`). */
+export const UserMenuSeparator = DropdownMenuSeparator
 
 export const Topbar = Object.assign(TopbarRoot, {
 	Brand: TopbarBrand,

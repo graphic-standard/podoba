@@ -25,9 +25,12 @@ export const TabList = uic(RACTabList, {
 
 export const Tab = uic(RACTab, {
 	displayName: 'Tab',
+	// gs `Tabs.module.scss` `.trigger`: 12/16px padding, heading-5 (16px/20px) medium,
+	// `--color-text-secondary` ink (#242423, the light neutral `surface-inverted`
+	// carries), 2px underline, `all 200ms ease-in-out`.
 	baseClass:
-		'cursor-pointer select-none border-b-2 border-transparent px-4 py-3 text-small font-medium text-fg-muted ' +
-		'outline-none transition-colors ' +
+		'cursor-pointer select-none border-b-2 border-transparent px-4 py-3 text-heading5 font-medium text-surface-inverted ' +
+		'outline-none transition-all duration-200 ease-[ease-in-out] motion-reduce:transition-none ' +
 		'data-[hovered]:text-fg ' +
 		'data-[selected]:border-brand-primary data-[selected]:text-fg ' +
 		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +

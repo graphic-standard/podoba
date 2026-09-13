@@ -40,14 +40,17 @@ import { uic } from '../utils/uic'
  * ```
  *
  * gs token map (this is the LIGHT menu, so the gs literals map cleanly to our
- * tokens): content bg white → `surface` · 1px `#eceae1` border → `border` · 8px
- * radius → `rounded-lg` · `shadow-lg` · item 12/16px padding → `py-3 px-4` · 6px
- * item radius → `rounded-md` · item hover `#f7f6f2` → `surface-card` · item text
- * `#0d0d0d` → `fg` · section label `#aba89c` 13px → `text-fg-muted text-compact`
+ * tokens): content bg `--color-background-secondary` (#f7f6f2) → `surface-card` ·
+ * 1px `#eceae1` border → `border` · 8px radius → `rounded-lg` · `shadow-lg` · item
+ * 12/16px padding → `py-3 px-4` · 16px/22px base text → `text-body leading-5.5` ·
+ * 6px item radius → `rounded-md` · item highlight `--color-background-hover`
+ * (#eceae1) → `surface-muted` · item text `#0d0d0d` → `fg` · section label 13px →
+ * `text-fg-muted text-compact`. Motion: gs `slideDownAndFade` in / `slideUpAndFade`
+ * out, 200ms `cubic-bezier(0.16, 1, 0.3, 1)` (`animate-dropdown-in` / `-out`).
  * (#25: the source grey is 2.10:1 on `surface`; a section label is read, not ornament)
  * · separator `#eceae1` → `border`. The destructive item uses `text-danger`
  * (`#dc2626`) — a light-surface red that reads correctly here (unlike the dark
- * ContextMenu, which needs the lighter `#ffb5b5`).
+ * ContextMenu, which needs the lighter `#fee2e2`).
  *
  * Presentational only (hard rule #1) — no app imports.
  */
@@ -55,18 +58,25 @@ import { uic } from '../utils/uic'
 /** Re-export of RAC `MenuTrigger`; owns the open/close state for the pair. */
 export const DropdownMenuTrigger = RACMenuTrigger
 
-// gs `.item`: 12/16px padding, 6px radius, base text on white; hover/focus wash
-// `#f7f6f2` (→ surface-card). We light up both `data-[focused]` (keyboard) and
-// `data-[hovered]` (pointer) so keyboard focus stays clearly visible. Item text
-// size follows the house light Select (`text-small`) rather than gs's 16px base so
-// the two light dropdowns stay consistent.
+/** Shared gs dropdown panel skin (also used by the Topbar `UserMenu`). */
+export const dropdownMenuPanelClass =
+	'min-w-[220px] rounded-lg border border-border bg-surface-card p-2 shadow-lg outline-none ' +
+	'data-[entering]:animate-dropdown-in data-[exiting]:animate-dropdown-out motion-reduce:animate-none'
+
+// gs `.item`: 12/16px padding, 6px radius, 16px/22px base text; the Radix
+// `[data-highlighted]` wash is `#eceae1` (→ surface-muted). Radix highlights on
+// pointer hover and keyboard focus, never on a pointer open, so we key on
+// `data-[hovered]` + `data-[focus-visible]` rather than RAC's plain `data-[focused]`
+// (which also marks the first item when a mouse press opens the menu).
+export const dropdownMenuItemClass =
+	'flex cursor-pointer select-none items-center gap-2.5 rounded-md px-4 py-3 ' +
+	'text-body leading-5.5 font-normal text-fg outline-none ' +
+	'data-[focus-visible]:bg-surface-muted data-[hovered]:bg-surface-muted ' +
+	'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50'
+
 export const DropdownMenuItem = uic(RACMenuItem, {
 	displayName: 'DropdownMenuItem',
-	baseClass:
-		'flex cursor-pointer select-none items-center gap-2.5 rounded-md px-4 py-3 ' +
-		'text-small text-fg outline-none ' +
-		'data-[focused]:bg-surface-card data-[hovered]:bg-surface-card ' +
-		'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50',
+	baseClass: dropdownMenuItemClass,
 	variants: {
 		// gs has no destructive item style on the light menu; we add the house danger
 		// token (red text), which reads correctly on the white / cream surface.
@@ -128,11 +138,11 @@ export function DropdownMenu<T extends object>({
 }: DropdownMenuProps<T>) {
 	return (
 		// gs `.content`: min-width 220px, 8px padding (`p-2`), 8px radius, 1px
-		// `#eceae1` border, white fill, `shadow-lg`.
+		// `#eceae1` border, `#f7f6f2` fill, `shadow-lg`, 200ms slide/fade both ways.
 		<RACPopover
 			placement={placement}
 			className={
-				'min-w-[220px] rounded-lg border border-border bg-surface p-2 shadow-lg outline-none' +
+				dropdownMenuPanelClass +
 				(popoverClassName ? ` ${popoverClassName}` : '')
 			}
 		>

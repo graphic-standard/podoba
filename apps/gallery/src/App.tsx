@@ -51,6 +51,13 @@ import {
 	ViewToggle,
 	// ── product patterns (label-driven) ──
 	Badge,
+	Chip,
+	UserMenu,
+	UserMenuIdentity,
+	UserMenuItem,
+	UserMenuItemText,
+	UserMenuSection,
+	UserMenuSeparator,
 	BrandPageHeader,
 	ContextMenu,
 	CtaPill,
@@ -1739,6 +1746,24 @@ const SECTIONS: SectionDef[] = [
 					<Badge label="Yellow" color="yellow" />
 					<Badge label="Grey" color="grey" />
 					<Badge label="Dark" color="dark" />
+				</Demo>
+				<Demo label="Chips (task status / priority cell)">
+					<Chip label="Planned" />
+					<Chip label="Normal" />
+					<Chip label="In progress" color="green" />
+					<Chip label="Ready for delivery" color="green" />
+				</Demo>
+				<Demo label="Account menu (Topbar UserMenu)">
+					<UserMenu trigger={<span>OB</span>} triggerLabel="Account menu">
+						<UserMenuIdentity name="Ondřej Brom" detail="acme" />
+						<UserMenuSeparator />
+						<UserMenuSection label="Apps">
+							<UserMenuItem id="hub">GS Hub</UserMenuItem>
+							<UserMenuItem id="manager" textValue="Manager"><UserMenuItemText label="Manager" hint="Current" /></UserMenuItem>
+						</UserMenuSection>
+						<UserMenuSeparator />
+						<UserMenuItem id="logout">Log out</UserMenuItem>
+					</UserMenu>
 				</Demo>
 				<Demo label="Responsive grid (3 · 3 · 3 · 3 · 6 · 6)">
 					<DashboardDemo />

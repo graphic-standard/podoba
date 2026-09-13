@@ -395,9 +395,43 @@ const BADGE: Record<BadgeColor, string> = {
 
 export function Badge({ label, color = 'grey' }: { label: ReactNode; color?: BadgeColor }) {
 	return (
+		// gs `Tag.module.scss`: 24px tall, 0 10px padding, 16px (`radius-2xl`) corners,
+		// 10px/20px medium label (Label 4). The source's `margin-left: 12px` is layout
+		// the caller owns, so it is not baked in here.
 		<span
-			className={`inline-flex items-center rounded-full px-3 py-1 text-caption font-medium leading-none ${BADGE[color]}`}
+			className={`inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-2xl px-2.5 text-micro font-medium leading-5 ${BADGE[color]}`}
 		>
+			{label}
+		</span>
+	)
+}
+
+/**
+ * Chip: the gs `GSChip` dot pill used for task status and priority cells.
+ *
+ * Distinct from {@link Badge} (gs `Tag`): a Chip is the table-cell pill with a
+ * leading 8px dot, 13px/16px regular label, 24px height and 0 12px padding. gs has
+ * two tones only: `green` (translucent mint surface, brand-green dot) for work that
+ * is moving or finished, and `grey` (neutral surface, neutral dot) for everything
+ * else. The dot is decorative; the label carries the meaning.
+ */
+export type ChipColor = 'green' | 'grey'
+
+const CHIP: Record<ChipColor, { surface: string; dot: string }> = {
+	// gs `rgba(150, 246, 194, 0.8)` → accent-green-lighter at 80%; dot brand green.
+	green: { surface: 'bg-accent-green-lighter/80 text-fg-on-brand', dot: 'bg-brand-green' },
+	// gs neutral-100 surface; the source neutral-200 dot (#aba89c) maps to the
+	// nearest shared neutral. Ornamental: the adjacent label is the content.
+	grey: { surface: 'bg-surface-muted text-fg', dot: 'bg-neutral-300' },
+}
+
+export function Chip({ label, color = 'grey' }: { label: ReactNode; color?: ChipColor }) {
+	const tone = CHIP[color]
+	return (
+		<span
+			className={`inline-flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-2xl px-3 text-compact font-normal leading-4 ${tone.surface}`}
+		>
+			<span aria-hidden="true" className={`size-2 shrink-0 rounded-full ${tone.dot}`} />
 			{label}
 		</span>
 	)

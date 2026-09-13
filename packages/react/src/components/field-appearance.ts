@@ -9,6 +9,9 @@ export const filledFieldClasses =
 	'border-0 bg-surface-card text-small font-normal leading-4.5 text-fg ' +
 	'outline-none transition-colors duration-200 motion-reduce:transition-none placeholder:text-fg-muted placeholder:font-normal ' +
 	'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-card ' +
-	'focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ' +
+	// `outline-none` above zeroes Tailwind v4's `--tw-outline-style`, so the focus
+	// width alone would still resolve to `outline-style: none`. Restate the solid
+	// style or the gs 2px focus outline never paints (WCAG 2.4.7).
+	'focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-ring focus-visible:outline-offset-2 ' +
 	'data-[invalid]:ring-1 data-[invalid]:ring-danger data-[invalid]:outline-danger ' +
 	'data-[disabled]:bg-surface-muted data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed'

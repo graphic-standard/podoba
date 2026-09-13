@@ -58,8 +58,10 @@ export type TextareaProps = TextFieldProps & {
 }
 
 export const Textarea = ({ label, description, errorMessage, placeholder, rows, textAreaClassName, appearance = 'outlined', ...props }: TextareaProps) => (
-	<TextField {...props} className={`flex w-full flex-col ${appearance === 'filled' ? 'gap-3' : 'gap-2'}`}>
-		<Label className={`${appearance === 'filled' ? 'text-panel-heading' : 'text-small'} font-medium text-fg`}>{label}</Label>
+	// Label and gap match `Input` in both appearances (gs 17px/20px field label,
+	// 12px to the control), so a Title + Description pair reads as one form.
+	<TextField {...props} className="flex w-full flex-col gap-3">
+		<Label className="text-panel-heading font-medium text-fg">{label}</Label>
 		<StyledTextArea className={textAreaClassName} placeholder={placeholder} rows={rows} appearance={appearance} />
 		{description ? (
 			<Text slot="description" className="text-label text-fg-muted">
