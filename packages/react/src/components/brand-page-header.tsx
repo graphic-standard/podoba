@@ -51,6 +51,13 @@ export type BrandPageHeaderProps = {
 	 * navigation link, not ornament (#25).
 	 */
 	parentLink?: ReactNode
+	/**
+	 * Ink of `parentLink`. `muted` (default) is `fg-muted` (5.98:1). `soft` is the
+	 * lighter large-text grey `fg-muted-large` (3.4:1 on `surface`, above the WCAG
+	 * 1.4.3 3:1 floor for this 30px row), the closest AA match to the source's
+	 * decorative #b3b3b3 parent line. Hover still resolves to `fg`.
+	 */
+	parentLinkTone?: 'muted' | 'soft'
 	/** Optional breadcrumb trail rendered above the greeting. */
 	breadcrumbs?: BrandPageHeaderCrumb[]
 	/**
@@ -84,6 +91,7 @@ export function BrandPageHeader({
 	variant = 'default',
 	headingLevel = 1,
 	parentLink,
+	parentLinkTone = 'muted',
 	breadcrumbs,
 	cta,
 	ctaLabel,
@@ -299,7 +307,9 @@ export function BrandPageHeader({
 						// readable `fg-muted` (5.98:1) rather than `fg-subtle`.
 						<nav
 							aria-label="Breadcrumb"
-							className="h-8 text-display-large font-medium leading-8 tracking-wide text-fg-muted transition-colors [&_a:hover]:text-fg [&_a]:block [&_a]:h-8 [&_a]:text-fg-muted [&_a]:no-underline [&_a]:outline-none [&_a:focus-visible]:underline"
+							className={`h-8 text-display-large font-medium leading-8 tracking-wide transition-colors [&_a:hover]:text-fg [&_a]:block [&_a]:h-8 [&_a]:no-underline [&_a]:outline-none [&_a:focus-visible]:underline ${
+								parentLinkTone === 'soft' ? 'text-fg-muted-large [&_a]:text-fg-muted-large' : 'text-fg-muted [&_a]:text-fg-muted'
+							}`}
 						>
 							{parentLink}
 						</nav>

@@ -33,6 +33,8 @@ export * from "./components/document-upload-panel";
 export * from "./components/csv-binding-presentation";
 export * from "./components/dialog-action-button";
 export * from "./components/reload-icon";
+export * from "./components/source-icons";
+export * from "./components/animated-summary-text";
 export * from "./components/date-field";
 export * from "./components/date-picker";
 export * from "./components/dialog";

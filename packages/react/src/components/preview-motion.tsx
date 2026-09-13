@@ -15,7 +15,10 @@ import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 
  * All of it is ornamental: every layer is `aria-hidden`, nothing here carries content,
  * and under `prefers-reduced-motion: reduce` neither the timed states nor any motion
  * run (the skeleton shows the source static gradient, the reveal never engages).
- * Colours are the source literals; the skeleton is a fixed light surface by design.
+ * Skeleton colours: the light theme keeps the source literals (#ffffff base, #c7fee0
+ * glow) exactly; under `[data-theme="dark"]` the base follows `surface` and the glow
+ * becomes a brand-green tint of it, so a loading preview is not a white block on the
+ * dark shell.
  */
 
 function usePrefersReducedMotion(): boolean {
@@ -69,9 +72,14 @@ export function useMinimumVisible(active: boolean, minMs = 500): boolean {
 	return reduce ? active : held
 }
 
-const SKELETON_ANIMATED =
-	'linear-gradient(80deg, #ffffff 0%, #ffffff 12.5%, #c7fee0 27.5%, #ffffff 41.5%, #ffffff 50%, #ffffff 62.5%, #c7fee0 77.5%, #ffffff 91.5%, #ffffff 100%)'
-const SKELETON_STATIC = 'linear-gradient(80deg, #ffffff 25%, #c7fee0 55%, #ffffff 83%)'
+const SKELETON_BASE = 'var(--preview-skeleton-base)'
+const SKELETON_GLOW = 'var(--preview-skeleton-glow)'
+const SKELETON_ANIMATED = `linear-gradient(80deg, ${SKELETON_BASE} 0%, ${SKELETON_BASE} 12.5%, ${SKELETON_GLOW} 27.5%, ${SKELETON_BASE} 41.5%, ${SKELETON_BASE} 50%, ${SKELETON_BASE} 62.5%, ${SKELETON_GLOW} 77.5%, ${SKELETON_BASE} 91.5%, ${SKELETON_BASE} 100%)`
+const SKELETON_STATIC = `linear-gradient(80deg, ${SKELETON_BASE} 25%, ${SKELETON_GLOW} 55%, ${SKELETON_BASE} 83%)`
+// Light: the source literals. Dark: theme `surface` with an 18% brand-green glow.
+const SKELETON_THEME =
+	'[--preview-skeleton-base:#ffffff] [--preview-skeleton-glow:#c7fee0] ' +
+	'dark:[--preview-skeleton-base:var(--color-surface)] dark:[--preview-skeleton-glow:color-mix(in_srgb,var(--color-brand-green)_18%,var(--color-surface))]'
 
 export interface PreviewSkeletonProps {
 	/** Accessible status text (translated by the caller), e.g. "Rendering preview". */
@@ -91,7 +99,7 @@ export function PreviewSkeleton({ label, className }: PreviewSkeletonProps) {
 			aria-label={label}
 			aria-hidden={label ? undefined : true}
 			data-preview-skeleton=""
-			className={['absolute inset-0 overflow-hidden', reduce ? '' : 'animate-preview-skeleton-shimmer', className]
+			className={['absolute inset-0 overflow-hidden', SKELETON_THEME, reduce ? '' : 'animate-preview-skeleton-shimmer', className]
 				.filter(Boolean)
 				.join(' ')}
 			style={style}
