@@ -17,6 +17,7 @@ import {
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
 import { useInFocusOverlay } from './focus-context'
+import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
 
 /**
  * ComboBox — a filterable single-select: a text input that narrows a listbox as
@@ -76,7 +77,7 @@ export const ComboBox = <T extends object>({
 	const inFocus = useInFocusOverlay()
 	const { contains } = useFilter({ sensitivity: 'base' })
 	const desc = description ? (
-		<Text slot="description" className="text-label text-fg-muted">
+		<Text slot="description" className={fieldDescriptionClass}>
 			{description}
 		</Text>
 	) : null
@@ -108,7 +109,7 @@ export const ComboBox = <T extends object>({
 					</ListBox>
 				</Autocomplete>
 				{desc}
-				{errorMessage ? <span className="text-label text-danger">{errorMessage}</span> : null}
+				{errorMessage ? <span className={fieldErrorClass}>{errorMessage}</span> : null}
 			</div>
 		)
 	}
@@ -132,7 +133,7 @@ export const ComboBox = <T extends object>({
 				</RACButton>
 			</div>
 			{desc}
-			<FieldError className="text-label text-danger">{errorMessage}</FieldError>
+			<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
 			<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
 				<ListBox
 					className="flex max-h-72 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"

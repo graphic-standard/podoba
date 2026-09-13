@@ -9,6 +9,7 @@ import {
 	TagList,
 	Text,
 } from 'react-aria-components'
+import { fieldDescriptionClass } from './field-appearance'
 
 /**
  * TagGroup + Tag — a set of chips (labels, filters, or a removable tag input).
@@ -26,7 +27,7 @@ export const TagGroup = ({ label, description, children, ...props }: TagGroupPro
 		{label ? <Label className="text-heading5 font-medium text-fg">{label}</Label> : null}
 		<TagList className="flex flex-wrap gap-2 outline-none">{children}</TagList>
 		{description ? (
-			<Text slot="description" className="text-label text-fg-muted">
+			<Text slot="description" className={fieldDescriptionClass}>
 				{description}
 			</Text>
 		) : null}

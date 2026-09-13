@@ -37,7 +37,7 @@ export const CatalogSummaryGrid = uic('div', { displayName: 'CatalogSummaryGrid'
 const SummaryHead = uic('div', { displayName: 'CatalogSummaryHead', baseClass: 'flex w-full min-w-0 items-center justify-between gap-3' })
 export const CatalogSummaryBadge = uic('span', { displayName: 'CatalogSummaryBadge', baseClass: 'ml-3 flex h-6 shrink-0 items-center rounded-2xl px-2.5 text-micro font-medium leading-5', style: { fontFeatureSettings: '"liga" off, "clig" off' }, variants: { color: { green: 'bg-brand-green text-fg-on-brand', grey: 'bg-surface-muted text-(--color-neutral-600)' } }, defaultVariants: { color: 'grey' } })
 const SummaryTitle = uic('h2', { displayName: 'CatalogSummaryTitle', baseClass: 'm-0 min-w-0 truncate text-heading5 font-medium' })
-const SummaryTail = uic('div', { displayName: 'CatalogSummaryTail', baseClass: 'mt-auto flex flex-col gap-1 text-small font-normal text-fg-workflow-muted' })
+const SummaryTail = uic('div', { displayName: 'CatalogSummaryTail', baseClass: 'mt-auto flex flex-col gap-1 text-small font-normal text-fg-muted' })
 /** Source gs Tile image cover: caller artwork under a transparent → 30% → 50% black gradient. */
 function CatalogCover({ preview }: { preview: ReactNode }) {
 	return <>

@@ -23,6 +23,7 @@ import {
 import { clsx } from 'clsx'
 import { dateInputClass, segmentClass } from './date-field'
 import { useInFocusOverlay } from './focus-context'
+import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
 
 /**
  * DatePicker — a `DateField` with a calendar popover. Built on React Aria
@@ -106,11 +107,11 @@ export const DatePicker = <T extends DateValue>({ label, description, errorMessa
 				)}
 			</Group>
 			{description ? (
-				<Text slot="description" className="text-label text-fg-muted">
+				<Text slot="description" className={fieldDescriptionClass}>
 					{description}
 				</Text>
 			) : null}
-			<FieldError className="text-label text-danger">{errorMessage}</FieldError>
+			<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
 			{inFocus ? (
 				<div className="mt-2 -ml-2">
 					<CalendarBody />

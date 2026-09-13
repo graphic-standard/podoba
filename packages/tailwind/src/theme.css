@@ -90,6 +90,12 @@
 	--color-fg: var(--color-fg);
 	--color-fg-muted: var(--color-fg-muted);
 	--color-fg-subtle: var(--color-fg-subtle);
+	/* LARGE TEXT ONLY (>= 24px, or >= 18.66px bold). A theme-derived grey between
+	 * fg-subtle and fg-muted: 3.4:1 on light `surface` and 3.1:1 on `surface-card` (WCAG 1.4.3 large-text floor
+	 * is 3:1), so a gs de-emphasis line such as a page-header parent link or a
+	 * display greeting can stay close to the source's decorative #b3b3b3 without
+	 * failing AA. Never use it for body or caption copy; that takes fg-muted. */
+	--color-fg-muted-large: color-mix(in srgb, var(--color-fg-subtle) 50%, var(--color-fg-muted));
 	--color-fg-workflow-muted: var(--color-fg-workflow-muted);
 	--color-fg-inverted: var(--color-fg-inverted);
 	--color-fg-on-brand: var(--color-fg-on-brand);
@@ -209,6 +215,8 @@
 	--animate-preview-skeleton-shimmer: preview-skeleton-shimmer 2400ms ease-in-out infinite;
 	--animate-preview-sweep: preview-sweep 1350ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
 	--animate-preview-particle: preview-particle 1200ms ease-in-out infinite;
+	/* gs ContentTile `summaryTokenReveal`: per-character summary sentence reveal. */
+	--animate-summary-token: summary-token-reveal 680ms cubic-bezier(0.19, 1, 0.22, 1) both;
 	--animate-lightbox-in: lightbox-in 0.3s ease-out;
 	--animate-modal-overlay-in: modal-overlay-in var(--motion-modal-enter-duration)
 		var(--motion-modal-enter-easing) both;
@@ -371,6 +379,23 @@
 	72% {
 		transform: translate3d(calc(var(--particle-dx, 0px) / -2), calc(var(--particle-dy, 0px) / -2), 0) scale(0.72);
 		opacity: 0.32;
+	}
+}
+
+@keyframes summary-token-reveal {
+	0% {
+		opacity: 0;
+		filter: blur(6px);
+		transform: translateY(8px);
+	}
+	58% {
+		opacity: 1;
+		filter: blur(1px);
+	}
+	100% {
+		opacity: 1;
+		filter: blur(0);
+		transform: translateY(0);
 	}
 }
 

@@ -9,6 +9,7 @@ import {
 	type NumberFieldProps as RACNumberFieldProps,
 	Text,
 } from 'react-aria-components'
+import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
 
 /**
  * NumberField — numeric input with steppers, min/max and locale-aware formatting
@@ -51,10 +52,10 @@ export const NumberField = ({ label, description, errorMessage, placeholder, ...
 			</RACButton>
 		</Group>
 		{description ? (
-			<Text slot="description" className="text-label text-fg-muted">
+			<Text slot="description" className={fieldDescriptionClass}>
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
+		<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
 	</RACNumberField>
 )

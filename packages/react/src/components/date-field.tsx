@@ -12,6 +12,7 @@ import {
 	type TimeFieldProps as RACTimeFieldProps,
 	type TimeValue,
 } from 'react-aria-components'
+import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
 
 /**
  * DateField / TimeField — segmented, keyboard-first date and time entry (type or
@@ -43,11 +44,11 @@ export const DateField = <T extends DateValue>({ label, description, errorMessag
 		<Label className="text-heading5 font-medium text-fg">{label}</Label>
 		<DateInput className={dateInputClass}>{(segment) => <DateSegment segment={segment} className={segmentClass} />}</DateInput>
 		{description ? (
-			<Text slot="description" className="text-label text-fg-muted">
+			<Text slot="description" className={fieldDescriptionClass}>
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
+		<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
 	</RACDateField>
 )
 
@@ -62,10 +63,10 @@ export const TimeField = <T extends TimeValue>({ label, description, errorMessag
 		<Label className="text-heading5 font-medium text-fg">{label}</Label>
 		<DateInput className={dateInputClass}>{(segment) => <DateSegment segment={segment} className={segmentClass} />}</DateInput>
 		{description ? (
-			<Text slot="description" className="text-label text-fg-muted">
+			<Text slot="description" className={fieldDescriptionClass}>
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
+		<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
 	</RACTimeField>
 )

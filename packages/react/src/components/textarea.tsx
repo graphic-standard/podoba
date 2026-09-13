@@ -8,7 +8,7 @@ import {
 	type TextFieldProps,
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
-import { filledFieldClasses, type FieldAppearance } from './field-appearance'
+import { fieldDescriptionClass, fieldErrorClass, filledFieldClasses, type FieldAppearance } from './field-appearance'
 
 /**
  * Textarea — labelled multi-line text field.
@@ -64,10 +64,10 @@ export const Textarea = ({ label, description, errorMessage, placeholder, rows, 
 		<Label className="text-panel-heading font-medium text-fg">{label}</Label>
 		<StyledTextArea className={textAreaClassName} placeholder={placeholder} rows={rows} appearance={appearance} />
 		{description ? (
-			<Text slot="description" className="text-label text-fg-muted">
+			<Text slot="description" className={fieldDescriptionClass}>
 				{description}
 			</Text>
 		) : null}
-		<FieldError className="text-label text-danger">{errorMessage}</FieldError>
+		<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
 	</TextField>
 )
