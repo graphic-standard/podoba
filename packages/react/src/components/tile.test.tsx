@@ -3,7 +3,7 @@
 import { describe, expect, test } from 'bun:test'
 import { renderToStaticMarkup } from 'react-dom/server'
 
-import { Badge, Tile } from './tile'
+import { Badge, Chip, Tile } from './tile'
 import { StatsCard } from './stats-card'
 
 describe('<Tile> media layout', () => {
@@ -45,6 +45,23 @@ describe('<Tile> media layout', () => {
 		expect(html).toContain('aria-label="Open tutorial"')
 		expect(html).toContain('pointer-events-auto')
 		expect(html).toContain('>Transcript</button>')
+	})
+})
+
+describe('gs Tag / GSChip geometry', () => {
+	test('Badge keeps the source 24px Tag envelope with a 10px/20px label', () => {
+		const html = renderToStaticMarkup(<Badge label="New" color="green" />)
+		for (const cls of ['h-6', 'px-2.5', 'rounded-2xl', 'text-micro', 'leading-5', 'font-medium', 'whitespace-nowrap']) {
+			expect(html).toContain(cls)
+		}
+	})
+
+	test('Chip renders a decorative dot before a 13px/16px regular label', () => {
+		const html = renderToStaticMarkup(<Chip label="Planned" />)
+		expect(html).toContain('bg-surface-muted text-fg')
+		expect(html).toContain('text-compact font-normal leading-4')
+		expect(html).toMatch(/<span aria-hidden="true" class="size-2 shrink-0 rounded-full bg-neutral-300"><\/span>Planned/)
+		expect(renderToStaticMarkup(<Chip label="In progress" color="green" />)).toContain('bg-accent-green-lighter/80 text-fg-on-brand')
 	})
 })
 
