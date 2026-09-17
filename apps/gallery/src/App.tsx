@@ -58,6 +58,7 @@ import {
 	UserMenuIdentity,
 	UserMenuItem,
 	UserMenuItemText,
+	UserMenuMeta,
 	UserMenuSection,
 	UserMenuSeparator,
 	BrandPageHeader,
@@ -1774,6 +1775,8 @@ const SECTIONS: SectionDef[] = [
 						</UserMenuSection>
 						<UserMenuSeparator />
 						<UserMenuItem id="logout">Log out</UserMenuItem>
+						<UserMenuSeparator />
+						<UserMenuMeta label="App version">v2026.09.17 · a1b2c3d</UserMenuMeta>
 					</UserMenu>
 				</Demo>
 				<Demo label="Responsive grid (3 · 3 · 3 · 3 · 6 · 6)">
