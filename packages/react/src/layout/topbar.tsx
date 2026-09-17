@@ -249,6 +249,26 @@ export const UserMenuSection = ({ label, children, ...props }: UserMenuSectionPr
 	</MenuSection>
 )
 
+/**
+ * Non-interactive muted line at the foot of the account menu, e.g. the running app
+ * version (`v2026.09.17 · a1b2c3d`). Like `UserMenuIdentity` it is a section header,
+ * so it is never focusable and never announced as an action. The text stays
+ * selectable so it can be copied into a bug report.
+ *
+ * `label` names the line for assistive tech only ("App version: v2026.09.17 · …").
+ * It has to live inside the header: React Aria names the section from its header,
+ * which would override an `aria-label` on the section. REQUIRED and a plain string,
+ * because podoba ships no i18n.
+ */
+export const UserMenuMeta = ({ label, children }: { label: string; children: ReactNode }) => (
+	<MenuSection>
+		<Header className="select-text px-4 py-2 text-micro leading-5 font-normal tabular-nums text-fg-muted">
+			<span className="sr-only">{`${label}: `}</span>
+			{children}
+		</Header>
+	</MenuSection>
+)
+
 /** 1px rule between account-menu groups (gs `.separator`). */
 export const UserMenuSeparator = DropdownMenuSeparator
 
