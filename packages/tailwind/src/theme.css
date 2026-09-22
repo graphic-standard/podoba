@@ -123,6 +123,27 @@
 
 	--color-ring: var(--color-ring);
 	--color-modal-backdrop: var(--color-modal-backdrop);
+	--color-modal-backdrop-fallback: var(--color-modal-backdrop-fallback);
+
+	/* GS dialog actions (solid = fixed brand black, soft = the secondary action). */
+	--color-action-solid: var(--color-action-solid);
+	--color-action-solid-fg: var(--color-action-solid-fg);
+	--color-action-solid-hover: var(--color-action-solid-hover);
+	--color-action-solid-pressed: var(--color-action-solid-pressed);
+	--color-action-soft: var(--color-action-soft);
+	--color-action-soft-hover: var(--color-action-soft-hover);
+	--color-action-soft-pressed: var(--color-action-soft-pressed);
+	--color-action-soft-border-hover: var(--color-action-soft-border-hover);
+	--color-action-compact-muted: var(--color-action-compact-muted);
+
+	/* GS context action panel: ALWAYS dark, so these do not flip with the theme. */
+	--color-context-menu-top: var(--color-context-menu-top);
+	--color-context-menu-bottom: var(--color-context-menu-bottom);
+	--color-context-menu-hover: var(--color-context-menu-hover);
+	--color-context-menu-fg: var(--color-context-menu-fg);
+	--color-context-menu-danger: var(--color-context-menu-danger);
+	--color-context-menu-badge-bg: var(--color-context-menu-badge-bg);
+	--color-context-menu-badge-fg: var(--color-context-menu-badge-fg);
 
 	/* border radius */
 	--radius-sm: var(--radius-sm);
@@ -131,6 +152,7 @@
 	--radius-xl: var(--radius-xl);
 	--radius-2xl: var(--radius-2xl);
 	--radius-panel: var(--radius-panel);
+	--radius-context-menu-item: var(--radius-context-menu-item);
 
 	/* spacing — only the off-grid `nav-x` (13px). We deliberately do NOT map
 	 * xs/sm/md/lg/xl into --spacing-*: in v4 that namespace also feeds the
@@ -151,6 +173,8 @@
 	--blur-modal-backdrop: var(--effect-modal-backdrop-blur);
 	--shadow-mobile-cta: var(--shadow-mobile-cta);
 	--shadow-modal-surface: var(--shadow-modal-surface);
+	--shadow-context-menu: var(--shadow-context-menu);
+	--shadow-action-compact-hover: var(--shadow-action-compact-hover);
 
 	/* font families */
 	--font-sans: var(--font-sans);
@@ -179,6 +203,11 @@
 	--text-display-large--letter-spacing: var(--tracking-display-large);
 	--text-panel-heading: var(--font-size-panel-heading);
 	--text-panel-heading--line-height: var(--line-height-panel-heading);
+	/* GS Smart Document title (56/60) and lead paragraph (22/32). */
+	--text-document-display: var(--font-size-document-display);
+	--text-document-display--line-height: var(--line-height-document-display);
+	--text-document-lead: var(--font-size-document-lead);
+	--text-document-lead--line-height: var(--line-height-document-lead);
 
 	/* font sizes — heading ramp (size + paired line-height) */
 	--text-heading1: var(--font-size-heading1);
