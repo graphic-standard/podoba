@@ -38,8 +38,18 @@
  * font-feature-settings turns on NC Fontina's stylistic sets ss02–ss05 (the
  * default letterforms the brand uses: jy/at/g ligatures and the @ alternate).
  * It's an inherited property, so declaring it on :root cascades to every element.
+ *
+ * The tracking scale travels with the typeface. variables.css carries the GS
+ * scale (-0.13px … -0.6px), which is tuned for GT America, the family its
+ * --font-sans names. NC Fontina is set looser, so swapping the face in here also
+ * swaps in its own positive scale. A consumer that brings GT America itself (and
+ * skips this file) gets the GS tracking with no override of its own.
  */
 :root {
 	--font-sans: 'NC Fontina', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--tracking-normal: 0.01em;
+	--tracking-tight: 0em;
+	--tracking-wide: 0.02em;
+	--tracking-wider: 0.03em;
 	font-feature-settings: 'ss02' 1, 'ss03' 1, 'ss04' 1, 'ss05' 1;
 }
