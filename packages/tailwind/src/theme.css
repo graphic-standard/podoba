@@ -74,6 +74,20 @@
 	}
 }
 
+/* Reserve room at the bottom of a page for BrandPageHeader's docked CTA.
+ *
+ * Below `sm` the header pins its CTA to the safe bottom edge of the viewport, so the
+ * last rows of the page would scroll underneath it. Put this on the scrolling content
+ * container (or the page's main element) and it pads exactly the dock's footprint,
+ * only at the widths where the CTA is docked. The header marks a docked CTA with
+ * `data-mobile-cta-dock`, so a shell that does not know which pages have one can
+ * scope it: `.content:has([data-mobile-cta-dock]) { @apply mobile-cta-dock-inset; }`. */
+@utility mobile-cta-dock-inset {
+	@variant max-sm {
+		padding-bottom: calc(var(--control-height-mobile-cta) + var(--space-sm) + env(safe-area-inset-bottom, 0px));
+	}
+}
+
 @theme inline {
 	/* colors */
 	--color-brand: var(--color-brand-primary);
@@ -167,6 +181,11 @@
 	--spacing-create-hub-partial: var(--control-height-create-hub-partial);
 	--spacing-mobile-cta: var(--control-height-mobile-cta);
 	--spacing-mobile-cta-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+	/* The whole footprint of BrandPageHeader's docked CTA: the 99px pill plus the
+	 * safe-bottom inset it sits on. Use it for scroll padding or a spacer; to reserve
+	 * the room on the page itself, prefer `mobile-cta-dock-inset` (below), which only
+	 * applies while the CTA is actually docked. */
+	--spacing-mobile-cta-dock: calc(var(--control-height-mobile-cta) + var(--space-sm) + env(safe-area-inset-bottom, 0px));
 	--spacing-control-tall: var(--control-height-tall);
 
 	/* effects */

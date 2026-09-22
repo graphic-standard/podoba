@@ -36,10 +36,26 @@ describe('BrandPageHeader heading semantics', () => {
 		// track list now that the header also supports a `navigation` variant, rather
 		// than the old fixed 3-column grid with a col-span-2 hero.
 		expect(html).toContain('md:grid-cols-[2fr_1fr]')
-		expect(html).toContain('md:col-start-2')
 		expect(html).toContain('inset-x-0')
 		expect(html).toContain('pb-mobile-cta-bottom')
-		expect(html).toContain('md:h-full')
+	})
+
+	test('docks the CTA on phones only; tablets keep it in the header', () => {
+		const html = renderToStaticMarkup(
+			<BrandPageHeader greeting="Design system and templates" cta={<div>CTA</div>} />,
+		)
+
+		// Fixed below `sm` (640px). From `sm` the CTA is back in flow as the second of
+		// two equal columns, and `md` narrows it to the one-third track. Docking up to
+		// `md` covered the bottom of 640-767px tablets, which have room for it inline.
+		expect(html).toContain('fixed inset-x-0 bottom-0')
+		expect(html).toContain('sm:static')
+		expect(html).toContain('sm:grid-cols-2')
+		expect(html).toContain('sm:col-start-2')
+		expect(html).toContain('sm:h-full')
+		expect(html).not.toContain('md:static')
+		// Shells scope the bottom reservation (`mobile-cta-dock-inset`) with this hook.
+		expect(html).toContain('data-mobile-cta-dock=""')
 	})
 
 	test('can opt out of the mobile dock for non-hero compositions', () => {
@@ -56,6 +72,8 @@ describe('BrandPageHeader heading semantics', () => {
 		expect(html).toContain('md:col-start-2')
 		expect(html).toContain('md:h-full')
 		expect(html).not.toContain('pb-mobile-cta-bottom')
+		expect(html).not.toContain('sm:grid-cols-2')
+		expect(html).not.toContain('data-mobile-cta-dock')
 	})
 
 	test('renders the source responsive Create Hub surface when expanded', () => {

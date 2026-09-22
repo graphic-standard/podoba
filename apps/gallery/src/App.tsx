@@ -1697,7 +1697,7 @@ const SECTIONS: SectionDef[] = [
 		group: "Product patterns",
 		title: "CTA pill",
 		subtitle:
-			"The Brand Core hero CTA — a teal bar with a three-fragment copy line, an action control, and an optional 99px mobile-header density. BrandPageHeader docks that variant above the safe bottom edge below 768px.",
+			"The Brand Core hero CTA: a teal bar with a three-fragment copy line, an action control, and an optional 99px mobile-header density. BrandPageHeader docks that variant above the safe bottom edge on phones (below 640px); tablets keep it in the header.",
 		content: (
 			<Demo label="Hero CTA">
 				<CtaPill lead="Let's" emphasis="create" tail="something">
@@ -1790,7 +1790,7 @@ const SECTIONS: SectionDef[] = [
 		group: "Product patterns",
 		title: "Brand page header",
 		subtitle:
-			"The brand-workspace page header — breadcrumbs, a large two-tone greeting, and a right-column CTA. Its Create Hub expands inline from the top-right on desktop and becomes a focus-trapped, swipe-dismissable bottom sheet below 768px.",
+			"The brand-workspace page header: breadcrumbs, a large two-tone greeting, and a right-column CTA. Its Create Hub expands inline from the top-right on desktop and becomes a focus-trapped, swipe-dismissable bottom sheet below 768px. The hero CTA docks to the bottom of the screen only below 640px; pages reserve that room with the mobile-cta-dock-inset utility.",
 		content: (
 			<Demo label="Workspace header">
 				<BrandPageHeaderDemo />
@@ -2031,7 +2031,8 @@ export function App() {
 				    overflow — otherwise they anchor to <html> and inflate page scroll. */}
 				<div
 					ref={canvasRef}
-					className="relative flex-1 overflow-y-auto transition-colors"
+					// The Brand page header demo docks its CTA on phones; keep the last demos reachable.
+					className="relative flex-1 overflow-y-auto transition-colors mobile-cta-dock-inset"
 					style={{ background: `var(--color-${bg})` }}
 				>
 					<div className="mx-auto flex max-w-5xl flex-col gap-24 px-10 py-16">

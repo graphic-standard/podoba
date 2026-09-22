@@ -44,7 +44,9 @@ describe('<CtaPill> foreground pairing (WCAG AA — issue #13)', () => {
 		expect(mobileHtml).toContain('px-12')
 		expect(mobileHtml).toContain('py-5')
 		expect(mobileHtml).toContain('shadow-mobile-cta')
-		expect(mobileHtml).toContain('md:min-h-16')
+		// Back to the header density where BrandPageHeader stops docking (`sm`).
+		expect(mobileHtml).toContain('sm:min-h-16')
+		expect(mobileHtml).toContain('sm:shadow-none')
 		expect(mobileHtml).not.toContain('fixed')
 	})
 })
