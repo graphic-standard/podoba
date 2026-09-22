@@ -101,6 +101,7 @@ import {
 	SearchIcon,
 	StarIcon,
 	SunIcon,
+	Table,
 	TrashIcon,
 	UploadIcon,
 	UserIcon,
@@ -1563,6 +1564,34 @@ const SECTIONS: SectionDef[] = [
 				<Card variant="elevated" padding="md" className="w-40">
 					<Text size="compact">elevated</Text>
 				</Card>
+			</Demo>
+		),
+	},
+	{
+		id: "table",
+		group: "Content",
+		title: "Table",
+		subtitle:
+			"appearance=\"task\" is the GS TaskTable surface: fixed layout, monospace muted headers and border-muted rules. Below 640px each row stacks into a card.",
+		content: (
+			<Demo label="Task">
+				<div className="w-full max-w-3xl">
+					<Table
+						appearance="task"
+						aria-label="Venues"
+						getRowKey={(row) => row.name}
+						columns={[
+							{ key: "name", header: "Venue" },
+							{ key: "area", header: "Area", width: "160px" },
+							{ key: "status", header: "Banner", width: "140px", align: "right" },
+						]}
+						data={[
+							{ name: "Stadion Evžena Rošického", area: "Praha 6", status: "Ready" },
+							{ name: "Plavecký areál Podolí", area: "Praha 4", status: "Hidden" },
+							{ name: "Sportovní hala Královka", area: "Praha 6", status: "Ready" },
+						]}
+					/>
+				</div>
 			</Demo>
 		),
 	},
