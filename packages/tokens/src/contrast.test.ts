@@ -106,6 +106,19 @@ const SOLID_PAIRS: Array<[fg: string, bg: string]> = [
 	['fg-muted', 'surface'],
 	['fg-muted', 'surface-card'],
 	['fg-muted', 'surface-muted'],
+	// Filled danger (Button destructive). GS flips the ink to brand black in dark:
+	// white on the lighter dark-theme #ef4444 is only 3.76:1.
+	['danger-fg', 'danger'],
+	// GS dialog action: fixed brand black with white ink in both themes.
+	['action-solid-fg', 'action-solid'],
+	['action-solid-fg', 'action-solid-hover'],
+	['action-solid-fg', 'action-solid-pressed'],
+	// GS context action panel: always dark, its ink must hold on every stop.
+	['context-menu-fg', 'context-menu-top'],
+	['context-menu-fg', 'context-menu-bottom'],
+	['context-menu-fg', 'context-menu-hover'],
+	['context-menu-danger', 'context-menu-hover'],
+	['context-menu-badge-fg', 'context-menu-badge-bg'],
 	// NOT listed: ['fg-muted', 'border'] — in light `border` IS #eceae1, so the pair
 	// is numerically identical to the line above, and in dark it is a translucent
 	// #ffffff1a hairline that `opaque()` rejects. `bg-border` is only ever a 1px rule
