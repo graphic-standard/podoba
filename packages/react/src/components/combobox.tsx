@@ -37,7 +37,7 @@ const Chevron = () => (
 const ComboBoxInput = uic(RACInput, {
 	displayName: 'ComboBoxInput',
 	baseClass:
-		'h-12 w-full rounded-lg border border-border bg-surface pl-4 pr-11 text-small text-fg ' +
+		'h-10 w-full rounded-lg border border-border bg-surface pl-4 pr-11 text-small text-fg ' +
 		'outline-none transition-colors placeholder:text-fg-muted ' +
 		'data-[hovered]:border-fg-subtle ' +
 		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
@@ -122,9 +122,9 @@ export const ComboBox = <T extends object>({
 			selectedKey={selectedKey}
 			onSelectionChange={onSelectionChange}
 			{...props}
-			className="group flex flex-col gap-2"
+			className="group flex flex-col gap-3"
 		>
-			<Label className="text-heading5 font-medium text-fg">{label}</Label>
+			<Label className="text-panel-heading font-medium text-fg">{label}</Label>
 			<div className="relative">
 				<ComboBoxInput placeholder={placeholder} />
 				{/* RAC uses this Button to toggle the listbox open/closed. */}

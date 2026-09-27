@@ -27,9 +27,9 @@ const filledPopoverStyle: CSSProperties & { '--select-popup-max-width': string }
  * RAC handles the listbox ARIA pattern, keyboard navigation, typeahead and
  * focus management. Styling via `uic`. Pass options as `SelectItem` children.
  *
- * Re-skinned to gs-platform's designer spec (Figma GraphicStandard 1.5, node
- * 2115-4271 — `Select.module.scss`): a tall (58px) filled trigger matching our
- * `Input` / `Textarea` so the form controls stay consistent. gs token map:
+ * The outlined trigger is the same 40px box as an outlined `Input`, so the form
+ * controls line up. The filled trigger follows gs-platform's designer spec
+ * (Figma GraphicStandard 1.5, node 2115-4271, `Select.module.scss`). gs token map:
  * hover border #aba89c → fg-subtle · text #0d0d0d → fg · placeholder → fg-muted ·
  * 8px radius → rounded-lg · 6px item radius → rounded-md · error → danger.
  */
@@ -38,17 +38,18 @@ const SelectTrigger = uic(RACButton, {
 	// Filled follows the Manager's borderless control; outlined preserves the
 	// existing default for consumers which have not opted into that appearance.
 	baseClass:
-		'flex w-full items-center justify-between gap-2.5 rounded-lg px-5 text-small text-fg outline-none transition-colors',
+		'flex w-full items-center justify-between gap-2.5 rounded-lg text-small text-fg outline-none transition-colors',
 	variants: {
 		appearance: {
-			filled: 'min-h-control-tall border-0 bg-surface-card py-5 font-normal leading-4.5 duration-200 motion-reduce:transition-none ' +
+			filled: 'min-h-control-tall border-0 bg-surface-card px-5 py-5 font-normal leading-4.5 duration-200 motion-reduce:transition-none ' +
 				'data-[hovered]:bg-surface-muted group-data-[open]:bg-surface-card ' +
 				'data-[focus-visible]:outline-solid data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:outline-offset-2 ' +
 				'group-data-[invalid]:ring-1 group-data-[invalid]:ring-danger ' +
 				'data-[disabled]:bg-surface-card data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
-			outlined: 'h-control-tall border border-border bg-surface ' +
+			// Same box as an outlined `Input`, so a form mixing them lines up.
+			outlined: 'h-10 border border-border bg-surface px-4 ' +
 		'data-[hovered]:border-fg-subtle ' +
-		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
+		'data-[focus-visible]:border-brand-green data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
 		'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
 		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
 		},
