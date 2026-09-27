@@ -7,7 +7,14 @@ import {
 	type SearchFieldProps as RACSearchFieldProps,
 	Text,
 } from 'react-aria-components'
-import { fieldDescriptionClass } from './field-appearance'
+import {
+	fieldDescriptionClass,
+	fieldLabelClass,
+	fieldSizeClasses,
+	fieldStackClass,
+	outlinedFieldClasses,
+	type FieldSize,
+} from './field-appearance'
 
 /**
  * SearchField — a text input for search, with a clear (✕) button that appears
@@ -35,19 +42,19 @@ export type SearchFieldProps = RACSearchFieldProps & {
 	label?: ReactNode
 	description?: ReactNode
 	placeholder?: string
+	/** Field height, matching `Input`'s `size`. */
+	size?: FieldSize
 }
 
-export const SearchField = ({ label, description, placeholder, ...props }: SearchFieldProps) => (
-	<RACSearchField {...props} className="group flex flex-col gap-2">
-		{label ? <Label className="text-heading5 font-medium text-fg">{label}</Label> : null}
+export const SearchField = ({ label, description, placeholder, size = 'md', ...props }: SearchFieldProps) => (
+	<RACSearchField {...props} className={`group ${fieldStackClass}`}>
+		{label ? <Label className={fieldLabelClass}>{label}</Label> : null}
 		<div className="relative flex items-center">
 			<SearchGlyph />
 			<RACInput
 				placeholder={placeholder}
 				className={
-					'h-12 w-full rounded-lg border border-border bg-surface pl-10 pr-10 text-small text-fg outline-none transition-colors ' +
-					'placeholder:text-fg-muted data-[hovered]:border-fg-subtle ' +
-					'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
+					`w-full rounded-lg pl-10 pr-10 ${fieldSizeClasses[size]} ${outlinedFieldClasses()} ` +
 					'[&::-webkit-search-cancel-button]:hidden'
 				}
 			/>

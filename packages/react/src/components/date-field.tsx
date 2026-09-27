@@ -12,7 +12,15 @@ import {
 	type TimeFieldProps as RACTimeFieldProps,
 	type TimeValue,
 } from 'react-aria-components'
-import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
+import {
+	fieldDescriptionClass,
+	fieldErrorClass,
+	fieldLabelClass,
+	fieldSizeClasses,
+	fieldStackClass,
+	outlinedFieldClasses,
+	type FieldSize,
+} from './field-appearance'
 
 /**
  * DateField / TimeField — segmented, keyboard-first date and time entry (type or
@@ -28,21 +36,24 @@ export const segmentClass =
 	'data-[focused]:bg-brand-green data-[focused]:text-fg ' +
 	'data-[disabled]:opacity-50 data-[type=literal]:px-0 data-[type=literal]:text-fg-muted'
 
-export const dateInputClass =
-	'flex h-12 w-full items-center gap-0.5 rounded-lg border border-border bg-surface px-4 text-small text-fg transition-colors ' +
-	'hover:border-fg-subtle focus-within:border-brand-green focus-within:ring-2 focus-within:ring-ring ' +
-	'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger'
+// The shared outlined box around the segments. Focus sits on a segment, so the
+// wrapper shows it via focus-within; invalid lives on the field root.
+export const dateInputClass = (size: FieldSize = 'md') =>
+	`flex w-full items-center gap-0.5 rounded-lg px-4 ${fieldSizeClasses[size]} ` +
+	outlinedFieldClasses({ focus: 'within', invalid: 'group' })
 
 export type DateFieldProps<T extends DateValue> = RACDateFieldProps<T> & {
 	label: ReactNode
+	/** Field height, matching `Input`'s `size`. */
+	size?: FieldSize
 	description?: ReactNode
 	errorMessage?: string
 }
 
-export const DateField = <T extends DateValue>({ label, description, errorMessage, ...props }: DateFieldProps<T>) => (
-	<RACDateField {...props} className="group flex flex-col gap-2">
-		<Label className="text-heading5 font-medium text-fg">{label}</Label>
-		<DateInput className={dateInputClass}>{(segment) => <DateSegment segment={segment} className={segmentClass} />}</DateInput>
+export const DateField = <T extends DateValue>({ label, description, errorMessage, size, ...props }: DateFieldProps<T>) => (
+	<RACDateField {...props} className={`group ${fieldStackClass}`}>
+		<Label className={fieldLabelClass}>{label}</Label>
+		<DateInput className={dateInputClass(size)}>{(segment) => <DateSegment segment={segment} className={segmentClass} />}</DateInput>
 		{description ? (
 			<Text slot="description" className={fieldDescriptionClass}>
 				{description}
@@ -54,14 +65,16 @@ export const DateField = <T extends DateValue>({ label, description, errorMessag
 
 export type TimeFieldProps<T extends TimeValue> = RACTimeFieldProps<T> & {
 	label: ReactNode
+	/** Field height, matching `Input`'s `size`. */
+	size?: FieldSize
 	description?: ReactNode
 	errorMessage?: string
 }
 
-export const TimeField = <T extends TimeValue>({ label, description, errorMessage, ...props }: TimeFieldProps<T>) => (
-	<RACTimeField {...props} className="group flex flex-col gap-2">
-		<Label className="text-heading5 font-medium text-fg">{label}</Label>
-		<DateInput className={dateInputClass}>{(segment) => <DateSegment segment={segment} className={segmentClass} />}</DateInput>
+export const TimeField = <T extends TimeValue>({ label, description, errorMessage, size, ...props }: TimeFieldProps<T>) => (
+	<RACTimeField {...props} className={`group ${fieldStackClass}`}>
+		<Label className={fieldLabelClass}>{label}</Label>
+		<DateInput className={dateInputClass(size)}>{(segment) => <DateSegment segment={segment} className={segmentClass} />}</DateInput>
 		{description ? (
 			<Text slot="description" className={fieldDescriptionClass}>
 				{description}

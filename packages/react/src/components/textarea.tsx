@@ -8,7 +8,15 @@ import {
 	type TextFieldProps,
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
-import { fieldDescriptionClass, fieldErrorClass, filledFieldClasses, type FieldAppearance } from './field-appearance'
+import {
+	fieldDescriptionClass,
+	fieldErrorClass,
+	fieldLabelClass,
+	fieldStackClass,
+	filledFieldClasses,
+	outlinedFieldClasses,
+	type FieldAppearance,
+} from './field-appearance'
 
 /**
  * Textarea — labelled multi-line text field.
@@ -31,12 +39,7 @@ const StyledTextArea = uic(RACTextArea, {
 	variants: {
 		appearance: {
 			filled: filledFieldClasses,
-			outlined: 'border border-border bg-surface text-small text-fg ' +
-		'outline-none transition-colors duration-200 placeholder:text-fg-muted ' +
-		'data-[hovered]:border-fg-subtle ' +
-		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
-		'data-[invalid]:border-danger data-[invalid]:ring-danger ' +
-		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
+			outlined: outlinedFieldClasses(),
 		},
 	},
 	defaultVariants: { appearance: 'outlined' },
@@ -60,8 +63,8 @@ export type TextareaProps = TextFieldProps & {
 export const Textarea = ({ label, description, errorMessage, placeholder, rows, textAreaClassName, appearance = 'outlined', ...props }: TextareaProps) => (
 	// Label and gap match `Input` in both appearances (gs 17px/20px field label,
 	// 12px to the control), so a Title + Description pair reads as one form.
-	<TextField {...props} className="flex w-full flex-col gap-3">
-		<Label className="text-panel-heading font-medium text-fg">{label}</Label>
+	<TextField {...props} className={`${fieldStackClass} w-full`}>
+		<Label className={fieldLabelClass}>{label}</Label>
 		<StyledTextArea className={textAreaClassName} placeholder={placeholder} rows={rows} appearance={appearance} />
 		{description ? (
 			<Text slot="description" className={fieldDescriptionClass}>

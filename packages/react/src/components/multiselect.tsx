@@ -14,7 +14,15 @@ import {
 import { clsx } from 'clsx'
 import { uic } from '../utils/uic'
 import { useInFocusOverlay } from './focus-context'
-import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
+import {
+	fieldDescriptionClass,
+	fieldErrorClass,
+	fieldLabelClass,
+	fieldSizeClasses,
+	fieldStackClass,
+	outlinedFieldClasses,
+	type FieldSize,
+} from './field-appearance'
 
 /**
  * MultiSelect — a dropdown that selects several options at once.
@@ -77,6 +85,8 @@ export type MultiSelectProps = {
 	searchable?: boolean
 	isDisabled?: boolean
 	isInvalid?: boolean
+	/** Trigger height, matching `Input`'s `size`. */
+	size?: FieldSize
 	className?: string
 }
 
@@ -92,6 +102,7 @@ export const MultiSelect = ({
 	searchable,
 	isDisabled,
 	isInvalid,
+	size = 'md',
 	className,
 }: MultiSelectProps) => {
 	const labelId = useId()
@@ -147,8 +158,10 @@ export const MultiSelect = ({
 	const err = isInvalid && errorMessage ? <span className={fieldErrorClass}>{errorMessage}</span> : null
 
 	return (
-		<div className={clsx('flex flex-col gap-2', className)}>
-			<span id={labelId} className="text-heading5 font-medium text-fg">
+		// `data-invalid` on the root drives the trigger's invalid border, as RAC does
+		// for the other fields.
+		<div className={clsx('group', fieldStackClass, className)} data-invalid={isInvalid || undefined}>
+			<span id={labelId} className={fieldLabelClass}>
 				{label}
 			</span>
 			{inFocus ? (
@@ -166,10 +179,9 @@ export const MultiSelect = ({
 						isDisabled={isDisabled}
 						onPress={() => setOpen(true)}
 						className={clsx(
-							'flex h-12 w-full items-center justify-between gap-2.5 rounded-lg border bg-surface px-4 text-small text-fg outline-none transition-colors',
-							'data-[hovered]:border-fg-subtle data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
-							'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
-							isInvalid ? 'border-danger ring-2 ring-danger' : 'border-border',
+							'flex w-full items-center justify-between gap-2.5 rounded-lg px-4',
+							fieldSizeClasses[size],
+							outlinedFieldClasses({ invalid: 'group' }),
 						)}
 					>
 						<span className={clsx('truncate', chosen.length === 0 && 'text-fg-muted')}>{summary}</span>

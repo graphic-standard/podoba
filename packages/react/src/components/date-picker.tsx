@@ -23,7 +23,13 @@ import {
 import { clsx } from 'clsx'
 import { dateInputClass, segmentClass } from './date-field'
 import { useInFocusOverlay } from './focus-context'
-import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
+import {
+	fieldDescriptionClass,
+	fieldErrorClass,
+	fieldLabelClass,
+	fieldStackClass,
+	type FieldSize,
+} from './field-appearance'
 
 /**
  * DatePicker — a `DateField` with a calendar popover. Built on React Aria
@@ -78,19 +84,21 @@ function CalendarBody() {
 
 export type DatePickerProps<T extends DateValue> = RACDatePickerProps<T> & {
 	label: ReactNode
+	/** Field height, matching `Input`'s `size`. */
+	size?: FieldSize
 	description?: ReactNode
 	errorMessage?: string
 }
 
-export const DatePicker = <T extends DateValue>({ label, description, errorMessage, ...props }: DatePickerProps<T>) => {
+export const DatePicker = <T extends DateValue>({ label, description, errorMessage, size, ...props }: DatePickerProps<T>) => {
 	// In a focus overlay, show the calendar inline (open) instead of a popover.
 	const inFocus = useInFocusOverlay()
 	return (
-		<RACDatePicker {...props} className="group flex flex-col gap-2">
-			<Label className="text-heading5 font-medium text-fg">{label}</Label>
+		<RACDatePicker {...props} className={`group ${fieldStackClass}`}>
+			<Label className={fieldLabelClass}>{label}</Label>
 			{/* In focus mode the field is bare + large and the calendar is borderless,
 			    so field + calendar read as one seamless editor rather than boxes. */}
-			<Group className={inFocus ? 'flex w-full items-center' : `${dateInputClass} pr-2`}>
+			<Group className={inFocus ? 'flex w-full items-center' : `${dateInputClass(size)} pr-2`}>
 				<DateInput className={clsx('flex flex-1 items-center gap-0.5', inFocus && 'text-display font-medium')}>
 					{(segment) => <DateSegment segment={segment} className={segmentClass} />}
 				</DateInput>

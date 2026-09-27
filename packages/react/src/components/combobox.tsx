@@ -17,14 +17,22 @@ import {
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
 import { useInFocusOverlay } from './focus-context'
-import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
+import {
+	fieldDescriptionClass,
+	fieldErrorClass,
+	fieldLabelClass,
+	fieldSizeClasses,
+	fieldStackClass,
+	outlinedFieldClasses,
+	type FieldSize,
+} from './field-appearance'
 
 /**
  * ComboBox — a filterable single-select: a text input that narrows a listbox as
  * you type. Built on React Aria Components `ComboBox` (typeahead, keyboard nav,
- * ARIA all handled). Styling mirrors our `Input` (white filled field) and shares
- * `Select`'s cream dropdown, so the form controls stay visually consistent. Pass
- * options as `ComboBoxItem` children.
+ * ARIA all handled). The input uses the shared outlined skin and `size` scale,
+ * so it is the same box as an outlined `Input` or `Select`, and it shares
+ * `Select`'s cream dropdown. Pass options as `ComboBoxItem` children.
  */
 const Chevron = () => (
 	<svg width="9.5" height="9.5" viewBox="0 0 12 12" fill="none" aria-hidden="true" className="text-fg">
@@ -32,17 +40,13 @@ const Chevron = () => (
 	</svg>
 )
 
-// Same filled-field skin as input.tsx, with room on the right for the toggle.
-// Invalid is owned by the ComboBox root, so it comes through `group-data-invalid`.
+// The shared outlined skin, with room on the right for the toggle. Invalid is
+// owned by the ComboBox root, so it comes through `group-data-invalid`.
 const ComboBoxInput = uic(RACInput, {
 	displayName: 'ComboBoxInput',
-	baseClass:
-		'h-10 w-full rounded-lg border border-border bg-surface pl-4 pr-11 text-small text-fg ' +
-		'outline-none transition-colors placeholder:text-fg-muted ' +
-		'data-[hovered]:border-fg-subtle ' +
-		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
-		'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
-		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60',
+	baseClass: `w-full rounded-lg pl-4 pr-11 ${outlinedFieldClasses({ invalid: 'group' })}`,
+	variants: { fieldSize: fieldSizeClasses },
+	defaultVariants: { fieldSize: 'md' },
 })
 
 export const ComboBoxItem = uic(ListBoxItem, {
@@ -61,6 +65,8 @@ export type ComboBoxProps<T extends object> = RACComboBoxProps<T> & {
 	errorMessage?: string
 	/** Placeholder shown in the empty input. */
 	placeholder?: string
+	/** Input height, matching `Input`'s `size`. */
+	size?: FieldSize
 	children: ReactNode
 }
 
@@ -69,6 +75,7 @@ export const ComboBox = <T extends object>({
 	description,
 	errorMessage,
 	placeholder,
+	size = 'md',
 	children,
 	selectedKey,
 	onSelectionChange,
@@ -86,8 +93,8 @@ export const ComboBox = <T extends object>({
 	// only fills its listbox while open, so compose Autocomplete + ListBox here).
 	if (inFocus) {
 		return (
-			<div className="flex flex-col gap-2">
-				<span className="text-heading5 font-medium text-fg">{label}</span>
+			<div className={fieldStackClass}>
+				<span className={fieldLabelClass}>{label}</span>
 				<Autocomplete filter={contains}>
 					<SearchField aria-label={typeof label === 'string' ? label : 'Search'}>
 						<RACInput
@@ -122,11 +129,11 @@ export const ComboBox = <T extends object>({
 			selectedKey={selectedKey}
 			onSelectionChange={onSelectionChange}
 			{...props}
-			className="group flex flex-col gap-3"
+			className={`group ${fieldStackClass}`}
 		>
-			<Label className="text-panel-heading font-medium text-fg">{label}</Label>
+			<Label className={fieldLabelClass}>{label}</Label>
 			<div className="relative">
-				<ComboBoxInput placeholder={placeholder} />
+				<ComboBoxInput placeholder={placeholder} fieldSize={size} />
 				{/* RAC uses this Button to toggle the listbox open/closed. */}
 				<RACButton className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
 					<Chevron />

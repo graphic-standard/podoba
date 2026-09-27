@@ -9,7 +9,15 @@ import {
 	type NumberFieldProps as RACNumberFieldProps,
 	Text,
 } from 'react-aria-components'
-import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
+import {
+	fieldDescriptionClass,
+	fieldErrorClass,
+	fieldLabelClass,
+	fieldSizeClasses,
+	fieldStackClass,
+	outlinedFieldClasses,
+	type FieldSize,
+} from './field-appearance'
 
 /**
  * NumberField — numeric input with steppers, min/max and locale-aware formatting
@@ -26,18 +34,17 @@ export type NumberFieldProps = RACNumberFieldProps & {
 	description?: ReactNode
 	errorMessage?: string
 	placeholder?: string
+	/** Field height, matching `Input`'s `size`. */
+	size?: FieldSize
 }
 
-export const NumberField = ({ label, description, errorMessage, placeholder, ...props }: NumberFieldProps) => (
-	<RACNumberField {...props} className="group flex flex-col gap-2">
-		<Label className="text-heading5 font-medium text-fg">{label}</Label>
+export const NumberField = ({ label, description, errorMessage, placeholder, size = 'md', ...props }: NumberFieldProps) => (
+	<RACNumberField {...props} className={`group ${fieldStackClass}`}>
+		<Label className={fieldLabelClass}>{label}</Label>
 		<Group
 			className={
-				'flex h-12 w-full items-center overflow-hidden rounded-lg border border-border bg-surface text-small text-fg transition-colors ' +
-				'data-[hovered]:border-fg-subtle ' +
-				'data-[focus-within]:border-brand-green data-[focus-within]:ring-2 data-[focus-within]:ring-ring ' +
-				'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
-				'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60'
+				`flex w-full items-center overflow-hidden rounded-lg ${fieldSizeClasses[size]} ` +
+				outlinedFieldClasses({ focus: 'within', invalid: 'group' })
 			}
 		>
 			<RACButton slot="decrement" className={`${stepper} border-r border-border`}>
