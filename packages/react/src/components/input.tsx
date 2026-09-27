@@ -8,7 +8,17 @@ import {
 	type TextFieldProps,
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
-import { fieldDescriptionClass, fieldErrorClass, filledFieldClasses, type FieldAppearance } from './field-appearance'
+import {
+	fieldDescriptionClass,
+	fieldErrorClass,
+	fieldLabelClass,
+	fieldSizeClasses,
+	fieldStackClass,
+	filledFieldClasses,
+	outlinedFieldClasses,
+	type FieldAppearance,
+	type FieldSize,
+} from './field-appearance'
 
 /**
  * Input — labelled single-line text field.
@@ -26,29 +36,18 @@ const StyledInput = uic(RACInput, {
 	// surface-card — and in dark theme surface-card and surface are the SAME colour
 	// (#242423) — so a borderless cream field vanishes on both. Inverted: active =
 	// surface, disabled = the muted cream. border #eceae1 → border · hover #aba89c →
-	// fg-subtle · focus #75e7b8 → brand-green · error → danger. This is the shared
-	// filled-field skin (textarea / combobox / date-field / number-field /
-	// search-field); `fieldSize` adds the single-line height on top.
+	// fg-subtle · focus #75e7b8 → brand-green · error → danger. That outlined skin
+	// lives in `outlinedFieldClasses` and every outlined control uses it, so they
+	// all render the same box; `fieldSize` adds the single-line height on top.
 	baseClass: 'w-full rounded-lg px-4',
 	variants: {
 		appearance: {
 			filled: filledFieldClasses,
-			outlined: 'border border-border bg-surface text-small text-fg ' +
-		'outline-none transition-colors duration-200 placeholder:text-fg-muted ' +
-		'data-[hovered]:border-fg-subtle ' +
-		'data-[focused]:border-brand-green data-[focused]:ring-2 data-[focused]:ring-ring ' +
-		'data-[invalid]:border-danger data-[invalid]:ring-2 data-[invalid]:ring-danger ' +
-		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
+			outlined: outlinedFieldClasses(),
 		},
 		// `fieldSize` (not `size`) to avoid colliding with the native <input size>
 		// attribute, which RAC's Input inherits (a numeric prop).
-		fieldSize: {
-			sm: 'h-8',
-			md: 'h-10',
-			filled: 'h-10.5 py-3',
-			lg: 'h-12',
-			tall: 'h-control-tall',
-		},
+		fieldSize: { ...fieldSizeClasses, filled: 'h-10.5 py-3' },
 	},
 	defaultVariants: {
 		appearance: 'outlined',
@@ -66,7 +65,7 @@ export type InputProps = TextFieldProps & {
 	/** Error message; pass a string for a static error or rely on validation. */
 	errorMessage?: string
 	placeholder?: string
-	size?: 'sm' | 'md' | 'lg' | 'tall'
+	size?: FieldSize
 	/** Optional class for the TextField root. */
 	rootClassName?: string
 	/** Optional class for the inner native input (for product-specific composition). */
@@ -74,8 +73,8 @@ export type InputProps = TextFieldProps & {
 }
 
 export const Input = ({ label, description, errorMessage, placeholder, size, appearance = 'outlined', rootClassName, inputClassName, ...props }: InputProps) => (
-	<TextField {...props} className={`flex w-full flex-col gap-3 ${rootClassName ?? ''}`}>
-		<Label className="text-panel-heading font-medium text-fg">{label}</Label>
+	<TextField {...props} className={`${fieldStackClass} w-full ${rootClassName ?? ''}`}>
+		<Label className={fieldLabelClass}>{label}</Label>
 		<StyledInput className={inputClassName} placeholder={placeholder} appearance={appearance} fieldSize={size ?? (appearance === 'filled' ? 'filled' : undefined)} />
 		{description ? (
 			<Text slot="description" className={fieldDescriptionClass}>

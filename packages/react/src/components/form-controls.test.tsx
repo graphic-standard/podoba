@@ -2,7 +2,13 @@ import { describe, expect, test } from 'bun:test'
 import { renderToStaticMarkup } from 'react-dom/server'
 
 import { Button } from './button'
+import { ComboBox, ComboBoxItem } from './combobox'
+import { DateField } from './date-field'
+import { DatePicker } from './date-picker'
 import { Input } from './input'
+import { MultiSelect } from './multiselect'
+import { NumberField } from './number-field'
+import { SearchField } from './search-field'
 import { Select, SelectItem } from './select'
 
 describe('source-parity form controls', () => {
@@ -36,6 +42,60 @@ describe('source-parity form controls', () => {
 
 		expect(html).toContain('border border-border bg-surface')
 		expect(html).not.toContain('border-0')
+	})
+
+	// Regression guard: a form mixing these controls must line up. Every outlined
+	// field renders the same default box and label as `Input`, and honours `size`.
+	const OUTLINED_FIELDS = {
+		Input: (size?: 'tall') => <Input label="L" size={size} />,
+		Select: (size?: 'tall') => (
+			<Select label="L" placeholder="Pick" size={size}>
+				<SelectItem id="a">A</SelectItem>
+			</Select>
+		),
+		ComboBox: (size?: 'tall') => (
+			<ComboBox label="L" size={size}>
+				<ComboBoxItem id="a">A</ComboBoxItem>
+			</ComboBox>
+		),
+		MultiSelect: (size?: 'tall') => <MultiSelect label="L" placeholder="Pick" options={[{ id: 'a', label: 'A' }]} size={size} />,
+		DateField: (size?: 'tall') => <DateField label="L" size={size} />,
+		DatePicker: (size?: 'tall') => <DatePicker label="L" size={size} />,
+		NumberField: (size?: 'tall') => <NumberField label="L" size={size} />,
+		SearchField: (size?: 'tall') => <SearchField label="L" size={size} />,
+	}
+
+	for (const [name, render] of Object.entries(OUTLINED_FIELDS)) {
+		test(`${name} renders the shared outlined box, label and spacing`, () => {
+			const html = renderToStaticMarkup(render())
+
+			expect(html).toContain('border border-border bg-surface')
+			expect(html).toMatch(/\bh-10\b/)
+			expect(html).not.toMatch(/\bh-12\b|h-control-tall/)
+			expect(html).toContain('text-panel-heading')
+			expect(html).not.toContain('text-heading5')
+			expect(html).toContain('gap-3')
+			// Mouse focus shows the green border too (wrappers via focus-within).
+			expect(html).toMatch(/data-\[(focused|focus-within)\]:border-brand-green/)
+			expect(html).not.toContain('data-[focus-visible]:border-brand-green')
+		})
+
+		test(`${name} takes the tall size, like Input`, () => {
+			const html = renderToStaticMarkup(render('tall'))
+
+			expect(html).toContain('h-control-tall')
+			expect(html).not.toMatch(/\bh-10\b/)
+		})
+	}
+
+	test('Select keeps a long value on one line inside the trigger', () => {
+		const html = renderToStaticMarkup(
+			<Select label="L" placeholder="Pick" defaultSelectedKey="a">
+				<SelectItem id="a">A very long selected brand name that would otherwise wrap</SelectItem>
+			</Select>,
+		)
+
+		expect(html).toMatch(/class="[^"]*min-w-0 truncate[^"]*"/)
 	})
 
 	test('renders the prominent workflow CTA', () => {

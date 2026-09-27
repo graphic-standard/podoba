@@ -14,7 +14,16 @@ import {
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
 import { useInFocusOverlay } from './focus-context'
-import { fieldDescriptionClass, fieldErrorClass, type FieldAppearance } from './field-appearance'
+import {
+	fieldDescriptionClass,
+	fieldErrorClass,
+	fieldLabelClass,
+	fieldSizeClasses,
+	fieldStackClass,
+	outlinedFieldClasses,
+	type FieldAppearance,
+	type FieldSize,
+} from './field-appearance'
 
 const SelectAppearanceContext = createContext<FieldAppearance>('outlined')
 const filledPopoverStyle: CSSProperties & { '--select-popup-max-width': string } = {
@@ -27,31 +36,31 @@ const filledPopoverStyle: CSSProperties & { '--select-popup-max-width': string }
  * RAC handles the listbox ARIA pattern, keyboard navigation, typeahead and
  * focus management. Styling via `uic`. Pass options as `SelectItem` children.
  *
- * Re-skinned to gs-platform's designer spec (Figma GraphicStandard 1.5, node
- * 2115-4271 — `Select.module.scss`): a tall (58px) filled trigger matching our
- * `Input` / `Textarea` so the form controls stay consistent. gs token map:
+ * The outlined trigger uses the shared outlined skin and `size` scale, so it is
+ * the same box as an `Input` of the same size and a mixed form lines up. The
+ * filled trigger follows gs-platform's designer spec (Figma GraphicStandard 1.5,
+ * node 2115-4271, `Select.module.scss`). gs token map:
  * hover border #aba89c → fg-subtle · text #0d0d0d → fg · placeholder → fg-muted ·
  * 8px radius → rounded-lg · 6px item radius → rounded-md · error → danger.
  */
 const SelectTrigger = uic(RACButton, {
 	displayName: 'SelectTrigger',
-	// Filled follows the Manager's borderless control; outlined preserves the
-	// existing default for consumers which have not opted into that appearance.
+	// Filled follows the Manager's borderless control. Outlined is the shared
+	// outlined skin; its height comes from `fieldSize`.
 	baseClass:
-		'flex w-full items-center justify-between gap-2.5 rounded-lg px-5 text-small text-fg outline-none transition-colors',
+		'flex w-full items-center justify-between gap-2.5 rounded-lg text-small text-fg outline-none transition-colors',
 	variants: {
 		appearance: {
-			filled: 'min-h-control-tall border-0 bg-surface-card py-5 font-normal leading-4.5 duration-200 motion-reduce:transition-none ' +
+			filled: 'min-h-control-tall border-0 bg-surface-card px-5 py-5 font-normal leading-4.5 duration-200 motion-reduce:transition-none ' +
 				'data-[hovered]:bg-surface-muted group-data-[open]:bg-surface-card ' +
 				'data-[focus-visible]:outline-solid data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:outline-offset-2 ' +
 				'group-data-[invalid]:ring-1 group-data-[invalid]:ring-danger ' +
 				'data-[disabled]:bg-surface-card data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed',
-			outlined: 'h-control-tall border border-border bg-surface ' +
-		'data-[hovered]:border-fg-subtle ' +
-		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring ' +
-		'group-data-[invalid]:border-danger group-data-[invalid]:ring-2 group-data-[invalid]:ring-danger ' +
-		'data-[disabled]:bg-surface-muted data-[disabled]:opacity-60 data-[disabled]:pointer-events-none',
+			// Invalid lives on the Select root, not on the trigger button.
+			outlined: `px-4 ${outlinedFieldClasses({ invalid: 'group' })}`,
 		},
+		// Outlined only: filled keeps its fixed Manager height.
+		fieldSize: fieldSizeClasses,
 	},
 	defaultVariants: { appearance: 'outlined' },
 })
@@ -104,6 +113,8 @@ const SelectPopover = uic(Popover, {
 
 export type SelectProps<T extends object> = RACSelectProps<T> & {
 	appearance?: FieldAppearance
+	/** Outlined trigger height, matching `Input`'s `size`. Ignored when filled. */
+	size?: FieldSize
 	/** Keep the accessible label without reserving an empty label row. */
 	isLabelHidden?: boolean
 	/** Visible label (required for accessibility). */
@@ -132,6 +143,7 @@ export const Select = <T extends object>({
 	rootClassName,
 	triggerClassName,
 	appearance = 'outlined',
+	size = 'md',
 	isLabelHidden = false,
 	...props
 }: SelectProps<T>) => {
@@ -151,8 +163,8 @@ export const Select = <T extends object>({
 
 	return (
 		<SelectAppearanceContext.Provider value={appearance}>
-		<RACSelect {...props} placeholder={placeholder} className={`group flex flex-col gap-3 ${rootClassName ?? ''}`}>
-			<Label className={isLabelHidden ? 'sr-only' : 'text-panel-heading font-medium text-fg'}>{label}</Label>
+		<RACSelect {...props} placeholder={placeholder} className={`group ${fieldStackClass} ${rootClassName ?? ''}`}>
+			<Label className={isLabelHidden ? 'sr-only' : fieldLabelClass}>{label}</Label>
 			{inFocus ? (
 				<>
 					{listbox}
@@ -161,8 +173,9 @@ export const Select = <T extends object>({
 				</>
 			) : (
 				<>
-					<SelectTrigger className={triggerClassName} appearance={appearance}>
-						<SelectValue className="data-[placeholder]:text-fg-muted" />
+					<SelectTrigger className={triggerClassName} appearance={appearance} fieldSize={appearance === 'outlined' ? size : undefined}>
+						{/* One line: a long value must not wrap out of the fixed-height box. */}
+						<SelectValue className="min-w-0 truncate data-[placeholder]:text-fg-muted" />
 						{/* gs chevron: 9.5px caret, dark (neutral-400 → fg), non-interactive. */}
 						<svg
 							width="9.5"
