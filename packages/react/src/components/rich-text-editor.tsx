@@ -138,7 +138,7 @@ export function RichTextEditor({
 							title={t.title}
 							onMouseDown={(e) => e.preventDefault()}
 							onClick={() => t.run(exec)}
-							className="rounded border-0 bg-transparent px-2.5 py-0.5 text-label text-fg-muted transition-colors hover:bg-surface hover:text-fg"
+							className="cursor-pointer rounded border-0 bg-transparent px-2.5 py-0.5 text-label text-fg-muted transition-colors hover:bg-surface hover:text-fg"
 						>
 							{t.label}
 						</button>

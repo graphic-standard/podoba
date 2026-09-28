@@ -102,7 +102,7 @@ export function CollapsibleCard({
 			<RACButton
 				slot="trigger"
 				className={
-					'flex w-full items-center justify-between gap-4 rounded-lg p-6 text-left outline-none ' +
+					'flex w-full cursor-pointer items-center justify-between gap-4 rounded-lg p-6 text-left outline-none ' +
 					'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-60 ' +
 					'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-inset'
 				}

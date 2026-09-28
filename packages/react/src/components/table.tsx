@@ -137,7 +137,7 @@ export function Table<Row>({
 										<button
 											type="button"
 											onClick={() => toggleSort(column.key)}
-											className={`inline-flex items-center gap-1 outline-none transition-colors hover:text-fg focus-visible:text-fg ${
+											className={`inline-flex cursor-pointer items-center gap-1 outline-none transition-colors hover:text-fg focus-visible:text-fg ${
 												align === 'right' ? 'flex-row-reverse' : ''
 											} ${active ? 'text-fg' : ''}`}
 										>

@@ -48,7 +48,7 @@ const SelectTrigger = uic(RACButton, {
 	// Filled follows the Manager's borderless control. Outlined is the shared
 	// outlined skin; its height comes from `fieldSize`.
 	baseClass:
-		'flex w-full items-center justify-between gap-2.5 rounded-lg text-small text-fg outline-none transition-colors',
+		'flex w-full cursor-pointer items-center justify-between gap-2.5 rounded-lg text-small text-fg outline-none transition-colors',
 	variants: {
 		appearance: {
 			filled: 'min-h-control-tall border-0 bg-surface-card px-5 py-5 font-normal leading-4.5 duration-200 motion-reduce:transition-none ' +

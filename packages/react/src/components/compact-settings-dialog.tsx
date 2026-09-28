@@ -9,11 +9,11 @@ export const MemberSelectionGrid = uic('ul', { displayName: 'MemberSelectionGrid
 export const TeamSelectionGrid = uic('ul', { displayName: 'TeamSelectionGrid', baseClass: 'm-0 mt-8 grid list-none grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4 p-0' })
 export const MemberSelectionCard = uic(AriaButton, {
 	displayName: 'MemberSelectionCard',
-	baseClass: 'flex w-full items-center gap-3 rounded-lg border border-border bg-surface-card p-4 text-start text-fg outline-none transition-all duration-200 data-[hovered]:-translate-y-0.5 data-[hovered]:border-brand-primary data-[hovered]:shadow-[0_4px_12px_rgba(0,0,0,0.1)] aria-pressed:border-brand-primary aria-pressed:bg-surface-muted data-[disabled]:cursor-default data-[disabled]:opacity-60 data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
+	baseClass: 'flex w-full cursor-pointer items-center gap-3 rounded-lg border border-border bg-surface-card p-4 text-start text-fg outline-none transition-all duration-200 data-[hovered]:-translate-y-0.5 data-[hovered]:border-brand-primary data-[hovered]:shadow-[0_4px_12px_rgba(0,0,0,0.1)] aria-pressed:border-brand-primary aria-pressed:bg-surface-muted data-[disabled]:cursor-default data-[disabled]:opacity-60 data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
 })
 export const TeamSelectionCard = uic(AriaButton, {
 	displayName: 'TeamSelectionCard',
-	baseClass: 'block w-full rounded-md border-2 border-border bg-transparent p-4 text-start text-fg outline-none transition-all duration-200 data-[hovered]:border-brand-primary aria-pressed:border-brand-primary aria-pressed:bg-surface-muted data-[disabled]:cursor-default data-[disabled]:opacity-60 data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
+	baseClass: 'block w-full cursor-pointer rounded-md border-2 border-border bg-transparent p-4 text-start text-fg outline-none transition-all duration-200 data-[hovered]:border-brand-primary aria-pressed:border-brand-primary aria-pressed:bg-surface-muted data-[disabled]:cursor-default data-[disabled]:opacity-60 data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
 })
 export const MemberSelectionInfo = uic('span', { displayName: 'MemberSelectionInfo', baseClass: 'min-w-0 flex-1' })
 export const MemberSelectionName = uic('span', { displayName: 'MemberSelectionName', baseClass: 'mb-1 block text-heading5 font-medium text-fg' })

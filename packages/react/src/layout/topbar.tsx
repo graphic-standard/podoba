@@ -194,7 +194,7 @@ export const UserMenu = ({ trigger, triggerLabel, onAction, children }: UserMenu
 		<RACButton
 			aria-label={triggerLabel}
 			className={
-				'flex h-9 items-center gap-2 rounded-md px-2 text-small font-medium text-fg outline-none ' +
+				'flex h-9 cursor-pointer items-center gap-2 rounded-md px-2 text-small font-medium text-fg outline-none ' +
 				'transition-colors hover:bg-surface-muted ' +
 				'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring'
 			}
