@@ -59,7 +59,7 @@ export const SearchField = ({ label, description, placeholder, size = 'md', ...p
 				}
 			/>
 			{/* RAC hides this automatically when the field is empty. */}
-			<RACButton className="absolute right-2 flex h-7 w-7 cursor-pointer items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg group-data-[empty]:hidden data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
+			<RACButton className="absolute right-2 flex h-7 w-7 cursor-pointer data-[disabled]:cursor-not-allowed items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg group-data-[empty]:hidden data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
 				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
 					<path d="M6 6l12 12M18 6 6 18" />
 				</svg>

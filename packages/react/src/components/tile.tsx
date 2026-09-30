@@ -233,7 +233,7 @@ function MediaHero({
 						type="button"
 						aria-label={closeLabel}
 						onClick={() => setPlaying(false)}
-						className="absolute right-4 top-4 z-20 flex cursor-pointer h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white outline-none transition-colors hover:bg-black/80 focus-visible:ring-2 focus-visible:ring-white/70"
+						className="absolute right-4 top-4 z-20 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-black/60 text-white outline-none transition-colors hover:bg-black/80 focus-visible:ring-2 focus-visible:ring-white/70"
 					>
 						<CloseIcon className="h-4 w-4" />
 					</button>

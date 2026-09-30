@@ -135,7 +135,7 @@ export function canOpenSlash(state: EditorState, from: number): boolean {
 }
 
 const btn =
-	'inline-flex h-8 cursor-pointer min-w-8 items-center justify-center rounded-md px-2 text-small text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg data-[active=true]:bg-surface-muted data-[active=true]:text-fg'
+	'inline-flex h-8 min-w-8 cursor-pointer items-center justify-center rounded-md px-2 text-small text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg data-[active=true]:bg-surface-muted data-[active=true]:text-fg'
 
 /** Marks the bubble toolbar toggles. `active` keys read off the useEditorState
  * snapshot below — Tiptap 3 does NOT re-render on transactions, so a plain
