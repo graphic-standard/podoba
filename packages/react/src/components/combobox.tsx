@@ -135,7 +135,7 @@ export const ComboBox = <T extends object>({
 			<div className="relative">
 				<ComboBoxInput placeholder={placeholder} fieldSize={size} />
 				{/* RAC uses this Button to toggle the listbox open/closed. */}
-				<RACButton className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-lg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
+				<RACButton className="absolute inset-y-0 right-0 flex w-11 cursor-pointer data-[disabled]:cursor-not-allowed items-center justify-center rounded-r-lg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
 					<Chevron />
 				</RACButton>
 			</div>

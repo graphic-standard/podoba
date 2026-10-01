@@ -199,7 +199,7 @@ export const Dialog = ({
 									// gs close: 32px square (`h-8 w-8`), medium radius (`rounded-md`),
 									// tertiary icon color (`text-fg-subtle`) → primary (`text-fg`) +
 									// subtle hover bg on hover. Smooth color transition.
-									className={`${isCompact ? 'absolute top-[calc(var(--spacing)*3.375)] end-4 max-md:end-3' : '-mr-1 -mt-1'} inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none`}
+									className={`${isCompact ? 'absolute top-[calc(var(--spacing)*3.375)] end-4 max-md:end-3' : '-mr-1 -mt-1'} inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none`}
 								>
 									<svg
 										width={isCompact ? 15 : 18}

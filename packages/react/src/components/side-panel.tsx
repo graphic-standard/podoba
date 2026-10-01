@@ -61,7 +61,7 @@ const SidePanelSurface = uic(RACModal, {
 const SidePanelClose = uic(RACButton, {
 	displayName: 'SidePanel.Close',
 	baseClass:
-		'inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-fg-subtle outline-none ' +
+		'inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full text-fg-subtle outline-none ' +
 		'transition-colors hover:bg-surface-muted hover:text-fg ' +
 		'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2',
 })

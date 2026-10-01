@@ -284,7 +284,7 @@ export function SendToPrintModal({
 										type="button"
 										onClick={close}
 										aria-label={labels.closeLabel ?? 'Close'}
-										className="-mr-1 -mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring"
+										className="-mr-1 -mt-1 inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg focus-visible:ring-2 focus-visible:ring-ring"
 									>
 										<svg
 											width="18"

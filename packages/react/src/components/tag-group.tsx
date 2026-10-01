@@ -54,7 +54,7 @@ export const Tag = ({ children, textValue, ...props }: RACTagProps) => (
 				{allowsRemoving ? (
 					<RACButton
 						slot="remove"
-						className="-mr-1 flex h-4 w-4 items-center justify-center rounded-full text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
+						className="-mr-1 flex h-4 w-4 cursor-pointer data-[disabled]:cursor-not-allowed items-center justify-center rounded-full text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
 					>
 						<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true">
 							<path d="M6 6l12 12M18 6 6 18" />

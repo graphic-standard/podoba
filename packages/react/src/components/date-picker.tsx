@@ -38,8 +38,8 @@ import {
  * to `"minute"` for a datetime picker (adds time segments to the field).
  */
 const navButton =
-	'flex h-8 w-8 items-center justify-center rounded-md text-fg-muted outline-none transition-colors ' +
-	'hover:bg-surface-muted hover:text-fg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[disabled]:opacity-40'
+	'flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-fg-muted outline-none transition-colors ' +
+	'hover:bg-surface-muted hover:text-fg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40'
 
 const Chevron = ({ dir }: { dir: 'left' | 'right' }) => (
 	<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -48,7 +48,7 @@ const Chevron = ({ dir }: { dir: 'left' | 'right' }) => (
 )
 
 const calendarCellClass =
-	'flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-small text-fg outline-none transition-colors ' +
+	'flex h-9 w-9 cursor-pointer items-center justify-center rounded-md text-small text-fg outline-none transition-colors data-[disabled]:cursor-not-allowed data-[unavailable]:cursor-not-allowed ' +
 	// #25: out-of-month and unavailable days stay de-emphasised, but they are dates a
 	// user reads and (outside-month) can click — `fg-muted`, not the 2.10:1 decorative grey.
 	'data-[outside-month]:text-fg-muted data-[hovered]:bg-surface-muted ' +
@@ -105,7 +105,7 @@ export const DatePicker = <T extends DateValue>({ label, description, errorMessa
 				{inFocus ? null : (
 					<RACButton
 						aria-label="Open calendar"
-						className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-muted outline-none transition-colors hover:bg-surface-muted hover:text-fg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
+						className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-fg-muted outline-none data-[disabled]:cursor-not-allowed transition-colors hover:bg-surface-muted hover:text-fg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
 					>
 						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
 							<rect x="3" y="4" width="18" height="18" rx="2" />

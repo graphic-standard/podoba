@@ -25,8 +25,8 @@ import {
  * Components `NumberField`; styled to match the other form fields.
  */
 const stepper =
-	'flex h-full w-9 shrink-0 items-center justify-center text-body text-fg-muted outline-none transition-colors ' +
-	'hover:bg-surface-muted hover:text-fg data-[pressed]:bg-surface-muted data-[disabled]:opacity-40'
+	'flex h-full w-9 shrink-0 cursor-pointer items-center justify-center text-body text-fg-muted outline-none transition-colors ' +
+	'hover:bg-surface-muted hover:text-fg data-[pressed]:bg-surface-muted data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40'
 
 export type NumberFieldProps = RACNumberFieldProps & {
 	/** Visible label (required for accessibility). */

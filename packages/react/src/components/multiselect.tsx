@@ -179,7 +179,7 @@ export const MultiSelect = ({
 						isDisabled={isDisabled}
 						onPress={() => setOpen(true)}
 						className={clsx(
-							'flex w-full items-center justify-between gap-2.5 rounded-lg px-4',
+							'flex w-full cursor-pointer items-center justify-between gap-2.5 rounded-lg px-4',
 							fieldSizeClasses[size],
 							outlinedFieldClasses({ invalid: 'group' }),
 						)}

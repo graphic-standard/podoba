@@ -159,7 +159,7 @@ export const ToastRegion = ({
 						<RACButton
 							slot="close"
 							aria-label={closeLabel}
-							className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
+							className="inline-flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
 						>
 							<CloseIcon />
 						</RACButton>

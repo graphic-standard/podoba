@@ -170,7 +170,7 @@ export const AppShell = ({
 							aria-controls={drawerOpen ? drawerId : undefined}
 							onPress={() => setDrawerOpen((open) => !open)}
 							className={
-								'ms-6 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-fg outline-none ' +
+								'ms-6 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-md text-fg outline-none ' +
 								'transition-colors hover:bg-surface-muted md:hidden ' +
 								'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring'
 							}

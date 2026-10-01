@@ -13,7 +13,7 @@ export const Button = uic(RACButton, {
 	// on every size — size variants change PADDING ONLY, never the text scale. The
 	// source eases background-color, color, box-shadow and border-color over 120ms `ease`.
 	baseClass:
-		'inline-flex items-center justify-center gap-2 rounded-full text-compact leading-4 ' +
+		'inline-flex cursor-pointer items-center justify-center gap-2 rounded-full text-compact leading-4 ' +
 		'transition-[background-color,color,box-shadow,border-color] duration-120 ease-[ease] motion-reduce:transition-none ' +
 		'outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2 ' +
 		// Inactive states (disabled / pending) soften the LABEL ONLY and leave every
