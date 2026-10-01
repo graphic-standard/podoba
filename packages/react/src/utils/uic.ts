@@ -67,6 +67,8 @@ const twMerge = extendTailwindMerge({
 						'display',
 						'display-large',
 						'panel-heading',
+						'document-display',
+						'document-lead',
 						// Heading ramp (size + line-height).
 						'heading1',
 						'heading2',
@@ -78,15 +80,15 @@ const twMerge = extendTailwindMerge({
 			],
 		},
 		theme: {
-			spacing: ['nav-x', 'control-tall'],
+			spacing: ['nav-x', 'control-tall', 'mobile-cta', 'mobile-cta-bottom', 'mobile-cta-dock'],
 			// Custom card/panel radius key (rounded-panel) → dedupes against other
 			// rounded-* utilities. xl/2xl are stock keys tailwind-merge already knows.
-			radius: ['panel'],
+			radius: ['panel', 'context-menu-item'],
 			// Custom blur/shadow keys, so `backdrop-blur-modal-backdrop` dedupes against
 			// a caller's `backdrop-blur-lg` (Dialog size="full" does exactly this) and
 			// `shadow-modal-surface` isn't misread as a shadow COLOR.
 			blur: ['modal-backdrop'],
-			shadow: ['modal-surface'],
+			shadow: ['modal-surface', 'context-menu', 'action-compact-hover'],
 		},
 	},
 })

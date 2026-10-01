@@ -1,6 +1,6 @@
 import { useMemo, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react'
 import { ChevronDownIcon, ChevronUpIcon } from './icons'
-export const TABLE_APPEARANCES = ['default', 'worksheet', 'team'] as const
+export const TABLE_APPEARANCES = ['default', 'worksheet', 'team', 'task'] as const
 export type TableAppearance = (typeof TABLE_APPEARANCES)[number]
 
 /**
@@ -37,7 +37,11 @@ export type TableColumn<Row> = {
 }
 
 export type TableProps<Row> = {
-	/** Worksheet matches Manager's plain GSTable; default preserves existing consumers. */
+	/**
+	 * Worksheet matches Manager's plain GSTable; default preserves existing consumers.
+	 * Task is the GS TaskTable surface: fixed layout, mono muted headers, `border-muted`
+	 * row and cell rules, and each row stacked as a card below `sm`.
+	 */
 	appearance?: TableAppearance
 	columns: TableColumn<Row>[]
 	data: Row[]
@@ -112,13 +116,14 @@ export function Table<Row>({
 	const interactive = Boolean(onRowClick)
 	const worksheet = appearance === 'worksheet'
 	const team = appearance === 'team'
+	const task = appearance === 'task'
 	const gridTemplate = columnTemplate ?? `repeat(${columns.length}, minmax(0, 1fr))`
 
 	return (
 		<div className={['w-full overflow-x-auto', className].filter(Boolean).join(' ')}>
-			<table style={team ? { '--table-columns': gridTemplate } as CSSProperties : undefined} className={`w-full border-collapse text-small ${worksheet ? 'border-b border-border font-normal leading-4.5' : ''} ${team ? 'block font-normal leading-4.5' : ''}`} {...aria}>
-				<thead className={team ? 'block' : undefined}>
-					<tr className={`${worksheet ? '' : 'border-b border-border'} ${team ? 'grid grid-cols-[var(--table-columns)] gap-3 bg-surface-muted px-4 max-[1023px]:hidden' : ''}`}>
+			<table style={team ? { '--table-columns': gridTemplate } as CSSProperties : undefined} className={`w-full border-collapse text-small ${worksheet ? 'border-b border-border font-normal leading-4.5' : ''} ${team ? 'block font-normal leading-4.5' : ''} ${task ? 'table-fixed border-b border-border-muted leading-4.5 max-sm:block max-sm:border-0' : ''}`} {...aria}>
+				<thead className={team ? 'block' : task ? 'border-b border-border-muted max-sm:hidden' : undefined}>
+					<tr className={`${worksheet || task ? '' : 'border-b border-border'} ${team ? 'grid grid-cols-[var(--table-columns)] gap-3 bg-surface-muted px-4 max-[1023px]:hidden' : ''}`}>
 						{columns.map((column) => {
 							const align = column.align ?? 'left'
 							const canSort = enableSorting && column.sortable
@@ -131,7 +136,7 @@ export function Table<Row>({
 									aria-sort={
 										canSort ? (active ? (sort?.dir === 'asc' ? 'ascending' : 'descending') : 'none') : undefined
 									}
-									className={`${ALIGN_CLASS[align]} ${worksheet ? 'border-0 px-3 py-4 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case bg-surface whitespace-nowrap' : team ? 'border-0 px-0 py-3 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case whitespace-nowrap' : 'px-4 py-3 text-label font-medium tracking-wide text-fg-muted uppercase'}`}
+									className={`${ALIGN_CLASS[align]} ${worksheet ? 'border-0 px-3 py-4 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case bg-surface whitespace-nowrap' : team ? 'border-0 px-0 py-3 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case whitespace-nowrap' : task ? 'p-4 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg-muted normal-case' : 'px-4 py-3 text-label font-medium tracking-wide text-fg-muted uppercase'}`}
 								>
 									{canSort ? (
 										<button
@@ -158,7 +163,7 @@ export function Table<Row>({
 						})}
 					</tr>
 				</thead>
-				<tbody className={team ? 'block' : undefined}>
+				<tbody className={team ? 'block' : task ? 'max-sm:block' : undefined}>
 					{sorted.length === 0 ? (
 						<tr>
 							<td colSpan={columns.length} className={worksheet ? 'border-y border-border px-6 py-4 text-small font-normal leading-4.5 text-fg' : 'px-4 py-10 text-center text-small text-fg-muted'}>
@@ -185,7 +190,7 @@ export function Table<Row>({
 											},
 										}
 									: {})}
-								className={`${worksheet ? 'min-h-15' : team ? 'grid grid-cols-[var(--table-columns)] gap-3 border-b border-border px-4 py-3 text-label font-normal leading-4.5 max-[1023px]:grid max-[1023px]:grid-cols-1 max-[1023px]:gap-2 max-[1023px]:p-4' : 'border-b border-border/60'} ${team ? 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring' : ''} outline-none ${
+								className={`${worksheet ? 'min-h-15' : team ? 'grid grid-cols-[var(--table-columns)] gap-3 border-b border-border px-4 py-3 text-label font-normal leading-4.5 max-[1023px]:grid max-[1023px]:grid-cols-1 max-[1023px]:gap-2 max-[1023px]:p-4' : task ? 'border-b border-border-muted transition-colors duration-150 ease-in-out motion-reduce:transition-none sm:last:border-b-0 max-sm:mb-3 max-sm:flex max-sm:flex-col max-sm:gap-3 max-sm:rounded-lg max-sm:border max-sm:border-border max-sm:bg-surface-card max-sm:p-4' : 'border-b border-border/60'} ${team ? 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring' : ''} outline-none ${
 									interactive
 										? 'cursor-pointer transition-colors hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring'
 										: ''
@@ -194,7 +199,7 @@ export function Table<Row>({
 								{columns.map((column) => {
 									const align = column.align ?? 'left'
 									return (
-										<td key={column.key} className={`${ALIGN_CLASS[align]} ${worksheet ? 'border border-border first:border-l-0 last:border-r-0 px-6 py-4 text-small font-normal leading-4.5' : team ? 'px-0 py-0 align-middle text-small font-normal leading-4.5 max-[1023px]:block' : 'px-4 py-3'} align-middle text-fg`}>
+										<td key={column.key} className={`${ALIGN_CLASS[align]} ${worksheet ? 'border border-border first:border-l-0 last:border-r-0 px-6 py-4 text-small font-normal leading-4.5' : team ? 'px-0 py-0 align-middle text-small font-normal leading-4.5 max-[1023px]:block' : task ? 'border-l border-border-muted p-4 leading-4.5 first:border-l-0 max-sm:block max-sm:border-0 max-sm:p-0 max-sm:text-left' : 'px-4 py-3'} align-middle text-fg`}>
 											{column.render ? column.render(row) : String(defaultSortValue(column, row))}
 										</td>
 									)

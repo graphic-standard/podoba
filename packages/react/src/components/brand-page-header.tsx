@@ -9,8 +9,10 @@ import { DisplayHeading } from './text'
  * gs-platform's header is a two-column grid: a left "welcome" section
  * (optional breadcrumbs + a large greeting line) and a right section holding an
  * `ExpandableCTA` — a collapsed teal pill that expands into a create-hub panel.
- * The supplied hero `CtaPill` owns the source mobile fixed-bar treatment; this
- * header switches to the desktop 2/3 + 1/3 grid at the matching 768px breakpoint.
+ * On phones (below `sm`, 640px) the CTA docks to the safe bottom edge of the
+ * viewport; the page reserves that room with the `mobile-cta-dock-inset` utility
+ * from @podoba/tailwind. From `sm` the CTA sits in the header: two equal columns on
+ * a narrow tablet, then the desktop 2/3 + 1/3 grid from `md` (768px).
  *
  * The expandable CTA is a controlled disclosure: the collapsed teal pill is a
  * React Aria `Button` (keyboard + focus ring + press handling) wired to a
@@ -79,8 +81,10 @@ export type BrandPageHeaderProps = {
 	/** Sticky header on scroll. */
 	sticky?: boolean
 	/**
-	 * Dock the supplied CTA to the safe bottom edge below 768px, matching the
-	 * source Manager's collapsed ExpandableCTA. Enabled by default.
+	 * Dock the supplied CTA to the safe bottom edge on phones (below `sm`, 640px),
+	 * like the source Manager's collapsed ExpandableCTA. Tablets keep it in the
+	 * header. The docked wrapper carries `data-mobile-cta-dock`; reserve its room on
+	 * the page with `mobile-cta-dock-inset`. Enabled by default.
 	 */
 	mobileCtaDocked?: boolean
 	className?: string
@@ -110,6 +114,7 @@ export function BrandPageHeader({
 	const expanded = isControlled ? expandedProp : internalExpanded
 	const hasExpandable = Boolean(createHub)
 	const HeadingTag = `h${headingLevel}` as const
+	const ctaDocked = Boolean(cta) && mobileCtaDocked
 	const panelId = useId()
 	const panelRef = useRef<HTMLDivElement>(null)
 	const contentRef = useRef<HTMLDivElement>(null)
@@ -270,8 +275,11 @@ export function BrandPageHeader({
 		>
 			<div
 				className={`grid grid-cols-1 grid-rows-[auto_auto] items-start gap-y-2 ${
-					variant === 'navigation' ? 'md:grid-cols-2' : 'md:grid-cols-[2fr_1fr]'
-				} ${variant === 'dashboard' ? 'md:gap-x-5' : 'md:gap-x-4'}`}
+					// Between `sm` and `md` an undocked hero CTA shares the row as an equal column.
+					ctaDocked ? 'sm:grid-cols-2 sm:gap-x-5' : ''
+				} ${variant === 'navigation' ? 'md:grid-cols-2' : 'md:grid-cols-[2fr_1fr]'} ${
+					variant === 'dashboard' ? 'md:gap-x-5' : 'md:gap-x-4'
+				}`}
 			>
 				<div className="col-start-1 row-[1/-1] flex w-full min-w-0 flex-col gap-0">
 					{/* EXACTLY ONE Breadcrumb landmark. Rendering the trail and `parentLink`
@@ -327,10 +335,11 @@ export function BrandPageHeader({
 				{cta ? (
 					// Hero CTA spans 4 of 12 columns (one third) — the greeting takes the rest.
 					<div
+						data-mobile-cta-dock={ctaDocked ? '' : undefined}
 						className={
 							[
-								mobileCtaDocked
-									? 'fixed inset-x-0 bottom-0 z-40 min-w-0 px-3 pb-mobile-cta-bottom md:static md:inset-auto md:col-start-2 md:row-[1/-1] md:z-auto md:flex md:h-full md:max-w-full md:items-stretch md:justify-end md:self-stretch md:p-0'
+								ctaDocked
+									? 'fixed inset-x-0 bottom-0 z-40 min-w-0 px-3 pb-mobile-cta-bottom sm:static sm:inset-auto sm:col-start-2 sm:row-[1/-1] sm:z-auto sm:flex sm:h-full sm:max-w-full sm:items-stretch sm:justify-end sm:self-stretch sm:p-0'
 									: 'min-w-0 md:col-start-2 md:row-[1/-1] md:flex md:h-full md:max-w-full md:items-stretch md:justify-end md:self-stretch',
 								expanded ? 'hidden' : '',
 							].join(' ')

@@ -6,9 +6,9 @@ import type { ReactNode } from 'react'
  *
  * The copy is three fragments (`lead` · `emphasis` · `tail`) so a consumer can
  * translate each per-locale while keeping the middle-word highlight. With
- * `mobileHeader`, it adopts the source ExpandableCTA's 99px mobile touch surface;
- * `BrandPageHeader` owns the safe-bottom positioning and returns it to the one-third
- * desktop grid at the `md` breakpoint. Presentational only (hard rule #1): every
+ * `mobileHeader`, it adopts the source ExpandableCTA's 99px mobile touch surface
+ * below `sm`, where `BrandPageHeader` docks it to the safe bottom edge; from `sm`
+ * it returns to the regular header density. Presentational only (hard rule #1): every
  * string arrives via props — no i18n, no domain data.
  *
  * a11y NOTE: the background is the FIXED light brand-secondary (#6eddb1) — it does
@@ -28,7 +28,8 @@ export interface CtaPillProps {
 	children: ReactNode
 	/**
 	 * Use the source mobile header density (99px minimum height and doubled
-	 * horizontal content padding). Positioning stays with `BrandPageHeader`.
+	 * horizontal content padding) below `sm`, matching where `BrandPageHeader`
+	 * docks the CTA. Positioning stays with `BrandPageHeader`.
 	 */
 	mobileHeader?: boolean
 }
@@ -39,7 +40,7 @@ export function CtaPill({ lead, emphasis, tail, children, mobileHeader = false }
 			className={[
 				'flex h-full w-full items-center justify-between gap-nav-x rounded-lg bg-brand-green',
 				mobileHeader
-					? 'min-h-mobile-cta px-12 py-5 shadow-mobile-cta md:min-h-16 md:py-2.75 md:pr-3 md:pl-4.5 md:shadow-none'
+					? 'min-h-mobile-cta px-12 py-5 shadow-mobile-cta sm:min-h-16 sm:py-2.75 sm:pr-3 sm:pl-4.5 sm:shadow-none'
 					: 'min-h-16 py-2.75 pr-3 pl-4.5',
 			].join(' ')}
 		>

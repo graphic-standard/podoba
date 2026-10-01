@@ -74,6 +74,20 @@
 	}
 }
 
+/* Reserve room at the bottom of a page for BrandPageHeader's docked CTA.
+ *
+ * Below `sm` the header pins its CTA to the safe bottom edge of the viewport, so the
+ * last rows of the page would scroll underneath it. Put this on the scrolling content
+ * container (or the page's main element) and it pads exactly the dock's footprint,
+ * only at the widths where the CTA is docked. The header marks a docked CTA with
+ * `data-mobile-cta-dock`, so a shell that does not know which pages have one can
+ * scope it: `.content:has([data-mobile-cta-dock]) { @apply mobile-cta-dock-inset; }`. */
+@utility mobile-cta-dock-inset {
+	@variant max-sm {
+		padding-bottom: calc(var(--control-height-mobile-cta) + var(--space-sm) + env(safe-area-inset-bottom, 0px));
+	}
+}
+
 @theme inline {
 	/* colors */
 	--color-brand: var(--color-brand-primary);
@@ -123,6 +137,27 @@
 
 	--color-ring: var(--color-ring);
 	--color-modal-backdrop: var(--color-modal-backdrop);
+	--color-modal-backdrop-fallback: var(--color-modal-backdrop-fallback);
+
+	/* GS dialog actions (solid = fixed brand black, soft = the secondary action). */
+	--color-action-solid: var(--color-action-solid);
+	--color-action-solid-fg: var(--color-action-solid-fg);
+	--color-action-solid-hover: var(--color-action-solid-hover);
+	--color-action-solid-pressed: var(--color-action-solid-pressed);
+	--color-action-soft: var(--color-action-soft);
+	--color-action-soft-hover: var(--color-action-soft-hover);
+	--color-action-soft-pressed: var(--color-action-soft-pressed);
+	--color-action-soft-border-hover: var(--color-action-soft-border-hover);
+	--color-action-compact-muted: var(--color-action-compact-muted);
+
+	/* GS context action panel: ALWAYS dark, so these do not flip with the theme. */
+	--color-context-menu-top: var(--color-context-menu-top);
+	--color-context-menu-bottom: var(--color-context-menu-bottom);
+	--color-context-menu-hover: var(--color-context-menu-hover);
+	--color-context-menu-fg: var(--color-context-menu-fg);
+	--color-context-menu-danger: var(--color-context-menu-danger);
+	--color-context-menu-badge-bg: var(--color-context-menu-badge-bg);
+	--color-context-menu-badge-fg: var(--color-context-menu-badge-fg);
 
 	/* border radius */
 	--radius-sm: var(--radius-sm);
@@ -131,6 +166,7 @@
 	--radius-xl: var(--radius-xl);
 	--radius-2xl: var(--radius-2xl);
 	--radius-panel: var(--radius-panel);
+	--radius-context-menu-item: var(--radius-context-menu-item);
 
 	/* spacing — only the off-grid `nav-x` (13px). We deliberately do NOT map
 	 * xs/sm/md/lg/xl into --spacing-*: in v4 that namespace also feeds the
@@ -145,12 +181,19 @@
 	--spacing-create-hub-partial: var(--control-height-create-hub-partial);
 	--spacing-mobile-cta: var(--control-height-mobile-cta);
 	--spacing-mobile-cta-bottom: calc(var(--space-sm) + env(safe-area-inset-bottom, 0px));
+	/* The whole footprint of BrandPageHeader's docked CTA: the 99px pill plus the
+	 * safe-bottom inset it sits on. Use it for scroll padding or a spacer; to reserve
+	 * the room on the page itself, prefer `mobile-cta-dock-inset` (below), which only
+	 * applies while the CTA is actually docked. */
+	--spacing-mobile-cta-dock: calc(var(--control-height-mobile-cta) + var(--space-sm) + env(safe-area-inset-bottom, 0px));
 	--spacing-control-tall: var(--control-height-tall);
 
 	/* effects */
 	--blur-modal-backdrop: var(--effect-modal-backdrop-blur);
 	--shadow-mobile-cta: var(--shadow-mobile-cta);
 	--shadow-modal-surface: var(--shadow-modal-surface);
+	--shadow-context-menu: var(--shadow-context-menu);
+	--shadow-action-compact-hover: var(--shadow-action-compact-hover);
 
 	/* font families */
 	--font-sans: var(--font-sans);
@@ -179,6 +222,11 @@
 	--text-display-large--letter-spacing: var(--tracking-display-large);
 	--text-panel-heading: var(--font-size-panel-heading);
 	--text-panel-heading--line-height: var(--line-height-panel-heading);
+	/* GS Smart Document title (56/60) and lead paragraph (22/32). */
+	--text-document-display: var(--font-size-document-display);
+	--text-document-display--line-height: var(--line-height-document-display);
+	--text-document-lead: var(--font-size-document-lead);
+	--text-document-lead--line-height: var(--line-height-document-lead);
 
 	/* font sizes — heading ramp (size + paired line-height) */
 	--text-heading1: var(--font-size-heading1);
