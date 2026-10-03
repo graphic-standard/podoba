@@ -34,7 +34,10 @@ export const Slider = <T extends number | number[]>({ label, hideValue, ...props
 								// biome-ignore lint/suspicious/noArrayIndexKey: thumbs are positional and fixed-count
 								key={i}
 								index={i}
-								className="h-4 w-4 rounded-full border-2 border-fg bg-surface outline-none transition-transform data-[dragging]:scale-110 data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
+								// React Aria positions the thumb with `left: N%` and
+								// `translate(-50%, -50%)` but sets no `top`, so without
+								// `top-1/2` it sits half its height above the track.
+								className="top-1/2 h-4 w-4 rounded-full border-2 border-fg bg-surface outline-none transition-transform data-[dragging]:scale-110 data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
 							>
 								{hideValue ? null : (
 									<span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-label font-medium tabular-nums text-fg">
