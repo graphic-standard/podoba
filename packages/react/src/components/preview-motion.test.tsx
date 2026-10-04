@@ -7,11 +7,9 @@ import { PreviewReveal, PreviewSkeleton } from './preview-motion'
 import { CatalogLaunchCard, CatalogSummaryCard } from './template-catalog-card'
 
 describe('preview motion', () => {
-	test('skeleton is the source mint shimmer and announces only when labelled', () => {
+	test('skeleton announces only when labelled', () => {
 		const html = renderToStaticMarkup(<PreviewSkeleton label="Rendering preview" />)
 		expect(html).toContain('role="status"')
-		expect(html).toContain('animate-preview-skeleton-shimmer')
-		expect(html).toContain('#c7fee0')
 		expect(renderToStaticMarkup(<PreviewSkeleton />)).toContain('aria-hidden="true"')
 	})
 

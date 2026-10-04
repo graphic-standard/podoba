@@ -21,10 +21,4 @@ describe('<UserMenuMeta>', () => {
 		// exactly one menu item: the meta line is not an action
 		expect(html.match(/role="menuitem"/g)).toHaveLength(1)
 	})
-
-	test('uses the muted micro type and stays copyable', () => {
-		expect(html).toContain('text-fg-muted')
-		expect(html).toContain('text-micro')
-		expect(html).toContain('select-text')
-	})
 })

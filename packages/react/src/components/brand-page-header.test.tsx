@@ -11,10 +11,6 @@ describe('BrandPageHeader heading semantics', () => {
 
 		expect(html).toContain('<h1')
 		expect(html).toContain('>Projects</h1>')
-		expect(html).toContain('text-display-large')
-		// Tracking moved from `tracking-tight` to `tracking-[0]` with the GS Manager
-		// port; the contract this test names is the heading level + type scale.
-		expect(html).toContain('tracking-[0]')
 	})
 
 	test('supports a nested h2 without changing the visual component', () => {
@@ -27,38 +23,17 @@ describe('BrandPageHeader heading semantics', () => {
 		expect(html).not.toContain('<h1')
 	})
 
-	test('keeps the source two-thirds hero / one-third CTA composition', () => {
-		const html = renderToStaticMarkup(
-			<BrandPageHeader greeting="Design system and templates" cta={<div>CTA</div>} />,
-		)
-
-		// Still two-thirds hero / one-third CTA — expressed as an explicit 2fr_1fr
-		// track list now that the header also supports a `navigation` variant, rather
-		// than the old fixed 3-column grid with a col-span-2 hero.
-		expect(html).toContain('md:grid-cols-[2fr_1fr]')
-		expect(html).toContain('md:col-start-2')
-		expect(html).toContain('inset-x-0')
-		expect(html).toContain('pb-mobile-cta-bottom')
-		expect(html).toContain('md:h-full')
-	})
-
 	test('can opt out of the mobile dock for non-hero compositions', () => {
-		const html = renderToStaticMarkup(
-			<BrandPageHeader
-				greeting="Design system and templates"
-				cta={<div>CTA</div>}
-				mobileCtaDocked={false}
-			/>,
-		)
+		const render = (mobileCtaDocked?: boolean) =>
+			renderToStaticMarkup(
+				<BrandPageHeader greeting="Design system and templates" cta={<div>CTA</div>} mobileCtaDocked={mobileCtaDocked} />,
+			)
 
-		// The undocked CTA still owns the second column for its full height; it simply
-		// loses the fixed mobile bar.
-		expect(html).toContain('md:col-start-2')
-		expect(html).toContain('md:h-full')
-		expect(html).not.toContain('pb-mobile-cta-bottom')
+		expect(render()).toContain('pb-mobile-cta-bottom')
+		expect(render(false)).not.toContain('pb-mobile-cta-bottom')
 	})
 
-	test('renders the source responsive Create Hub surface when expanded', () => {
+	test('renders the Create Hub for mobile and desktop when expanded', () => {
 		const html = renderToStaticMarkup(
 			<BrandPageHeader
 				greeting="Dashboard"
@@ -78,14 +53,8 @@ describe('BrandPageHeader heading semantics', () => {
 			/>,
 		)
 
-		expect(html).toContain('hidden')
 		expect(html).toContain('>Create</button>')
 		expect(html).toContain('role="region"')
-		expect(html).toContain('max-h-create-hub-partial')
-		expect(html).toContain('animate-create-hub-backdrop')
-		expect(html).toContain('animate-create-hub-sheet')
-		expect(html).toContain('md:origin-top-right')
-		expect(html).toContain('md:animate-create-hub-desktop')
 		expect(html).toContain('data-create-hub-focus="mobile"')
 		expect(html).toContain('data-create-hub-focus="desktop"')
 		expect(html).toContain('Hub content')

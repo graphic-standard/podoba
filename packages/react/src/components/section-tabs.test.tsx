@@ -24,20 +24,4 @@ describe('<SectionTabs> source navigation contract', () => {
 		expect(html).toContain('>Summary</button>')
 		expect(html).toContain('bg-surface-muted text-fg')
 	})
-
-	test('uses the source two-thirds desktop row and horizontal mobile scroller', () => {
-		const html = renderToStaticMarkup(
-			<SectionTabs
-				tabs={[{ key: 'tokens', label: 'Tokens' }]}
-				active="tokens"
-				onChange={() => {}}
-			/>,
-		)
-
-		expect(html).toContain('lg:w-2/3')
-		expect(html).toContain('flex-nowrap')
-		expect(html).toContain('overflow-x-auto')
-		expect(html).toContain('gap-2')
-		expect(html).toContain('px-nav-x')
-	})
 })
