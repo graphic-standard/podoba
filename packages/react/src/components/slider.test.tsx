@@ -29,3 +29,24 @@ describe('Slider', () => {
 		expect(html).toContain('data-orientation="vertical"')
 	})
 })
+
+describe('Slider size="sm"', () => {
+	test('keeps the label for assistive tech but drops the visible value label', () => {
+		const html = renderToStaticMarkup(
+			<Slider label="Zoom" size="sm" defaultValue={40} formatOptions={{ style: 'percent' }} minValue={0} maxValue={1} />,
+		)
+
+		expect(html).toContain('Zoom')
+		expect(html).toContain('class="sr-only"')
+		expect(html).not.toContain('-top-6')
+	})
+
+	test('renders the track adornment and the root className', () => {
+		const html = renderToStaticMarkup(
+			<Slider label="Zoom" size="sm" tone="inverted" className="w-28" defaultValue={50} trackAdornment={<div data-testid="limit" />} />,
+		)
+
+		expect(html).toContain('data-testid="limit"')
+		expect(html).toMatch(/class="[^"]*\bw-28\b/)
+	})
+})

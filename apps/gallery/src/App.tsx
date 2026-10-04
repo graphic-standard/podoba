@@ -1123,7 +1123,7 @@ const SECTIONS: SectionDef[] = [
 		id: "slider",
 		group: "Forms",
 		title: "Slider",
-		subtitle: "Single value or a range (two-number value), horizontal or vertical.",
+		subtitle: "Single value or a range (two-number value), horizontal or vertical; a compact size for toolbars.",
 		content: (
 			<>
 				<Demo label="Single · range">
@@ -1137,6 +1137,18 @@ const SECTIONS: SectionDef[] = [
 				<Demo label="Vertical">
 					<Slider label="Volume" defaultValue={40} maxValue={100} orientation="vertical" />
 					<Slider label="Band" defaultValue={[25, 75]} maxValue={100} orientation="vertical" />
+				</Demo>
+				<Demo label="Compact · inverted (toolbar)">
+					<span className="inline-flex h-6 items-center rounded-full bg-brand-primary px-2.5">
+						<Slider
+							label="Zoom"
+							size="sm"
+							tone="inverted"
+							className="w-28"
+							defaultValue={60}
+							trackAdornment={<div className="absolute right-0 h-1 w-1/5 rounded-r-full bg-accent-yellow/70" />}
+						/>
+					</span>
 				</Demo>
 			</>
 		),
