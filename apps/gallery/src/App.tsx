@@ -1123,16 +1123,22 @@ const SECTIONS: SectionDef[] = [
 		id: "slider",
 		group: "Forms",
 		title: "Slider",
-		subtitle: "Single value or a range (two-number value).",
+		subtitle: "Single value or a range (two-number value), horizontal or vertical.",
 		content: (
-			<Demo label="Single · range">
-				<div className="w-72">
-					<Slider label="Opacity" defaultValue={70} maxValue={100} />
-				</div>
-				<div className="w-72">
-					<Slider label="Price range" defaultValue={[20, 80]} maxValue={100} />
-				</div>
-			</Demo>
+			<>
+				<Demo label="Single · range">
+					<div className="w-72">
+						<Slider label="Opacity" defaultValue={70} maxValue={100} />
+					</div>
+					<div className="w-72">
+						<Slider label="Price range" defaultValue={[20, 80]} maxValue={100} />
+					</div>
+				</Demo>
+				<Demo label="Vertical">
+					<Slider label="Volume" defaultValue={40} maxValue={100} orientation="vertical" />
+					<Slider label="Band" defaultValue={[25, 75]} maxValue={100} orientation="vertical" />
+				</Demo>
+			</>
 		),
 	},
 	{
