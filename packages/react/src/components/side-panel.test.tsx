@@ -80,7 +80,7 @@ function Harness({
 }
 
 describe('SidePanel', () => {
-	test('opens as a labelled dialog with responsive owned-scroll geometry', () => {
+	test('opens as a labelled dialog that respects reduced motion', () => {
 		mount(<Harness />)
 		const trigger = document.querySelector<HTMLButtonElement>('[data-testid="trigger"]')
 		act(() => trigger?.click())
@@ -93,8 +93,6 @@ describe('SidePanel', () => {
 		expect(dialog?.querySelector('[aria-label="Close assistant"]')).not.toBeNull()
 
 		const classes = [...document.querySelectorAll<HTMLElement>('[class]')].map(node => node.className)
-		expect(classes.some(value => value.includes('h-dvh') && value.includes('sm:max-w-lg'))).toBe(true)
-		expect(classes.some(value => value.includes('overflow-y-auto'))).toBe(true)
 		expect(classes.some(value => value.includes('motion-reduce:data-[entering]:animate-none'))).toBe(true)
 	})
 

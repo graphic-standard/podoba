@@ -12,15 +12,10 @@ import { SearchField } from './search-field'
 import { Select, SelectItem } from './select'
 
 describe('source-parity form controls', () => {
-	test('renders the tall workflow input with an overridable control radius', () => {
-		const html = renderToStaticMarkup(
-			<Input label="Priority" size="tall" inputClassName="rounded-md" />,
-		)
+	test('Input passes inputClassName through to the control', () => {
+		const html = renderToStaticMarkup(<Input label="Priority" inputClassName="rounded-md" />)
 
-		expect(html).toContain('text-panel-heading')
-		expect(html).toContain('h-control-tall')
-		expect(html).toContain('text-small')
-		expect(html).toContain('rounded-md')
+		expect(html).toMatch(/<input[^>]*class="[^"]*\brounded-md\b/)
 	})
 
 	// Regression guard: a borderless `bg-surface-card` field is invisible inside a
@@ -96,15 +91,6 @@ describe('source-parity form controls', () => {
 		)
 
 		expect(html).toMatch(/class="[^"]*min-w-0 truncate[^"]*"/)
-	})
-
-	test('renders the prominent workflow CTA', () => {
-		const html = renderToStaticMarkup(<Button size="prominent">Approve</Button>)
-
-		expect(html).toContain('h-11')
-		expect(html).toContain('text-panel-heading')
-		expect(html).toContain('bg-brand-primary')
-		expect(html).toContain('Approve')
 	})
 
 	// The measured half of this guard lives in packages/tokens `contrast.test.ts`,

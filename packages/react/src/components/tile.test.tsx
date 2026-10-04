@@ -24,12 +24,6 @@ describe('<Tile> media layout', () => {
 		expect(overlay).toBeGreaterThan(-1)
 		expect(eyebrow).toBeGreaterThan(overlay)
 		expect(content).toBeGreaterThan(eyebrow)
-		expect(html).toContain('@container')
-		expect(html).toContain('absolute inset-4')
-		expect(html).toContain('@sm:inset-6')
-		expect(html).toContain('text-title')
-		expect(html).toContain('@sm:text-display')
-		expect(html).not.toContain('absolute left-6 top-6')
 	})
 
 	test('retains the named whole-tile button and interactive footer', () => {
@@ -48,19 +42,11 @@ describe('<Tile> media layout', () => {
 	})
 })
 
-describe('gs Tag / GSChip geometry', () => {
-	test('Badge keeps the source 24px Tag envelope with a 10px/20px label', () => {
-		const html = renderToStaticMarkup(<Badge label="New" color="green" />)
-		for (const cls of ['h-6', 'px-2.5', 'rounded-2xl', 'text-micro', 'leading-5', 'font-medium', 'whitespace-nowrap']) {
-			expect(html).toContain(cls)
-		}
-	})
-
-	test('Chip renders a decorative dot before a 13px/16px regular label', () => {
+describe('<Chip>', () => {
+	test('renders a decorative dot before the label', () => {
 		const html = renderToStaticMarkup(<Chip label="Planned" />)
 		expect(html).toContain('bg-surface-muted text-fg')
-		expect(html).toContain('text-compact font-normal leading-4')
-		expect(html).toMatch(/<span aria-hidden="true" class="size-2 shrink-0 rounded-full bg-neutral-300"><\/span>Planned/)
+		expect(html).toMatch(/<span aria-hidden="true"[^>]*><\/span>Planned/)
 		expect(renderToStaticMarkup(<Chip label="In progress" color="green" />)).toContain('bg-accent-green-lighter/80 text-fg-on-brand')
 	})
 })

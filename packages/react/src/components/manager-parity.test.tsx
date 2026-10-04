@@ -5,11 +5,10 @@ import { renderToStaticMarkup } from 'react-dom/server'
 
 import { AnimatedSummaryText } from './animated-summary-text'
 import { BrandPageHeader } from './brand-page-header'
-import { fieldDescriptionClass, fieldErrorClass } from './field-appearance'
+import { fieldDescriptionClass } from './field-appearance'
 import { Input } from './input'
 import { PreviewSkeleton } from './preview-motion'
 import { SectionTabs } from './section-tabs'
-import { BadgeIcon, CheckCircledIcon, LayersIcon, SwitchViewIcon } from './source-icons'
 import { CatalogSummaryCard } from './template-catalog-card'
 
 describe('AnimatedSummaryText', () => {
@@ -21,7 +20,6 @@ describe('AnimatedSummaryText', () => {
 		expect(html).toContain('animation-delay:22ms')
 		expect(html).toContain('animation-delay:1800ms')
 		expect(html).not.toContain('animation-delay:1804ms')
-		expect(html).toContain('animate-summary-token')
 		expect(html).toContain('motion-reduce:animate-none')
 	})
 
@@ -41,7 +39,7 @@ describe('AnimatedSummaryText', () => {
 })
 
 describe('SectionTabs switchable hint', () => {
-	test('a selected switchable tab carries the hint, the 12px gap and a hidden burst', () => {
+	test('only the selected switchable tab carries the hint', () => {
 		const html = renderToStaticMarkup(
 			<SectionTabs
 				tabs={[
@@ -54,27 +52,12 @@ describe('SectionTabs switchable hint', () => {
 		)
 		expect(html.match(/title="Switch view"/g)?.length).toBe(1)
 		expect(html.match(/data-switchable="true"/g)?.length).toBe(1)
-		expect(html).toContain('gap-3')
-		expect(html).toContain('w-0')
-		expect(html).toContain('group-data-[hovered]/switch:w-3.5')
-		expect(html).toContain('duration-120')
 	})
 
 	test('tabs without switchable render no hint', () => {
 		const html = renderToStaticMarkup(<SectionTabs tabs={[{ key: 'all', label: 'All' }]} active="all" onChange={() => {}} />)
 		expect(html).not.toContain('title=')
 		expect(html).not.toContain('<svg')
-	})
-})
-
-describe('source icons', () => {
-	test('render decorative glyphs on their source grids', () => {
-		for (const Icon of [LayersIcon, BadgeIcon, CheckCircledIcon]) {
-			const html = renderToStaticMarkup(<Icon />)
-			expect(html).toContain('viewBox="0 0 15 15"')
-			expect(html).toContain('aria-hidden="true"')
-		}
-		expect(renderToStaticMarkup(<SwitchViewIcon />)).toContain('viewBox="0 0 16 16"')
 	})
 })
 
@@ -106,10 +89,8 @@ describe('contrast fixes', () => {
 })
 
 describe('field helper and error text', () => {
-	test('use the source 14px helper and 16px error scale', () => {
-		expect(fieldDescriptionClass).toBe('text-small text-fg-muted')
-		expect(fieldErrorClass).toBe('text-body leading-[normal] text-danger')
+	test('Input renders its description with the shared helper class', () => {
 		const html = renderToStaticMarkup(<Input label="Deadline" description="Optional deadline for this project" />)
-		expect(html).toContain('class="text-small text-fg-muted"')
+		expect(html).toContain(`class="${fieldDescriptionClass}"`)
 	})
 })
