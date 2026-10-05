@@ -18,9 +18,18 @@ describe('<Table>', () => {
 		expect(html.match(/<button/g)?.length).toBe(1)
 	})
 
-	test('pressable rows are focusable', () => {
-		const html = renderToStaticMarkup(<Table onRowClick={() => {}} columns={[{ key: 'a', header: 'A' }]} data={[{ a: 'x' }]} />)
+	test('pressable rows are focusable buttons named by the caller', () => {
+		const html = renderToStaticMarkup(
+			<Table onRowClick={() => {}} getRowProps={(row) => ({ 'aria-label': `Open ${row.a}` })} columns={[{ key: 'a', header: 'A' }]} data={[{ a: 'x' }]} />,
+		)
 		expect(html).toContain('tabindex="0"')
+		expect(html).toContain('role="button"')
+		expect(html).toContain('aria-label="Open x"')
+	})
+
+	test('rows without a press handler keep the row role', () => {
+		const html = renderToStaticMarkup(<Table columns={[{ key: 'a', header: 'A' }]} data={[{ a: 'x' }]} />)
+		expect(html).not.toContain('role="button"')
 	})
 })
 
