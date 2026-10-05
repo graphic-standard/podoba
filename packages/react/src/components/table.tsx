@@ -262,7 +262,9 @@ export function Table<Row>({
 									interactive={interactive}
 									{...(interactive
 										? {
+												// A pressable row is one control; callers name it via `getRowProps` (`aria-label`).
 												tabIndex: 0,
+												role: 'button',
 												onClick: () => onRowClick?.(row),
 												onKeyDown: (event: React.KeyboardEvent) => {
 													if (event.key === 'Enter' || event.key === ' ') {
