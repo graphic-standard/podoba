@@ -1,33 +1,154 @@
-import { useMemo, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react'
-import { ChevronDownIcon, ChevronUpIcon } from './icons'
-export const TABLE_APPEARANCES = ['default', 'worksheet', 'team'] as const
-export type TableAppearance = (typeof TABLE_APPEARANCES)[number]
+import { useMemo, useState, type CSSProperties, type HTMLAttributes, type ReactNode, type ThHTMLAttributes } from 'react'
+import { uic } from '../utils/uic'
 
 /**
- * Table — the design-system data table (port of gs-platform's `GSTable`). A light,
- * presentational grid: a header row of (optionally sortable) column labels over a
- * body of rows. Rows can be clickable (whole-row press → `onRowClick`, keyboard
- * accessible). Sorting is CLIENT-SIDE and OPTIONAL: enable it with `enableSorting`
- * and mark the sortable columns; clicking a sortable header cycles asc → desc.
+ * Table: the design-system data table, in the look of gs-platform's task GSTable. A
+ * flat surface, mono header labels in the muted ink (optionally led by a
+ * `TableHeaderIcon`), horizontal rules between rows, vertical rules between body
+ * cells, 16px cell padding and rows as tall as their content.
  *
- * Presentational only (hard rule #3): no data fetching, no domain coupling. The
- * caller supplies `columns` (how to render + sort each cell) and `data` (the rows).
- * Styling = Tailwind + design-token CSS vars, matching the rest of podoba.
+ * Two ways in:
+ * - `<Table columns data />` for a plain data grid: the caller supplies how each
+ *   column renders and sorts, the table owns the sort state and the row press.
+ * - The parts (`TableScroll`, `TableRoot`, `TableHead`, `TableBody`, `TableRow`,
+ *   `TableHeaderCell`, `TableSortHeader`, `TableCell`, `TableEmptyRow`) for a table
+ *   whose structure the column API cannot express (row headers, colgroups, skeleton
+ *   rows, sorting owned by the caller). Both render the same markup and classes.
+ *
+ * Presentational only: no data fetching, no domain coupling.
  */
 export type TableAlign = 'left' | 'right' | 'center'
+export type TableSortDirection = 'asc' | 'desc'
+export type TableSortState<Key extends string = string> = { key: Key; dir: TableSortDirection }
+
+const align = {
+	left: 'text-left',
+	right: 'text-right',
+	center: 'text-center',
+}
+
+/** Horizontal scroll container on the table surface; wide tables scroll, never squash. */
+export const TableScroll = uic('div', { displayName: 'TableScroll', baseClass: 'w-full min-w-0 overflow-x-auto bg-surface' })
+
+export const TableRoot = uic('table', {
+	displayName: 'TableRoot',
+	baseClass: 'w-full border-collapse border-b border-border-muted text-left text-small leading-4.5 text-fg',
+})
+
+export const TableHead = uic('thead', { displayName: 'TableHead', baseClass: 'border-b border-border-muted' })
+
+export const TableBody = uic('tbody', { displayName: 'TableBody' })
+
+/** A body row. `interactive` adds the pointer, hover fill and inset focus ring of a pressable row. */
+export const TableRow = uic('tr', {
+	displayName: 'TableRow',
+	baseClass: 'border-b border-border-muted outline-none last:border-b-0',
+	variants: {
+		interactive: {
+			true: 'cursor-pointer transition-colors duration-150 ease-in-out hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring motion-reduce:transition-none',
+		},
+	},
+})
+
+/** A column header cell: mono label in the muted ink. A row's own header is `TableRowHeader`. */
+export const TableHeaderCell = uic('th', {
+	displayName: 'TableHeaderCell',
+	baseClass: 'p-4 align-middle font-mono text-small leading-4.5 font-normal tracking-normal text-fg-muted',
+	variants: { align },
+	defaultVariants: { align: 'left' },
+	defaultProps: { scope: 'col' },
+})
+
+/**
+ * Icon + label row inside a header cell that does not sort. `align-top` keeps its text
+ * on the same line as a plain-text header next to it; a baseline-aligned inline-flex
+ * box sits a pixel or two lower.
+ */
+export const TableHeaderLabel = uic('span', { displayName: 'TableHeaderLabel', baseClass: 'inline-flex items-center gap-2 whitespace-nowrap align-top' })
+
+const cellClass = 'border-l border-border-muted p-4 align-middle text-small leading-4.5 font-normal text-fg first:border-l-0'
+
+export const TableCell = uic('td', {
+	displayName: 'TableCell',
+	baseClass: cellClass,
+	variants: { align },
+	defaultVariants: { align: 'left' },
+})
+
+/** The cell that names its row (`<th scope="row">`): semantically a header, visually a body cell. */
+export const TableRowHeader = uic('th', {
+	displayName: 'TableRowHeader',
+	baseClass: cellClass,
+	variants: { align },
+	defaultVariants: { align: 'left' },
+	defaultProps: { scope: 'row' },
+})
+
+/** The single full-width row shown in place of the body when there is nothing to list. */
+export function TableEmptyRow({ colSpan, children }: { colSpan: number; children: ReactNode }) {
+	return (
+		<tr>
+			<td colSpan={colSpan} className="p-4 text-small leading-4.5 text-fg-muted">{children}</td>
+		</tr>
+	)
+}
+
+export type TableSortHeaderProps = Omit<ThHTMLAttributes<HTMLTableCellElement>, 'children' | 'align'> & {
+	label: ReactNode
+	/** Leading glyph, usually a `TableHeaderIcon`. */
+	icon?: ReactNode
+	/** Direction when this column is the active sort, else `null`. */
+	direction: TableSortDirection | null
+	onSort: () => void
+	align?: TableAlign
+}
+
+/**
+ * A sortable header: the label is the button's accessible name, the arrow is
+ * decorative and `aria-sort` on the `<th>` announces the direction. No idle sort
+ * glyph; only the active direction shows.
+ */
+export function TableSortHeader({ label, icon, direction, onSort, align: alignment = 'left', ...rest }: TableSortHeaderProps) {
+	return (
+		<TableHeaderCell
+			align={alignment}
+			aria-sort={direction === 'asc' ? 'ascending' : direction === 'desc' ? 'descending' : 'none'}
+			{...rest}
+		>
+			<button
+				type="button"
+				onClick={onSort}
+				className={`inline-flex cursor-pointer items-center gap-2 whitespace-nowrap rounded-sm align-top font-mono font-normal tracking-normal outline-none hover:text-fg focus-visible:ring-2 focus-visible:ring-ring ${alignment === 'right' ? 'flex-row-reverse' : ''}`}
+			>
+				{icon}
+				{label}
+				{direction ? <span aria-hidden="true" className="text-fg">{direction === 'asc' ? '↑' : '↓'}</span> : null}
+			</button>
+		</TableHeaderCell>
+	)
+}
+
+/** The sort cycle every table shares: unsorted, ascending, descending, unsorted. */
+export function nextTableSort<Key extends string>(previous: TableSortState<Key> | null, key: Key): TableSortState<Key> | null {
+	if (previous?.key !== key) return { key, dir: 'asc' }
+	if (previous.dir === 'asc') return { key, dir: 'desc' }
+	return null
+}
 
 export type TableColumn<Row> = {
 	/** Stable column id (also the default sort key). */
 	key: string
 	/** Header label. */
 	header: ReactNode
+	/** Leading header glyph, usually a `TableHeaderIcon`. */
+	icon?: ReactNode
 	/** Cell renderer. Defaults to `String(row[key])` when omitted. */
 	render?: (row: Row) => ReactNode
 	/** Whether this column participates in sorting (needs `enableSorting` on the table). */
 	sortable?: boolean
 	/**
 	 * Value used to sort this column (string / number). Defaults to the raw
-	 * `row[key]` when the row is an object, else the stringified render output.
+	 * `row[key]` when the row is an object.
 	 */
 	sortValue?: (row: Row) => string | number
 	/** Horizontal alignment of the header + cells (default `left`). */
@@ -37,30 +158,25 @@ export type TableColumn<Row> = {
 }
 
 export type TableProps<Row> = {
-	/** Worksheet matches Manager's plain GSTable; default preserves existing consumers. */
-	appearance?: TableAppearance
 	columns: TableColumn<Row>[]
 	data: Row[]
 	/** Stable per-row key. Defaults to the row index (fine for static lists). */
 	getRowKey?: (row: Row, index: number) => string
 	/** Additional semantic/event props for each rendered row. */
-	getRowProps?: (row: Row) => HTMLAttributes<HTMLTableRowElement>
-	columnTemplate?: string
+	getRowProps?: (row: Row) => HTMLAttributes<HTMLTableRowElement> & Record<`data-${string}`, string | undefined>
 	/** Enable client-side sorting on `sortable` columns. */
 	enableSorting?: boolean
-	/** Whole-row press handler — renders rows as interactive (hover + keyboard). */
+	/** Whole-row press handler: renders rows as interactive (hover + keyboard). */
 	onRowClick?: (row: Row) => void
 	/** Message shown in place of the body when `data` is empty. */
 	emptyMessage?: ReactNode
 	/** Accessible name for the table. */
 	'aria-label'?: string
+	/** Classes for the scroll container. */
 	className?: string
-}
-
-const ALIGN_CLASS: Record<TableAlign, string> = {
-	left: 'text-left',
-	right: 'text-right',
-	center: 'text-center',
+	/** Classes for the `<table>` itself, e.g. `min-w-*` or `table-fixed`. */
+	tableClassName?: string
+	'data-testid'?: string
 }
 
 function defaultSortValue<Row>(column: TableColumn<Row>, row: Row): string | number {
@@ -77,29 +193,22 @@ export function Table<Row>({
 	data,
 	getRowKey,
 	getRowProps,
-	columnTemplate,
 	enableSorting = false,
 	onRowClick,
 	emptyMessage = 'No rows.',
 	className,
-	appearance = 'default',
+	tableClassName,
+	'data-testid': testId,
 	...aria
 }: TableProps<Row>) {
-	const [sort, setSort] = useState<{ key: string; dir: 'asc' | 'desc' } | null>(null)
-
-	const toggleSort = (key: string) => {
-		setSort((prev) => {
-			if (prev?.key !== key) return { key, dir: 'asc' }
-			return { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
-		})
-	}
+	const [sort, setSort] = useState<TableSortState | null>(null)
 
 	const sorted = useMemo(() => {
 		if (!enableSorting || !sort) return data
 		const column = columns.find((c) => c.key === sort.key)
 		if (!column) return data
 		const dir = sort.dir === 'asc' ? 1 : -1
-		// Copy before sort — never mutate the caller's array.
+		// Copy before sort: never mutate the caller's array.
 		return [...data].sort((a, b) => {
 			const av = defaultSortValue(column, a)
 			const bv = defaultSortValue(column, b)
@@ -110,101 +219,71 @@ export function Table<Row>({
 
 	const rowKey = getRowKey ?? ((_row: Row, index: number) => String(index))
 	const interactive = Boolean(onRowClick)
-	const worksheet = appearance === 'worksheet'
-	const team = appearance === 'team'
-	const gridTemplate = columnTemplate ?? `repeat(${columns.length}, minmax(0, 1fr))`
 
 	return (
-		<div className={['w-full overflow-x-auto', className].filter(Boolean).join(' ')}>
-			<table style={team ? { '--table-columns': gridTemplate } as CSSProperties : undefined} className={`w-full border-collapse text-small ${worksheet ? 'border-b border-border font-normal leading-4.5' : ''} ${team ? 'block font-normal leading-4.5' : ''}`} {...aria}>
-				<thead className={team ? 'block' : undefined}>
-					<tr className={`${worksheet ? '' : 'border-b border-border'} ${team ? 'grid grid-cols-[var(--table-columns)] gap-3 bg-surface-muted px-4 max-[1023px]:hidden' : ''}`}>
+		<TableScroll className={className}>
+			<TableRoot className={tableClassName} data-testid={testId} {...aria}>
+				<TableHead>
+					<tr>
 						{columns.map((column) => {
-							const align = column.align ?? 'left'
-							const canSort = enableSorting && column.sortable
-							const active = sort?.key === column.key
+							const alignment = column.align ?? 'left'
+							const style: CSSProperties | undefined = column.width ? { width: column.width } : undefined
+							if (enableSorting && column.sortable) {
+								return (
+									<TableSortHeader
+										key={column.key}
+										style={style}
+										align={alignment}
+										label={column.header}
+										icon={column.icon}
+										direction={sort?.key === column.key ? sort.dir : null}
+										onSort={() => setSort((previous) => nextTableSort(previous, column.key))}
+									/>
+								)
+							}
 							return (
-								<th
-									key={column.key}
-									scope="col"
-									style={column.width ? { width: column.width } : undefined}
-									aria-sort={
-										canSort ? (active ? (sort?.dir === 'asc' ? 'ascending' : 'descending') : 'none') : undefined
-									}
-									className={`${ALIGN_CLASS[align]} ${worksheet ? 'border-0 px-3 py-4 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case bg-surface whitespace-nowrap' : team ? 'border-0 px-0 py-3 align-middle font-mono text-small font-normal leading-4.5 tracking-normal text-fg normal-case whitespace-nowrap' : 'px-4 py-3 text-label font-medium tracking-wide text-fg-muted uppercase'}`}
-								>
-									{canSort ? (
-										<button
-											type="button"
-											onClick={() => toggleSort(column.key)}
-											className={`inline-flex cursor-pointer items-center gap-1 outline-none transition-colors hover:text-fg focus-visible:text-fg ${
-												align === 'right' ? 'flex-row-reverse' : ''
-											} ${active ? 'text-fg' : ''}`}
-										>
-											{column.header}
-											{active ? (
-												sort?.dir === 'asc' ? (
-													<ChevronUpIcon className="h-3.5 w-3.5" />
-												) : (
-													<ChevronDownIcon className="h-3.5 w-3.5" />
-												)
-											) : null}
-										</button>
-									) : (
-										column.header
-									)}
-								</th>
+								<TableHeaderCell key={column.key} style={style} align={alignment}>
+									{column.icon ? <TableHeaderLabel>{column.icon}{column.header}</TableHeaderLabel> : column.header}
+								</TableHeaderCell>
 							)
 						})}
 					</tr>
-				</thead>
-				<tbody className={team ? 'block' : undefined}>
+				</TableHead>
+				<TableBody>
 					{sorted.length === 0 ? (
-						<tr>
-							<td colSpan={columns.length} className={worksheet ? 'border-y border-border px-6 py-4 text-small font-normal leading-4.5 text-fg' : 'px-4 py-10 text-center text-small text-fg-muted'}>
-								{emptyMessage}
-							</td>
-						</tr>
+						<TableEmptyRow colSpan={columns.length}>{emptyMessage}</TableEmptyRow>
 					) : (
 						sorted.map((row, index) => {
-						const rowProps = getRowProps?.(row)
-						return (
-							<tr
-								key={rowKey(row, index)}
-								{...rowProps}
-								{...(interactive
-									? {
-											tabIndex: 0,
-											role: 'button',
-											onClick: () => onRowClick?.(row),
-											onKeyDown: (event: React.KeyboardEvent) => {
-												if (event.key === 'Enter' || event.key === ' ') {
-													event.preventDefault()
-													onRowClick?.(row)
-												}
-											},
-										}
-									: {})}
-								className={`${worksheet ? 'min-h-15' : team ? 'grid grid-cols-[var(--table-columns)] gap-3 border-b border-border px-4 py-3 text-label font-normal leading-4.5 max-[1023px]:grid max-[1023px]:grid-cols-1 max-[1023px]:gap-2 max-[1023px]:p-4' : 'border-b border-border/60'} ${team ? 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring' : ''} outline-none ${
-									interactive
-										? 'cursor-pointer transition-colors hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring'
-										: ''
-								}${rowProps?.className ? ` ${rowProps.className}` : ''}`}
-							>
-								{columns.map((column) => {
-									const align = column.align ?? 'left'
-									return (
-										<td key={column.key} className={`${ALIGN_CLASS[align]} ${worksheet ? 'border border-border first:border-l-0 last:border-r-0 px-6 py-4 text-small font-normal leading-4.5' : team ? 'px-0 py-0 align-middle text-small font-normal leading-4.5 max-[1023px]:block' : 'px-4 py-3'} align-middle text-fg`}>
+							const rowProps = getRowProps?.(row)
+							return (
+								<TableRow
+									key={rowKey(row, index)}
+									{...rowProps}
+									interactive={interactive}
+									{...(interactive
+										? {
+												tabIndex: 0,
+												onClick: () => onRowClick?.(row),
+												onKeyDown: (event: React.KeyboardEvent) => {
+													if (event.key === 'Enter' || event.key === ' ') {
+														event.preventDefault()
+														onRowClick?.(row)
+													}
+												},
+											}
+										: {})}
+								>
+									{columns.map((column) => (
+										<TableCell key={column.key} align={column.align ?? 'left'}>
 											{column.render ? column.render(row) : String(defaultSortValue(column, row))}
-										</td>
-									)
-								})}
-							</tr>
-						)
+										</TableCell>
+									))}
+								</TableRow>
+							)
 						})
 					)}
-				</tbody>
-			</table>
-		</div>
+				</TableBody>
+			</TableRoot>
+		</TableScroll>
 	)
 }

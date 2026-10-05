@@ -26,7 +26,7 @@ export function CsvPreviewTable({ headers, rows, mapping, label, emptyMessage, .
 	const data: ReactNode[][] = rows.map(row => headers.map(header => row[header] ?? ''))
 	if (mapping) data.unshift(mapping)
 	return <PreviewScroll {...rest}>
-		<Table<ReactNode[]> appearance="worksheet" className={compact ? 'min-w-168' : 'min-w-256'}
+		<Table<ReactNode[]> className={compact ? 'min-w-168' : 'min-w-256'}
 			aria-label={label} emptyMessage={emptyMessage} data={data}
 			columns={headers.map((header, index) => ({ key: String(index), header, render: row => row[index] }))} />
 	</PreviewScroll>

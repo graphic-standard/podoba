@@ -82,6 +82,7 @@ export * from "./components/tile";
 export * from "./components/preview-info-card";
 export * from "./components/empty-panel-action";
 export * from "./components/table";
+export * from "./components/table-header-icon";
 export * from "./components/dashboard-grid";
 export * from "./components/task-approval-modal";
 export * from "./components/request-changes-modal";
