@@ -43,6 +43,9 @@ const ALLOWED: Record<string, { count: number; why: string }> = {
 	'components/tag-group.tsx': { count: 1, why: 'tag remove glyph' },
 	'components/toast.tsx': { count: 1, why: 'close glyph' },
 
+	// Decorative glyphs beside a text label that carries the meaning (aria-hidden).
+	'components/table-header-icon.tsx': { count: 5, why: 'column header glyphs next to the label' },
+
 	// WCAG 1.4.3 exempts inactive controls from contrast entirely.
 	'components/compact-action-button.tsx': { count: 1, why: 'disabled-state ink' },
 }
