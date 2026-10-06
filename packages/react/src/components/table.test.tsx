@@ -3,7 +3,7 @@
 import { describe, expect, test } from 'bun:test'
 import { renderToStaticMarkup } from 'react-dom/server'
 
-import { nextTableSort, Table, TableSortHeader } from './table'
+import { nextTableSort, Table, TableRow, TableSortHeader } from './table'
 
 describe('<Table>', () => {
 	test('renders the empty message across every column', () => {
@@ -30,6 +30,23 @@ describe('<Table>', () => {
 	test('rows without a press handler keep the row role', () => {
 		const html = renderToStaticMarkup(<Table columns={[{ key: 'a', header: 'A' }]} data={[{ a: 'x' }]} />)
 		expect(html).not.toContain('role="button"')
+	})
+})
+
+describe('<TableRow>', () => {
+	test('onPress makes the row a focusable, named button', () => {
+		const html = renderToStaticMarkup(<table><tbody><TableRow onPress={() => {}} aria-label="Open task"><td>x</td></TableRow></tbody></table>)
+		expect(html).toContain('role="button"')
+		expect(html).toContain('tabindex="0"')
+		expect(html).toContain('aria-label="Open task"')
+		expect(html).toContain('cursor-pointer')
+	})
+
+	test('without onPress the row stays a plain row', () => {
+		const html = renderToStaticMarkup(<table><tbody><TableRow><td>x</td></TableRow></tbody></table>)
+		expect(html).not.toContain('role="button"')
+		expect(html).not.toContain('tabindex')
+		expect(html).not.toContain('cursor-pointer')
 	})
 })
 

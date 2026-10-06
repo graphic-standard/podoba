@@ -1,4 +1,4 @@
-import { useMemo, useState, type CSSProperties, type HTMLAttributes, type ReactNode, type ThHTMLAttributes } from 'react'
+import { useMemo, useState, type ComponentProps, type CSSProperties, type HTMLAttributes, type ReactNode, type ThHTMLAttributes } from 'react'
 import { uic } from '../utils/uic'
 
 /**
@@ -39,8 +39,7 @@ export const TableHead = uic('thead', { displayName: 'TableHead', baseClass: 'bo
 
 export const TableBody = uic('tbody', { displayName: 'TableBody' })
 
-/** A body row. `interactive` adds the pointer, hover fill and inset focus ring of a pressable row. */
-export const TableRow = uic('tr', {
+const TableRowBase = uic('tr', {
 	displayName: 'TableRow',
 	baseClass: 'border-b border-border-muted outline-none last:border-b-0',
 	variants: {
@@ -49,6 +48,41 @@ export const TableRow = uic('tr', {
 		},
 	},
 })
+
+export type TableRowProps = ComponentProps<typeof TableRowBase> & {
+	/**
+	 * Makes the whole row one pressable control: pointer, hover fill, inset focus ring,
+	 * `tabIndex={0}`, `role="button"` and Enter/Space activation. Name it with
+	 * `aria-label`, since the button role hides the cells from assistive tech.
+	 */
+	onPress?: () => void
+}
+
+/** A body row. `onPress` turns it into a pressable row; without it the row is plain. */
+export function TableRow({ onPress, onClick, onKeyDown, ...rest }: TableRowProps) {
+	if (!onPress) return <TableRowBase onClick={onClick} onKeyDown={onKeyDown} {...rest} />
+	return (
+		<TableRowBase
+			tabIndex={0}
+			role="button"
+			{...rest}
+			interactive
+			onClick={(event) => {
+				onClick?.(event)
+				if (!event.defaultPrevented) onPress()
+			}}
+			onKeyDown={(event) => {
+				onKeyDown?.(event)
+				// Keys pressed in a control inside the row belong to that control.
+				if (event.defaultPrevented || event.target !== event.currentTarget) return
+				if (event.key === 'Enter' || event.key === ' ') {
+					event.preventDefault()
+					onPress()
+				}
+			}}
+		/>
+	)
+}
 
 /** A column header cell: mono label in the muted ink. A row's own header is `TableRowHeader`. */
 export const TableHeaderCell = uic('th', {
@@ -256,25 +290,7 @@ export function Table<Row>({
 						sorted.map((row, index) => {
 							const rowProps = getRowProps?.(row)
 							return (
-								<TableRow
-									key={rowKey(row, index)}
-									{...rowProps}
-									interactive={interactive}
-									{...(interactive
-										? {
-												// A pressable row is one control; callers name it via `getRowProps` (`aria-label`).
-												tabIndex: 0,
-												role: 'button',
-												onClick: () => onRowClick?.(row),
-												onKeyDown: (event: React.KeyboardEvent) => {
-													if (event.key === 'Enter' || event.key === ' ') {
-														event.preventDefault()
-														onRowClick?.(row)
-													}
-												},
-											}
-										: {})}
-								>
+								<TableRow key={rowKey(row, index)} {...rowProps} onPress={interactive ? () => onRowClick?.(row) : undefined}>
 									{columns.map((column) => (
 										<TableCell key={column.key} align={column.align ?? 'left'}>
 											{column.render ? column.render(row) : String(defaultSortValue(column, row))}
