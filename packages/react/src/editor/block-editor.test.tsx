@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { Schema } from '@tiptap/pm/model'
 import { EditorState } from '@tiptap/pm/state'
 
-import { canOpenSlash, filterCommands, placeSlashMenu } from './block-editor'
+import { BLOCK_TOOLS, canOpenSlash, filterCommands, placeSlashMenu } from './block-editor'
 import { safeLinkUrl } from '../utils/safe-link-url'
 
 describe('filterCommands', () => {
@@ -138,5 +138,14 @@ describe('placeSlashMenu', () => {
 	test('clamps horizontally to the viewport', () => {
 		expect(placeSlashMenu({ ...caret, caretLeft: 1190, wanted: 288, viewportH: 900 }).left).toBe(936)
 		expect(placeSlashMenu({ ...caret, caretLeft: 0, wanted: 288, viewportH: 900 }).left).toBe(8)
+	})
+})
+
+describe('bubble toolbar block tools', () => {
+	// Lists used to be reachable only from the `/` palette, which is not where anyone looks
+	// with text selected. The keys double as the `isActive` names the toolbar reads.
+	test('offers both list toggles, keyed by their Tiptap node names', () => {
+		expect(BLOCK_TOOLS.map((t) => t.key)).toEqual(['bulletList', 'orderedList'])
+		for (const t of BLOCK_TOOLS) expect(t.title).not.toBe('')
 	})
 })

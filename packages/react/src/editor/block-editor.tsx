@@ -30,9 +30,9 @@ import { SAFE_LINK_HINT, safeLinkUrl } from '../utils/safe-link-url'
  *
  * Notion features: `/` slash menu (self-contained — insert paragraph/heading/list/
  * to-do/quote/code/divider), an inline bubble toolbar (bold/italic/strike/highlight/
- * code/link), and StarterKit's markdown input rules. Styling rides `@tailwindcss/
- * typography` (`prose`), which @podoba/tailwind already registers, plus design tokens
- * so it flips under `[data-theme="dark"]`.
+ * code/link, then bulleted/numbered list), and StarterKit's markdown input rules.
+ * Styling rides `@tailwindcss/typography` (`prose`), which @podoba/tailwind already
+ * registers, plus design tokens so it flips under `[data-theme="dark"]`.
  *
  * Prefer this over {@link ../components/rich-text-editor RichTextEditor} for
  * document-shaped content; the dependency-free contentEditable one stays the right
@@ -146,6 +146,32 @@ const MARK_TOOLS = [
 	{ key: 'strike', title: 'Strikethrough', label: <s>S</s>, run: (e: Editor) => e.chain().focus().toggleStrike().run() },
 	{ key: 'highlight', title: 'Highlight', label: 'H', run: (e: Editor) => e.chain().focus().toggleHighlight().run() },
 	{ key: 'code', title: 'Inline code', label: '</>', run: (e: Editor) => e.chain().focus().toggleCode().run() },
+] as const
+
+const BulletListIcon = () => (
+	<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+		<path d="M9 6h11M9 12h11M9 18h11" />
+		<circle cx="4" cy="6" r="1" fill="currentColor" />
+		<circle cx="4" cy="12" r="1" fill="currentColor" />
+		<circle cx="4" cy="18" r="1" fill="currentColor" />
+	</svg>
+)
+
+const OrderedListIcon = () => (
+	<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+		<path d="M10 6h10M10 12h10M10 18h10" />
+		<path d="M4 4h1v4M4 8h2" />
+		<path d="M4 14.5a1 1 0 0 1 2 0c0 .8-2 1.5-2 3.5h2" />
+	</svg>
+)
+
+/** Block toggles in the bubble toolbar, after the marks. Lists were reachable only
+ * through the `/` palette (or markdown input rules), which nobody finds from a
+ * selection: someone who selects three lines to make them a list looks at the
+ * toolbar, and it had nothing for them. Exported for tests. */
+export const BLOCK_TOOLS = [
+	{ key: 'bulletList', title: 'Bulleted list', label: <BulletListIcon />, run: (e: Editor) => e.chain().focus().toggleBulletList().run() },
+	{ key: 'orderedList', title: 'Numbered list', label: <OrderedListIcon />, run: (e: Editor) => e.chain().focus().toggleOrderedList().run() },
 ] as const
 
 const LinkIcon = () => (
@@ -387,6 +413,8 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 						highlight: editor.isActive('highlight'),
 						code: editor.isActive('code'),
 						link: editor.isActive('link'),
+						bulletList: editor.isActive('bulletList'),
+						orderedList: editor.isActive('orderedList'),
 						hasSelection: !editor.state.selection.empty,
 					}
 				: null,
@@ -514,6 +542,22 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 								<button type="button" className={btn} data-active={active?.link ?? false} aria-pressed={active?.link ?? false} onMouseDown={(e) => e.preventDefault()} onClick={openLink} title="Link">
 									<LinkIcon />
 								</button>
+								<span aria-hidden="true" className="mx-0.5 h-5 w-px bg-border" />
+								{BLOCK_TOOLS.map((tool) => (
+									<button
+										key={tool.key}
+										type="button"
+										className={btn}
+										data-active={active?.[tool.key] ?? false}
+										aria-pressed={active?.[tool.key] ?? false}
+										onMouseDown={(e) => e.preventDefault()}
+										onClick={() => tool.run(editor)}
+										title={tool.title}
+										aria-label={tool.title}
+									>
+										{tool.label}
+									</button>
+								))}
 							</div>
 						)}
 					</BubbleMenu>
