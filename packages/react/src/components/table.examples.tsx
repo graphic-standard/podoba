@@ -39,9 +39,13 @@ function Composed() {
 					</tr>
 				</TableHead>
 				<TableBody>
-					<TableRow>
+					<TableRow onPress={() => {}} aria-label="Open Editor">
 						<TableRowHeader>Editor</TableRowHeader>
 						<TableCell align="right">4</TableCell>
+					</TableRow>
+					<TableRow>
+						<TableRowHeader>Viewer</TableRowHeader>
+						<TableCell align="right">12</TableCell>
 					</TableRow>
 				</TableBody>
 			</TableRoot>
