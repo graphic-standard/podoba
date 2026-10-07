@@ -31,6 +31,9 @@ describe('BrandPageHeader heading semantics', () => {
 
 		expect(render()).toContain('pb-mobile-cta-bottom')
 		expect(render(false)).not.toContain('pb-mobile-cta-bottom')
+		// Shells scope the bottom reservation (`mobile-cta-dock-inset`) with this hook.
+		expect(render()).toContain('data-mobile-cta-dock=""')
+		expect(render(false)).not.toContain('data-mobile-cta-dock')
 	})
 
 	test('renders the Create Hub for mobile and desktop when expanded', () => {

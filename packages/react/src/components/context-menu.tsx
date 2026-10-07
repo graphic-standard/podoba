@@ -115,39 +115,33 @@ const visibleGroupsOf = (groups: ContextMenuGroup[]): ContextMenuGroup[] =>
 const MenuItem = uic(RACMenuItem, {
 	displayName: 'ContextMenuItem',
 	// Source `.itemButton`: normal ink weight, with a weight bump on hover/focus.
-	// The panel is ALWAYS dark — it does not follow the theme — so its ink and hover
-	// wash are literal, not semantic tokens: `text-fg` / `bg-surface-muted` flip with
-	// `[data-theme]` and would go dark-on-dark in a light shell. Raw values (rather
-	// than new `--color-context-menu-*` custom properties) because every token in
-	// this design system is generated into @podoba/tokens' `variables.css` from the
-	// upstream API — a hand-written custom property has nowhere to be defined and
-	// silently resolves to nothing.
+	// The panel is ALWAYS dark (it does not follow the theme), so its ink and hover
+	// wash come from the fixed `context-menu-*` tokens, not `text-fg` /
+	// `bg-surface-muted`, which flip with `[data-theme]` and would go dark-on-dark in
+	// a light shell.
 	baseClass:
-		'flex min-h-8.5 min-w-0 cursor-pointer select-none items-center gap-2.5 rounded-[10px] px-3 py-1.5 ' +
-		'text-compact leading-4 tracking-normal font-normal text-white outline-none ' +
-		'data-[focused]:bg-[#2f2f2f] data-[focused]:font-medium data-[hovered]:bg-[#2f2f2f] data-[hovered]:font-medium ' +
+		'flex min-h-8.5 min-w-0 cursor-pointer select-none items-center gap-2.5 rounded-context-menu-item px-3 py-1.5 ' +
+		'text-compact leading-4 tracking-normal font-normal text-context-menu-fg outline-none ' +
+		'data-[focused]:bg-context-menu-hover data-[focused]:font-medium data-[hovered]:bg-context-menu-hover data-[hovered]:font-medium ' +
 		'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-45',
 	variants: {
-		// gs `var(--color-error-light, #ffb5b5)`: the Manager defines `--color-error-light`
-		// as #fee2e2, so the rendered source ink is #fee2e2 (the #ffb5b5 fallback never
-		// applies). `--color-danger-light` DOES exist, but it flips to a ~15% translucent
-		// red under `[data-theme="dark"]` and would all but vanish here; `text-danger`
-		// (#dc2626) is a light-surface red that fails contrast on #242424.
-		destructive: { true: 'text-[#fee2e2] data-[focused]:text-[#fee2e2]' },
+		// `context-menu-danger` (#fee2e2), not `danger-light`, which flips to a ~15%
+		// translucent red under `[data-theme="dark"]` and would all but vanish here, and
+		// not `text-danger`, a light-surface red that fails contrast on the dark panel.
+		destructive: { true: 'text-context-menu-danger data-[focused]:text-context-menu-danger' },
 	},
 }) as (
 	props: React.ComponentProps<typeof RACMenuItem> & { destructive?: boolean },
 ) => ReturnType<typeof RACMenuItem>
 
-// gs `.panel`: 258px, radius 12px, 8px/6px padding, 180deg #242424→#1f1f1f gradient,
-// 0 12px 28px rgba(0,0,0,.22) shadow. No token covers the gradient or the shadow, and
-// see the note on MenuItem for why these stay literal rather than becoming tokens.
+// gs `.panel`: 258px (`--dimension-context-menu-width`), radius 12px, 8px/6px padding,
+// the `context-menu-top` to `context-menu-bottom` gradient and `shadow-context-menu`.
 // Constrain/scroll the entire panel, INCLUDING its 8px top/bottom padding —
 // constraining the inner Menu instead makes a long panel exceed the viewport gutter.
 const panelClass =
 	'w-[258px] max-w-[calc(100vw-16px)] max-h-[calc(100vh-16px)] box-border overflow-y-auto rounded-xl ' +
-	'bg-gradient-to-b from-[#242424] to-[#1f1f1f] ' +
-	'px-1.5 py-2 shadow-[0_12px_28px_rgba(0,0,0,0.22)] outline-none'
+	'bg-gradient-to-b from-context-menu-top to-context-menu-bottom ' +
+	'px-1.5 py-2 shadow-context-menu outline-none'
 // `minmax(0, 1fr)` tracks: an `auto` grid column grows to the items' nowrap
 // min-content, so a long label plus a trailing pill pushed rows past the 258px panel.
 const menuClass = 'grid grid-cols-[minmax(0,1fr)] gap-0.5 outline-none'
@@ -300,7 +294,7 @@ function ContextMenuBody({
 								) : null}
 								<span className="min-w-0 flex-1 truncate" title={item.title}>{item.label}</span>
 								{badge ? (
-									<span className="ml-auto inline-flex h-6 items-center justify-center rounded-full bg-[#333437] px-3 py-0.5 text-micro font-medium leading-5 tracking-tight text-[#c8c8ca]">
+									<span className="ml-auto inline-flex h-6 items-center justify-center rounded-full bg-context-menu-badge-bg px-3 py-0.5 text-micro font-medium leading-5 tracking-tight text-context-menu-badge-fg">
 										{badge}
 									</span>
 								) : null}
