@@ -339,9 +339,13 @@ export function BrandPageHeader({
 						className={
 							[
 								ctaDocked
-									? 'fixed inset-x-0 bottom-0 z-40 min-w-0 px-3 pb-mobile-cta-bottom sm:static sm:inset-auto sm:col-start-2 sm:row-[1/-1] sm:z-auto sm:flex sm:h-full sm:max-w-full sm:items-stretch sm:justify-end sm:self-stretch sm:p-0'
+									? 'fixed inset-x-0 bottom-0 z-40 min-w-0 px-3 pb-mobile-cta-bottom sm:static sm:inset-auto sm:col-start-2 sm:row-[1/-1] sm:z-auto sm:h-full sm:max-w-full sm:items-stretch sm:justify-end sm:self-stretch sm:p-0'
 									: 'min-w-0 md:col-start-2 md:row-[1/-1] md:flex md:h-full md:max-w-full md:items-stretch md:justify-end md:self-stretch',
-								expanded ? 'hidden' : '',
+								// The open hub is a bottom sheet below `md` that takes the CTA's place, so the
+								// CTA hides there even on 640-767px tablets where it is no longer docked.
+								// `max-md:hidden` would lose to `sm:flex` (Tailwind emits max-* first), so the
+								// display switch itself moves to `md` while the hub is open.
+								expanded ? 'hidden md:flex' : ctaDocked ? 'sm:flex' : '',
 							].join(' ')
 						}
 					>
