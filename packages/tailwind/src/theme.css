@@ -81,10 +81,19 @@
  * container (or the page's main element) and it pads exactly the dock's footprint,
  * only at the widths where the CTA is docked. The header marks a docked CTA with
  * `data-mobile-cta-dock`, so a shell that does not know which pages have one can
- * scope it: `.content:has([data-mobile-cta-dock]) { @apply mobile-cta-dock-inset; }`. */
+ * scope it: `.content:has([data-mobile-cta-dock]) { @apply mobile-cta-dock-inset; }`.
+ *
+ * The room is a spacer after the content, not `padding-bottom`, so it adds to the
+ * container's own padding (`p-6`, `pb-8`) instead of replacing it. */
 @utility mobile-cta-dock-inset {
 	@variant max-sm {
-		padding-bottom: calc(var(--control-height-mobile-cta) + var(--space-sm) + env(safe-area-inset-bottom, 0px));
+		&::after {
+			content: '';
+			display: block;
+			flex-shrink: 0;
+			grid-column: 1 / -1;
+			height: --theme(--spacing-mobile-cta-dock inline);
+		}
 	}
 }
 
