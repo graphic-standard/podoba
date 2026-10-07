@@ -21,6 +21,12 @@ and dark values for the modal scrim. An app that themes itself like GS can load
 `variables.css` alone and bring GT America through its own `@font-face`: it gets the GS
 palette, type ramp and tracking without keeping a copy of the GS tokens.
 
+The GS tracking names are not an ordered scale. `--tracking-wide` (-0.56px) and
+`--tracking-wider` (-0.6px) are GS's heading and display treatments, tighter than
+`--tracking-tight` (-0.2px), and GS sets its `uppercase tracking-wide` labels with them
+too. That is the GS look on GT America, kept as is. Only `fonts.css` brings the
+positive scale, because NC Fontina needs it.
+
 GT America is a commercial face, so it is named in `--font-sans` / `--font-mono` but never
 shipped here. Without it (or `fonts.css`), text falls back to the system sans.
 
