@@ -1,8 +1,8 @@
 import { describe, expect, test } from 'bun:test'
 import { Schema } from '@tiptap/pm/model'
-import { EditorState } from '@tiptap/pm/state'
+import { EditorState, TextSelection } from '@tiptap/pm/state'
 
-import { BLOCK_TOOLS, canOpenSlash, filterCommands, placeSlashMenu } from './block-editor'
+import { BLOCK_TOOLS, canOpenSlash, canToggleList, filterCommands, innermostList, placeSlashMenu } from './block-editor'
 import { safeLinkUrl } from '../utils/safe-link-url'
 
 describe('filterCommands', () => {
@@ -142,10 +142,64 @@ describe('placeSlashMenu', () => {
 })
 
 describe('bubble toolbar block tools', () => {
-	// Lists used to be reachable only from the `/` palette, which is not where anyone looks
-	// with text selected. The keys double as the `isActive` names the toolbar reads.
-	test('offers both list toggles, keyed by their Tiptap node names', () => {
+	test('offers both list toggles, keyed by their Tiptap node names and sharing the palette commands', () => {
 		expect(BLOCK_TOOLS.map((t) => t.key)).toEqual(['bulletList', 'orderedList'])
-		for (const t of BLOCK_TOOLS) expect(t.title).not.toBe('')
+		const palette = filterCommands('list')
+		for (const tool of BLOCK_TOOLS) expect(palette.find((c) => c.title === tool.title)?.run).toBe(tool.run)
+	})
+})
+
+const listSchema = new Schema({
+	nodes: {
+		doc: { content: 'block+' },
+		paragraph: { content: 'inline*', group: 'block' },
+		heading: { content: 'inline*', group: 'block' },
+		codeBlock: { content: 'inline*', group: 'block', code: true },
+		bulletList: { content: 'listItem+', group: 'block' },
+		orderedList: { content: 'listItem+', group: 'block' },
+		listItem: { content: 'paragraph block*' },
+		text: { group: 'inline' },
+	},
+})
+
+const n = (type: string, ...content: ReturnType<typeof listSchema.node>[]) => listSchema.node(type, null, content)
+const p = (text: string) => listSchema.node('paragraph', null, [listSchema.text(text)])
+
+/** A state whose caret sits inside the first text node containing `marker`. */
+function caretAt(doc: ReturnType<typeof listSchema.node>, marker: string, to?: string): EditorState {
+	let from = -1
+	let end = -1
+	doc.descendants((node, pos) => {
+		if (node.isText && node.text?.includes(marker) && from < 0) from = pos + 1
+		if (to && node.isText && node.text?.includes(to)) end = pos + 1
+	})
+	const state = EditorState.create({ schema: listSchema, doc })
+	return state.apply(state.tr.setSelection(TextSelection.create(doc, from, end < 0 ? from : end)))
+}
+
+describe('innermostList', () => {
+	test('a bulleted sublist inside a numbered list reads as bulleted only', () => {
+		const doc = n('doc', n('orderedList', n('listItem', p('outer'), n('bulletList', n('listItem', p('inner'))))))
+		expect(innermostList(caretAt(doc, 'inner'))).toBe('bulletList')
+		expect(innermostList(caretAt(doc, 'outer'))).toBe('orderedList')
+	})
+
+	test('outside any list there is none', () => {
+		expect(innermostList(caretAt(n('doc', p('plain')), 'plain'))).toBeNull()
+	})
+})
+
+describe('canToggleList', () => {
+	test('allowed from paragraphs, also inside lists', () => {
+		expect(canToggleList(caretAt(n('doc', p('plain')), 'plain'))).toBe(true)
+		expect(canToggleList(caretAt(n('doc', n('bulletList', n('listItem', p('item')))), 'item'))).toBe(true)
+	})
+
+	test('blocked when the selection touches a heading or a code block', () => {
+		const heading = listSchema.node('heading', null, [listSchema.text('title')])
+		const code = listSchema.node('codeBlock', null, [listSchema.text('snippet')])
+		expect(canToggleList(caretAt(n('doc', heading), 'title'))).toBe(false)
+		expect(canToggleList(caretAt(n('doc', code), 'snippet'))).toBe(false)
+		expect(canToggleList(caretAt(n('doc', p('start'), heading), 'start', 'title'))).toBe(false)
 	})
 })

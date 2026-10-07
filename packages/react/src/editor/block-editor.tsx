@@ -64,6 +64,15 @@ type SlashCommand = {
 	run: (editor: Editor) => void
 }
 
+// List toggles shared by the `/` palette and the bubble toolbar, so a title or command
+// change lands in both. Keys are the Tiptap node names the toolbar's active state reads.
+const LIST_COMMANDS = {
+	bulletList: { title: 'Bulleted list', run: (e: Editor) => e.chain().focus().toggleBulletList().run() },
+	orderedList: { title: 'Numbered list', run: (e: Editor) => e.chain().focus().toggleOrderedList().run() },
+} as const
+
+type ListKind = keyof typeof LIST_COMMANDS
+
 // The `/` block palette. Kept generic (no domain blocks) — a CMS/app composes richer
 // block types around this at the document level; this is the text-block vocabulary.
 const SLASH_COMMANDS: readonly SlashCommand[] = [
@@ -71,8 +80,8 @@ const SLASH_COMMANDS: readonly SlashCommand[] = [
 	{ title: 'Heading 1', hint: 'Big section heading', keywords: ['h1', 'heading', 'title'], run: (e) => e.chain().focus().toggleHeading({ level: 1 }).run() },
 	{ title: 'Heading 2', hint: 'Medium heading', keywords: ['h2', 'subheading'], run: (e) => e.chain().focus().toggleHeading({ level: 2 }).run() },
 	{ title: 'Heading 3', hint: 'Small heading', keywords: ['h3'], run: (e) => e.chain().focus().toggleHeading({ level: 3 }).run() },
-	{ title: 'Bulleted list', hint: 'Unordered list', keywords: ['bullet', 'unordered', 'ul', 'list'], run: (e) => e.chain().focus().toggleBulletList().run() },
-	{ title: 'Numbered list', hint: 'Ordered list', keywords: ['numbered', 'ordered', 'ol', 'list'], run: (e) => e.chain().focus().toggleOrderedList().run() },
+	{ ...LIST_COMMANDS.bulletList, hint: 'Unordered list', keywords: ['bullet', 'unordered', 'ul', 'list'] },
+	{ ...LIST_COMMANDS.orderedList, hint: 'Ordered list', keywords: ['numbered', 'ordered', 'ol', 'list'] },
 	{ title: 'To-do list', hint: 'Checklist', keywords: ['todo', 'task', 'checkbox', 'check'], run: (e) => e.chain().focus().toggleTaskList().run() },
 	{ title: 'Quote', hint: 'Block quote', keywords: ['quote', 'blockquote', 'citation'], run: (e) => e.chain().focus().toggleBlockquote().run() },
 	{ title: 'Code', hint: 'Code block', keywords: ['code', 'snippet', 'pre'], run: (e) => e.chain().focus().toggleCodeBlock().run() },
@@ -135,7 +144,7 @@ export function canOpenSlash(state: EditorState, from: number): boolean {
 }
 
 const btn =
-	'inline-flex h-8 min-w-8 cursor-pointer items-center justify-center rounded-md px-2 text-small text-fg-muted transition-colors hover:bg-surface-muted hover:text-fg data-[active=true]:bg-surface-muted data-[active=true]:text-fg'
+	'inline-flex h-8 min-w-8 cursor-pointer items-center justify-center rounded-md px-2 text-small text-fg-muted transition-colors enabled:hover:bg-surface-muted enabled:hover:text-fg disabled:cursor-default disabled:opacity-50 data-[active=true]:bg-surface-muted data-[active=true]:text-fg'
 
 /** Marks the bubble toolbar toggles. `active` keys read off the useEditorState
  * snapshot below — Tiptap 3 does NOT re-render on transactions, so a plain
@@ -170,9 +179,59 @@ const OrderedListIcon = () => (
  * selection: someone who selects three lines to make them a list looks at the
  * toolbar, and it had nothing for them. Exported for tests. */
 export const BLOCK_TOOLS = [
-	{ key: 'bulletList', title: 'Bulleted list', label: <BulletListIcon />, run: (e: Editor) => e.chain().focus().toggleBulletList().run() },
-	{ key: 'orderedList', title: 'Numbered list', label: <OrderedListIcon />, run: (e: Editor) => e.chain().focus().toggleOrderedList().run() },
+	{ key: 'bulletList', ...LIST_COMMANDS.bulletList, label: <BulletListIcon /> },
+	{ key: 'orderedList', ...LIST_COMMANDS.orderedList, label: <OrderedListIcon /> },
 ] as const
+
+/**
+ * The list the selection sits directly in. In a bulleted sublist inside a numbered
+ * list only the bullet tool reads as pressed, because that is the list a click on it
+ * turns off; `isActive` would report both. A to-do list in between ends the search.
+ */
+export function innermostList(state: EditorState): ListKind | null {
+	const { $from } = state.selection
+	for (let depth = $from.depth; depth > 0; depth--) {
+		const name = $from.node(depth).type.name
+		if (name === 'bulletList' || name === 'orderedList') return name
+		if (name === 'taskList') return null
+	}
+	return null
+}
+
+/**
+ * Lists wrap paragraphs only. From a heading or code block Tiptap's toggleList clears
+ * the block to a paragraph first, silently dropping the heading level or the code, so
+ * the toolbar disables the list tools while the selection touches one.
+ */
+export function canToggleList(state: EditorState): boolean {
+	const { from, to, $from } = state.selection
+	if ($from.parent.isTextblock && $from.parent.type.name !== 'paragraph') return false
+	let ok = true
+	state.doc.nodesBetween(from, to, (node) => {
+		if (node.isTextblock && node.type.name !== 'paragraph') ok = false
+		return ok
+	})
+	return ok
+}
+
+/** One bubble-toolbar button. preventDefault on mousedown keeps the editor selection while it is clicked. */
+function ToolButton({ title, active, disabled, onPress, children }: { title: string; active: boolean; disabled?: boolean; onPress: () => void; children: ReactNode }) {
+	return (
+		<button
+			type="button"
+			className={btn}
+			data-active={active}
+			aria-pressed={active}
+			disabled={disabled}
+			onMouseDown={(e) => e.preventDefault()}
+			onClick={onPress}
+			title={title}
+			aria-label={title}
+		>
+			{children}
+		</button>
+	)
+}
 
 const LinkIcon = () => (
 	<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -413,8 +472,8 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 						highlight: editor.isActive('highlight'),
 						code: editor.isActive('code'),
 						link: editor.isActive('link'),
-						bulletList: editor.isActive('bulletList'),
-						orderedList: editor.isActive('orderedList'),
+						list: innermostList(editor.state),
+						canToggleList: canToggleList(editor.state),
 						hasSelection: !editor.state.selection.empty,
 					}
 				: null,
@@ -525,38 +584,24 @@ export function BlockEditor({ value, onChange, placeholder = "Write, or press '/
 						) : (
 							<div className="flex items-center gap-0.5">
 								{MARK_TOOLS.map((tool) => (
-									// preventDefault on mousedown keeps the editor selection while the button is clicked.
-									<button
-										key={tool.key}
-										type="button"
-										className={btn}
-										data-active={active?.[tool.key] ?? false}
-										aria-pressed={active?.[tool.key] ?? false}
-										onMouseDown={(e) => e.preventDefault()}
-										onClick={() => tool.run(editor)}
-										title={tool.title}
-									>
+									<ToolButton key={tool.key} title={tool.title} active={active?.[tool.key] ?? false} onPress={() => tool.run(editor)}>
 										{tool.label}
-									</button>
+									</ToolButton>
 								))}
-								<button type="button" className={btn} data-active={active?.link ?? false} aria-pressed={active?.link ?? false} onMouseDown={(e) => e.preventDefault()} onClick={openLink} title="Link">
+								<ToolButton title="Link" active={active?.link ?? false} onPress={openLink}>
 									<LinkIcon />
-								</button>
+								</ToolButton>
 								<span aria-hidden="true" className="mx-0.5 h-5 w-px bg-border" />
 								{BLOCK_TOOLS.map((tool) => (
-									<button
+									<ToolButton
 										key={tool.key}
-										type="button"
-										className={btn}
-										data-active={active?.[tool.key] ?? false}
-										aria-pressed={active?.[tool.key] ?? false}
-										onMouseDown={(e) => e.preventDefault()}
-										onClick={() => tool.run(editor)}
 										title={tool.title}
-										aria-label={tool.title}
+										active={active?.list === tool.key}
+										disabled={!(active?.canToggleList ?? true)}
+										onPress={() => tool.run(editor)}
 									>
 										{tool.label}
-									</button>
+									</ToolButton>
 								))}
 							</div>
 						)}
