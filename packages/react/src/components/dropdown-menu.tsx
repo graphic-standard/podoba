@@ -49,8 +49,8 @@ import { uic } from '../utils/uic'
  * out, 200ms `cubic-bezier(0.16, 1, 0.3, 1)` (`animate-dropdown-in` / `-out`).
  * (#25: the source grey is 2.10:1 on `surface`; a section label is read, not ornament)
  * · separator `#eceae1` → `border`. The destructive item uses `text-danger`
- * (`#dc2626`) — a light-surface red that reads correctly here (unlike the dark
- * ContextMenu, which needs the lighter `#fee2e2`).
+ * (`#d92323`), a light-surface red that reads correctly here (unlike the dark
+ * ContextMenu, which needs the lighter `context-menu-danger`).
  *
  * Presentational only (hard rule #1) — no app imports.
  */
