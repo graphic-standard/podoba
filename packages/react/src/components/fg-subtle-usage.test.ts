@@ -39,6 +39,7 @@ const ALLOWED: Record<string, { count: number; why: string }> = {
 	'components/focus-field.tsx': { count: 1, why: 'close glyph' },
 	'components/search-field.tsx': { count: 2, why: 'search + clear glyphs' },
 	'components/settings-dialog-surface.tsx': { count: 2, why: 'close glyph, both surfaces' },
+	'components/round-check-toggle.tsx': { count: 1, why: 'GS annotation check glyph; required aria-label, no visible copy inside the control' },
 	'components/side-panel.tsx': { count: 1, why: 'close glyph' },
 	'components/tag-group.tsx': { count: 1, why: 'tag remove glyph' },
 	'components/toast.tsx': { count: 1, why: 'close glyph' },

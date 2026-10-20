@@ -23,3 +23,7 @@ export default { presets: [podobaPreset], content: ["./src/**/*.{ts,tsx}", "./no
 Scope is **atomic primitives + layout only**. GS product patterns (schema renderer,
 delivery/approval modals, brand page header) live in GS and consume this. See
 [../../EXTRACTION.md](../../EXTRACTION.md).
+
+`RoundCheckToggle` is the shared circular GS annotation control. Supply a translated
+`aria-label`, `isSelected`, `onChange`, and optionally `isDisabled`; it owns the
+24px green checked appearance and React Aria keyboard/pressed-state behavior.
