@@ -94,3 +94,5 @@ export * from './components/date-selection-calendar'
 export * from './components/compact-settings-dialog'
 
 export * from "./components/round-check-toggle";
+
+export { InlineAlert, type InlineAlertProps } from './components/inline-alert'
