@@ -356,7 +356,13 @@ export function WizardFormDialog({
 							</DisplayHeading>
 						</Container>
 					</header>
-					<ScrollBody style={{ scrollbarGutter: 'stable' }}>
+					<ScrollBody
+						role="region"
+						tabIndex={0}
+						aria-label={ariaLabel}
+						aria-labelledby={ariaLabel ? undefined : titleId}
+						style={{ scrollbarGutter: 'stable' }}
+					>
 						<Container className="max-w-384 px-5 min-[901px]:px-6">
 							<Body className="gap-8">{children}</Body>
 						</Container>
