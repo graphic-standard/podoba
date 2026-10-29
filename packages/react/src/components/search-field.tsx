@@ -9,10 +9,11 @@ import {
 } from 'react-aria-components'
 import {
 	fieldDescriptionClass,
-	fieldLabelClass,
-	fieldSizeClasses,
+	fieldControlClasses,
+	type FieldAppearance,
+	fieldLabelClasses,
+	type FieldLabelSize,
 	fieldStackClass,
-	outlinedFieldClasses,
 	type FieldSize,
 } from './field-appearance'
 
@@ -39,6 +40,8 @@ const SearchGlyph = () => (
 )
 
 export type SearchFieldProps = RACSearchFieldProps & {
+	appearance?: FieldAppearance
+	labelSize?: FieldLabelSize
 	label?: ReactNode
 	description?: ReactNode
 	placeholder?: string
@@ -46,21 +49,38 @@ export type SearchFieldProps = RACSearchFieldProps & {
 	size?: FieldSize
 }
 
-export const SearchField = ({ label, description, placeholder, size = 'md', ...props }: SearchFieldProps) => (
+export const SearchField = ({
+	label,
+	labelSize = 'default',
+	appearance = 'outlined',
+	description,
+	placeholder,
+	size = 'md',
+	...props
+}: SearchFieldProps) => (
 	<RACSearchField {...props} className={`group ${fieldStackClass}`}>
-		{label ? <Label className={fieldLabelClass}>{label}</Label> : null}
+		{label ? <Label className={fieldLabelClasses[labelSize]}>{label}</Label> : null}
 		<div className="relative flex items-center">
 			<SearchGlyph />
 			<RACInput
 				placeholder={placeholder}
 				className={
-					`w-full rounded-lg pl-10 pr-10 ${fieldSizeClasses[size]} ${outlinedFieldClasses()} ` +
+					`w-full rounded-lg pl-10 pr-10 ${fieldControlClasses(appearance, size)} ` +
 					'[&::-webkit-search-cancel-button]:hidden'
 				}
 			/>
 			{/* RAC hides this automatically when the field is empty. */}
 			<RACButton className="absolute right-2 flex h-7 w-7 cursor-pointer data-[disabled]:cursor-not-allowed items-center justify-center rounded-md text-fg-subtle outline-none transition-colors hover:bg-surface-muted hover:text-fg group-data-[empty]:hidden data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
-				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+				<svg
+					width="14"
+					height="14"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+					aria-hidden="true"
+				>
 					<path d="M6 6l12 12M18 6 6 18" />
 				</svg>
 			</RACButton>

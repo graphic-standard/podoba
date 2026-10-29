@@ -17,7 +17,8 @@ import { useInFocusOverlay } from './focus-context'
 import {
 	fieldDescriptionClass,
 	fieldErrorClass,
-	fieldLabelClass,
+	fieldLabelClasses,
+	type FieldLabelSize,
 	fieldSizeClasses,
 	fieldStackClass,
 	outlinedFieldClasses,
@@ -51,7 +52,8 @@ const SelectTrigger = uic(RACButton, {
 		'flex w-full cursor-pointer items-center justify-between gap-2.5 rounded-lg text-small text-fg outline-none transition-colors',
 	variants: {
 		appearance: {
-			filled: 'min-h-control-tall border-0 bg-surface-card px-5 py-5 font-normal leading-4.5 duration-200 motion-reduce:transition-none ' +
+			filled:
+				'h-10.5 border-0 bg-surface-card px-4 py-3 font-normal leading-4.5 duration-200 motion-reduce:transition-none ' +
 				'data-[hovered]:bg-surface-muted group-data-[open]:bg-surface-card ' +
 				'data-[focus-visible]:outline-solid data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:outline-offset-2 ' +
 				'group-data-[invalid]:ring-1 group-data-[invalid]:ring-danger ' +
@@ -73,16 +75,18 @@ const StyledSelectItem = uic(ListBoxItem, {
 		'flex cursor-pointer select-none items-center rounded-md text-small text-fg outline-none data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 	variants: {
 		appearance: {
-			filled: 'min-w-0 overflow-hidden px-5 py-0 font-normal leading-4.5 max-md:min-h-11 ' +
+			filled:
+				'min-w-0 overflow-hidden px-5 py-0 font-normal leading-4.5 max-md:min-h-11 ' +
 				'data-[hovered]:font-medium data-[focused]:font-medium data-[selected]:font-medium ' +
 				'data-[focus-visible]:outline-solid data-[focus-visible]:outline-2 data-[focus-visible]:outline-ring data-[focus-visible]:-outline-offset-2',
-			outlined: 'px-3 py-2 ' +
-		'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
-		'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
+			outlined:
+				'px-3 py-2 ' +
+				'data-[hovered]:bg-surface-muted data-[focused]:bg-surface-muted data-[selected]:font-medium ' +
+				'data-[disabled]:opacity-50 data-[disabled]:pointer-events-none',
 		},
 	},
 	defaultVariants: { appearance: 'outlined' },
-}) as (props: ListBoxItemProps & { appearance?: FieldAppearance }) => ReactNode
+}) as (props: ListBoxItemProps & { labelSize?: FieldLabelSize; appearance?: FieldAppearance }) => ReactNode
 
 export const SelectItem = (props: ListBoxItemProps): ReactNode => {
 	const appearance = useContext(SelectAppearanceContext)
@@ -90,9 +94,19 @@ export const SelectItem = (props: ListBoxItemProps): ReactNode => {
 	// Manager's ItemText is a single ellipsized line. Keep the full value in the
 	// label/textValue so keyboard search and assistive technology don't see a cut-off label.
 	const { children, textValue, ...rest } = props
-	return <StyledSelectItem {...rest} appearance={appearance} textValue={textValue ?? (typeof children === 'string' ? children : undefined)}>
-		{state => <Text slot="label" className="min-w-0 truncate">{typeof children === 'function' ? children(state) : children}</Text>}
-	</StyledSelectItem>
+	return (
+		<StyledSelectItem
+			{...rest}
+			appearance={appearance}
+			textValue={textValue ?? (typeof children === 'string' ? children : undefined)}
+		>
+			{(state) => (
+				<Text slot="label" className="min-w-0 truncate">
+					{typeof children === 'function' ? children(state) : children}
+				</Text>
+			)}
+		</StyledSelectItem>
+	)
 }
 
 const SelectListBox = uic(ListBox, {
@@ -104,14 +118,17 @@ const SelectListBox = uic(ListBox, {
 const SelectPopover = uic(Popover, {
 	displayName: 'SelectPopover',
 	baseClass: 'overflow-hidden rounded-lg bg-surface-card shadow-lg',
-	variants: { appearance: {
-		outlined: 'min-w-(--trigger-width)',
-		filled: 'w-(--trigger-width) max-w-(--select-popup-max-width)',
-	} },
+	variants: {
+		appearance: {
+			outlined: 'min-w-(--trigger-width)',
+			filled: 'w-(--trigger-width) max-w-(--select-popup-max-width)',
+		},
+	},
 	defaultVariants: { appearance: 'outlined' },
 })
 
 export type SelectProps<T extends object> = RACSelectProps<T> & {
+	labelSize?: FieldLabelSize
 	appearance?: FieldAppearance
 	/** Outlined trigger height, matching `Input`'s `size`. Ignored when filled. */
 	size?: FieldSize
@@ -126,7 +143,7 @@ export type SelectProps<T extends object> = RACSelectProps<T> & {
 	 * i18n, so the consumer passes a translated string (otherwise RAC would fall
 	 * back to its own hardcoded English "Select an item").
 	 */
-	placeholder: string
+	placeholder?: string
 	children: ReactNode
 	/** Optional class for the Select root. */
 	rootClassName?: string
@@ -136,6 +153,7 @@ export type SelectProps<T extends object> = RACSelectProps<T> & {
 
 export const Select = <T extends object>({
 	label,
+	labelSize = 'default',
 	description,
 	errorMessage,
 	placeholder,
@@ -163,42 +181,55 @@ export const Select = <T extends object>({
 
 	return (
 		<SelectAppearanceContext.Provider value={appearance}>
-		<RACSelect {...props} placeholder={placeholder} className={`group ${fieldStackClass} ${rootClassName ?? ''}`}>
-			<Label className={isLabelHidden ? 'sr-only' : fieldLabelClass}>{label}</Label>
-			{inFocus ? (
-				<>
-					{listbox}
-					{desc}
-					{err}
-				</>
-			) : (
-				<>
-					<SelectTrigger className={triggerClassName} appearance={appearance} fieldSize={appearance === 'outlined' ? size : undefined}>
-						{/* One line: a long value must not wrap out of the fixed-height box. */}
-						<SelectValue className="min-w-0 truncate data-[placeholder]:text-fg-muted" />
-						{/* gs chevron: 9.5px caret, dark (neutral-400 → fg), non-interactive. */}
-						<svg
-							width="9.5"
-							height="9.5"
-							viewBox="0 0 12 12"
-							fill="none"
-							aria-hidden="true"
-							className="pointer-events-none shrink-0 text-fg"
-						>
-							<path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-						</svg>
-					</SelectTrigger>
-					{desc}
-					{err}
-					{/* Filled uses the trigger width and Manager's 4px popup offset. */}
-					<SelectPopover appearance={appearance} offset={appearance === 'filled' ? 4 : undefined}
-						containerPadding={appearance === 'filled' ? 12 : undefined}
-						style={appearance === 'filled' ? filledPopoverStyle : undefined}>
+			<RACSelect {...props} placeholder={placeholder} className={`group ${fieldStackClass} ${rootClassName ?? ''}`}>
+				<Label className={isLabelHidden ? 'sr-only' : fieldLabelClasses[labelSize]}>{label}</Label>
+				{inFocus ? (
+					<>
 						{listbox}
-					</SelectPopover>
-				</>
-			)}
-		</RACSelect>
+						{desc}
+						{err}
+					</>
+				) : (
+					<>
+						<SelectTrigger
+							className={triggerClassName}
+							appearance={appearance}
+							fieldSize={appearance === 'outlined' ? size : undefined}
+						>
+							{/* One line: a long value must not wrap out of the fixed-height box. */}
+							<SelectValue className="min-w-0 truncate data-[placeholder]:text-fg-muted" />
+							{/* gs chevron: 9.5px caret, dark (neutral-400 → fg), non-interactive. */}
+							<svg
+								width="9.5"
+								height="9.5"
+								viewBox="0 0 12 12"
+								fill="none"
+								aria-hidden="true"
+								className="pointer-events-none shrink-0 text-fg"
+							>
+								<path
+									d="M3 4.5L6 7.5L9 4.5"
+									stroke="currentColor"
+									strokeWidth="1.5"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+							</svg>
+						</SelectTrigger>
+						{desc}
+						{err}
+						{/* Filled uses the trigger width and Manager's 4px popup offset. */}
+						<SelectPopover
+							appearance={appearance}
+							offset={appearance === 'filled' ? 4 : undefined}
+							containerPadding={appearance === 'filled' ? 12 : undefined}
+							style={appearance === 'filled' ? filledPopoverStyle : undefined}
+						>
+							{listbox}
+						</SelectPopover>
+					</>
+				)}
+			</RACSelect>
 		</SelectAppearanceContext.Provider>
 	)
 }

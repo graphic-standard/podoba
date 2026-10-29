@@ -9,7 +9,8 @@ export type TemplateCatalogSelection = (typeof TEMPLATE_CATALOG_SELECTIONS)[numb
 /** Legacy StatsCard label-1 value, distinct from the Tile heading ramp. */
 export const CatalogMetricValue = uic('span', {
 	displayName: 'CatalogMetricValue',
-	baseClass: 'block w-full text-center text-display-large font-medium leading-(--line-height-display-large) tracking-wider',
+	baseClass:
+		'block w-full text-center text-display-large font-medium leading-(--line-height-display-large) tracking-wider',
 })
 
 export const CATALOG_METRIC_FOOTERS = ['present', 'missing'] as const
@@ -21,42 +22,111 @@ const MetricContent = uic('div', {
 })
 
 /** Compact source statistics: preserve the centered content band without a tail. */
-export function CatalogMetricCard({ title, value, footer, onPress, 'aria-label': ariaLabel }: {
-	title: string; value: ReactNode; footer?: string; onPress?: () => void; 'aria-label'?: string
+export function CatalogMetricCard({
+	title,
+	value,
+	footer,
+	onPress,
+	'aria-label': ariaLabel,
+}: {
+	title: string
+	value: ReactNode
+	footer?: string
+	onPress?: () => void
+	'aria-label'?: string
 }) {
-	return <Tile theme="light" eyebrow={title} footer={footer || undefined} onPress={onPress}
-		aria-label={ariaLabel} className="h-52 min-h-52 max-h-52">
-		<MetricContent data-slot="catalog-metric-content" footer={footer ? 'present' : 'missing'}>
-			<CatalogMetricValue>{value}</CatalogMetricValue>
-		</MetricContent>
-	</Tile>
+	return (
+		<Tile
+			theme="light"
+			eyebrow={title}
+			footer={footer || undefined}
+			onPress={onPress}
+			aria-label={ariaLabel}
+			className="h-52 min-h-52 max-h-52"
+		>
+			<MetricContent data-slot="catalog-metric-content" footer={footer ? 'present' : 'missing'}>
+				<CatalogMetricValue>{value}</CatalogMetricValue>
+			</MetricContent>
+		</Tile>
+	)
 }
 
-const SummaryCard = uic('article', { displayName: 'CatalogSummaryCard', baseClass: 'flex h-95 w-full min-w-0 flex-col gap-6 overflow-hidden rounded-lg bg-surface-card p-4 text-fg' })
-export const CatalogSummaryGrid = uic('div', { displayName: 'CatalogSummaryGrid', baseClass: 'grid w-full min-w-0 grid-cols-1 gap-x-2 gap-y-4 overflow-x-hidden min-[768px]:grid-cols-3 min-[768px]:gap-x-3' })
-const SummaryHead = uic('div', { displayName: 'CatalogSummaryHead', baseClass: 'flex w-full min-w-0 items-center justify-between gap-3' })
-export const CatalogSummaryBadge = uic('span', { displayName: 'CatalogSummaryBadge', baseClass: 'ml-3 flex h-6 shrink-0 items-center rounded-2xl px-2.5 text-micro font-medium leading-5', style: { fontFeatureSettings: '"liga" off, "clig" off' }, variants: { color: { green: 'bg-brand-green text-fg-on-brand', grey: 'bg-surface-muted text-(--color-neutral-600)' } }, defaultVariants: { color: 'grey' } })
-const SummaryTitle = uic('h2', { displayName: 'CatalogSummaryTitle', baseClass: 'm-0 min-w-0 truncate text-heading5 font-medium' })
-const SummaryTail = uic('div', { displayName: 'CatalogSummaryTail', baseClass: 'mt-auto flex flex-col gap-1 text-small font-normal text-fg-muted' })
+const SummaryCard = uic('article', {
+	displayName: 'CatalogSummaryCard',
+	baseClass: 'flex h-95 w-full min-w-0 flex-col gap-6 overflow-hidden rounded-lg bg-surface-card p-4 text-fg',
+})
+export const CatalogSummaryGrid = uic('div', {
+	displayName: 'CatalogSummaryGrid',
+	baseClass:
+		'grid w-full min-w-0 grid-cols-1 gap-x-2 gap-y-4 overflow-x-hidden min-[768px]:grid-cols-3 min-[768px]:gap-x-3',
+})
+const SummaryHead = uic('div', {
+	displayName: 'CatalogSummaryHead',
+	baseClass: 'flex w-full min-w-0 items-center justify-between gap-3',
+})
+export const CatalogSummaryBadge = uic('span', {
+	displayName: 'CatalogSummaryBadge',
+	baseClass: 'ml-3 flex h-6 shrink-0 items-center rounded-2xl px-2.5 text-micro font-medium leading-5',
+	style: { fontFeatureSettings: '"liga" off, "clig" off' },
+	variants: {
+		color: { green: 'bg-brand-green text-fg-on-brand', grey: 'bg-surface-muted text-(--color-neutral-600)' },
+	},
+	defaultVariants: { color: 'grey' },
+})
+const SummaryTitle = uic('h2', {
+	displayName: 'CatalogSummaryTitle',
+	baseClass: 'm-0 min-w-0 truncate text-heading5 font-medium',
+})
+const SummaryTail = uic('div', {
+	displayName: 'CatalogSummaryTail',
+	baseClass: 'mt-auto flex flex-col gap-1 text-small font-normal text-fg-muted',
+})
 /** Source gs Tile image cover: caller artwork under a transparent → 30% → 50% black gradient. */
 function CatalogCover({ preview }: { preview: ReactNode }) {
-	return <>
-		<div aria-hidden="true" className="absolute inset-0 -z-10 overflow-hidden [&_canvas]:size-full [&_canvas]:object-cover [&_img]:size-full [&_img]:object-cover">{preview}</div>
-		<div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-b from-black/0 via-black/30 to-black/50" />
-	</>
+	return (
+		<>
+			<div
+				aria-hidden="true"
+				className="absolute inset-0 -z-10 overflow-hidden [&_canvas]:size-full [&_canvas]:object-cover [&_img]:size-full [&_img]:object-cover"
+			>
+				{preview}
+			</div>
+			<div aria-hidden="true" className="absolute inset-0 -z-10 bg-linear-to-b from-black/0 via-black/30 to-black/50" />
+		</>
+	)
 }
 
 /**
  * Display-only catalog tile. No synthetic imagery when a preview is absent. An optional
  * real `preview` covers the card with the source gradient and switches the ink to white.
  */
-export function CatalogSummaryCard({ title, badge, description, details, preview }: { title: string; badge: ReactNode; description?: string; details: ReactNode; preview?: ReactNode }) {
+export function CatalogSummaryCard({
+	title,
+	badge,
+	description,
+	details,
+	preview,
+}: {
+	title: string
+	badge: ReactNode
+	description?: string
+	details: ReactNode
+	preview?: ReactNode
+}) {
 	const covered = preview != null
-	return <SummaryCard data-preview={covered || undefined} className={covered ? 'relative isolate' : undefined}>
-		{covered ? <CatalogCover preview={preview} /> : null}
-		<SummaryHead><SummaryTitle className={covered ? 'text-white' : undefined}>{title}</SummaryTitle><span className="shrink-0">{badge}</span></SummaryHead>
-		<SummaryTail className={covered ? 'text-white/88' : undefined}>{description ? <p className="m-0">{description}</p> : null}<span>{details}</span></SummaryTail>
-	</SummaryCard>
+	return (
+		<SummaryCard data-preview={covered || undefined} className={covered ? 'relative isolate' : undefined}>
+			{covered ? <CatalogCover preview={preview} /> : null}
+			<SummaryHead>
+				<SummaryTitle className={covered ? 'text-white' : undefined}>{title}</SummaryTitle>
+				<span className="shrink-0">{badge}</span>
+			</SummaryHead>
+			<SummaryTail className={covered ? 'text-white/88' : undefined}>
+				{description ? <p className="m-0">{description}</p> : null}
+				<span>{details}</span>
+			</SummaryTail>
+		</SummaryCard>
+	)
 }
 
 /**
@@ -65,36 +135,100 @@ export function CatalogSummaryCard({ title, badge, description, details, preview
  * under the source gs Tile image gradient (transparent → 30% → 50% black), and the
  * title and tail switch to the source white / white 88% ink.
  */
-export function CatalogLaunchCard({ title, description, details, action, preview }: { title: string; description?: string; details: ReactNode; action: ReactNode; preview?: ReactNode }) {
+export function CatalogLaunchCard({
+	title,
+	description,
+	details,
+	action,
+	preview,
+}: {
+	title: string
+	description?: string
+	details: ReactNode
+	action: ReactNode
+	preview?: ReactNode
+}) {
 	const covered = preview != null
-	return <SummaryCard data-testid="scenario-launch-card" data-preview={covered || undefined} className="relative isolate h-70 min-h-70 max-h-70 transition-colors duration-200 focus-within:ring-2 focus-within:ring-ring">
-		{covered ? <CatalogCover preview={preview} /> : null}
-		<SummaryHead><SummaryTitle asChild className={covered ? 'text-white' : undefined}><h3>{title}</h3></SummaryTitle></SummaryHead>
-		<SummaryTail className={covered ? 'text-white/88' : undefined}>{description ? <p className="m-0">{description}</p> : null}<span>{details}</span></SummaryTail>
-		{action}
-	</SummaryCard>
+	return (
+		<SummaryCard
+			data-testid="scenario-launch-card"
+			data-preview={covered || undefined}
+			className="relative isolate h-70 min-h-70 max-h-70 transition-colors duration-200 focus-within:ring-2 focus-within:ring-ring"
+		>
+			{covered ? <CatalogCover preview={preview} /> : null}
+			<SummaryHead>
+				<SummaryTitle asChild className={covered ? 'text-white' : undefined}>
+					<h3>{title}</h3>
+				</SummaryTitle>
+			</SummaryHead>
+			<SummaryTail className={covered ? 'text-white/88' : undefined}>
+				{description ? <p className="m-0">{description}</p> : null}
+				<span>{details}</span>
+			</SummaryTail>
+			{action}
+		</SummaryCard>
+	)
 }
 
 const MetadataSection = uic('section', { displayName: 'CatalogMetadataSection', baseClass: 'm-0 w-full' })
 /** Source metadata layout: full-width identity, paired attributes, wrapping IDs. */
-export function CatalogMetadataSummary({ title, ariaLabel, items }: {
-	title: string; ariaLabel: string; items: { label: string; value: ReactNode; fullWidth?: boolean }[]
+export function CatalogMetadataSummary({
+	title,
+	ariaLabel,
+	items,
+	density = 'default',
+}: {
+	title: string
+	ariaLabel: string
+	density?: 'default' | 'compact'
+	items: { label: string; value: ReactNode; fullWidth?: boolean }[]
 }) {
 	let column = 0
-	return <MetadataSection aria-label={ariaLabel}>
-		<h2 className="mb-3 mt-0 text-heading3 font-medium text-fg">{title}</h2>
-		<dl className="m-0 grid w-full grid-cols-1 border-t border-border min-[641px]:grid-cols-2">
-			{items.map(item => {
-				const second = !item.fullWidth && column % 2 === 1
-				column = item.fullWidth ? 0 : column + 1
-				return <div key={item.label} className={`flex min-w-0 flex-col gap-1 border-b border-border py-3 ${item.fullWidth ? 'col-span-full' : ''} ${second ? 'min-[641px]:border-l min-[641px]:pl-3' : ''}`}>
-					{/* #25: the term of a definition list is meaningful copy — AA `fg-muted`. */}
-					<dt className="m-0 text-body font-normal text-fg-muted">{item.label}</dt>
-					<dd className="m-0 text-body font-normal text-fg [overflow-wrap:anywhere]">{item.value}</dd>
-				</div>
-			})}
-		</dl>
-	</MetadataSection>
+	return (
+		<MetadataSection aria-label={ariaLabel}>
+			<h2
+				className={
+					density === 'compact'
+						? 'mb-3 mt-0 text-small font-medium text-fg'
+						: 'mb-3 mt-0 text-heading3 font-medium text-fg'
+				}
+			>
+				{title}
+			</h2>
+			<dl className="m-0 grid w-full grid-cols-1 border-t border-border min-[641px]:grid-cols-2">
+				{items.map((item) => {
+					const second = !item.fullWidth && column % 2 === 1
+					column = item.fullWidth ? 0 : column + 1
+					return (
+						<div
+							key={item.label}
+							className={`flex min-w-0 flex-col gap-1 border-b border-border py-3 ${item.fullWidth ? 'col-span-full' : ''} ${second ? 'min-[641px]:border-l min-[641px]:pl-3' : ''}`}
+						>
+							{/* #25: the term of a definition list is meaningful copy — AA `fg-muted`. */}
+							<dt
+								className={
+									density === 'compact'
+										? 'm-0 text-label font-normal text-fg-muted'
+										: 'm-0 text-body font-normal text-fg-muted'
+								}
+							>
+								{item.label}
+							</dt>
+							<dd
+								className={
+									density === 'compact'
+										? 'm-0 text-label font-normal text-fg [overflow-wrap:anywhere]'
+										: 'm-0 text-body font-normal text-fg [overflow-wrap:anywhere]'
+								}
+							>
+								{item.value}
+							</dd>
+						</div>
+					)
+				})}
+			</dl>
+		</MetadataSection>
+	)
 }
 
 export const TEMPLATE_REFERENCE_VIEWS = ['preview_grid', 'compact_list'] as const
@@ -106,25 +240,69 @@ export const TemplateReferenceGrid = uic('div', {
 	defaultVariants: { columns: 1 },
 })
 export const TemplateReferenceList = uic('div', {
-	displayName: 'TemplateReferenceList', baseClass: 'flex w-full flex-col gap-2',
+	displayName: 'TemplateReferenceList',
+	baseClass: 'flex w-full flex-col gap-2',
 })
 const ReferenceButton = uic(AriaButton, {
 	displayName: 'TemplateReferenceButton',
-	baseClass: 'w-full cursor-pointer border-0 p-0 text-start outline-none disabled:cursor-default data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2',
-	variants: { view: {
-		preview_grid: 'flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-surface-card',
-		compact_list: 'grid min-h-14 grid-cols-[3rem_minmax(0,1fr)] items-center gap-3 border-b border-border bg-transparent last:border-b-0',
-	} },
+	baseClass:
+		'w-full cursor-pointer border-0 p-0 text-start outline-none disabled:cursor-default data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2',
+	variants: {
+		view: {
+			preview_grid: 'flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-surface-card',
+			compact_list:
+				'grid min-h-16 grid-cols-[3rem_minmax(0,1fr)] items-center gap-3 border-b border-border bg-transparent py-2 last:border-b-0',
+		},
+	},
 })
 /** Read-only browsing surfaces: activation opens a preview, never selects it. */
-export function TemplateReferenceItem({ title, meta, preview, view, isDisabled, onOpen, templateId }: {
-	title: string; meta: string; preview: ReactNode; view: TemplateReferenceView
-	isDisabled?: boolean; onOpen: () => void; templateId: string
+export function TemplateReferenceItem({
+	title,
+	meta,
+	preview,
+	view,
+	isDisabled,
+	onOpen,
+	templateId,
+	referenceId,
+}: {
+	title: string
+	meta: string
+	preview: ReactNode
+	view: TemplateReferenceView
+	isDisabled?: boolean
+	onOpen: () => void
+	templateId?: string
+	referenceId?: string
 }) {
-	return <ReferenceButton type="button" view={view} isDisabled={isDisabled} onPress={onOpen} aria-label={title} data-template-id={templateId}>
-		<span aria-hidden="true" className={view === 'compact_list' ? 'flex size-12 items-center justify-center overflow-hidden rounded-sm bg-surface-card [&>div]:w-full' : 'flex h-full w-full items-center justify-center [&>div]:w-full'}>{preview}</span>
-		{view === 'compact_list' ? <span className="flex min-w-0 flex-col gap-1"><span className="truncate text-small font-medium text-fg">{title}</span><span className="truncate text-label font-medium text-fg-muted">{meta}</span></span> : null}
-	</ReferenceButton>
+	return (
+		<ReferenceButton
+			type="button"
+			view={view}
+			isDisabled={isDisabled}
+			onPress={onOpen}
+			aria-label={title}
+			data-template-id={templateId}
+			data-reference-id={referenceId}
+		>
+			<span
+				aria-hidden="true"
+				className={
+					view === 'compact_list'
+						? 'flex size-12 items-center justify-center overflow-hidden rounded-sm bg-surface-card [&>div]:w-full'
+						: 'flex h-full w-full items-center justify-center [&>div]:w-full'
+				}
+			>
+				{preview}
+			</span>
+			{view === 'compact_list' ? (
+				<span className="flex min-w-0 flex-col gap-1">
+					<span className="truncate text-label font-normal text-fg">{title}</span>
+					<span className="truncate text-label font-normal text-fg-muted">{meta}</span>
+				</span>
+			) : null}
+		</ReferenceButton>
+	)
 }
 
 export const TemplateCatalogGrid = uic('div', {
@@ -134,7 +312,8 @@ export const TemplateCatalogGrid = uic('div', {
 
 const Card = uic(AriaButton, {
 	displayName: 'TemplateCatalogCardSurface',
-	baseClass: 'group box-border flex h-(--template-catalog-height) min-w-0 w-full cursor-pointer flex-col gap-6 overflow-hidden rounded-lg border-0 p-4 text-start outline-none transition-colors duration-200 motion-reduce:transition-none hover:bg-brand-green hover:text-fg-on-brand data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2',
+	baseClass:
+		'group box-border flex h-(--template-catalog-height) min-w-0 w-full cursor-pointer flex-col gap-6 overflow-hidden rounded-lg border-0 p-4 text-start outline-none transition-colors duration-200 motion-reduce:transition-none hover:bg-brand-green hover:text-fg-on-brand data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2',
 	variants: {
 		selection: {
 			available: 'bg-surface-card text-fg',
@@ -149,7 +328,8 @@ const Title = uic('span', {
 })
 const Preview = uic('span', {
 	displayName: 'TemplateCatalogCardPreview',
-	baseClass: 'box-border flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden rounded-md bg-transparent p-3 [&>div]:w-full',
+	baseClass:
+		'box-border flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden rounded-md bg-transparent p-3 [&>div]:w-full',
 })
 
 const geometry: CSSProperties & { '--template-catalog-height': string } = {
@@ -163,15 +343,39 @@ export const TemplateCatalogBrowseGrid = uic('div', {
 })
 const BrowseCard = uic('div', {
 	displayName: 'TemplateCatalogBrowseSurface',
-	baseClass: 'box-border flex h-(--template-catalog-height) min-w-0 w-full cursor-default flex-col gap-6 overflow-hidden rounded-lg border-0 bg-surface-card p-4 text-start text-fg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+	baseClass:
+		'box-border flex h-(--template-catalog-height) min-w-0 w-full cursor-default flex-col gap-6 overflow-hidden rounded-lg border-0 bg-surface-card p-4 text-start text-fg outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
 })
 /** Legacy readOnly catalog: no activation, hover shadow or extra card CTA. */
-export function TemplateCatalogBrowseCard({ title, preview, templateId, id, testId }: {
-	title: string; preview: ReactNode; templateId: string; id?: string; testId?: string
+export function TemplateCatalogBrowseCard({
+	title,
+	preview,
+	templateId,
+	id,
+	testId,
+}: {
+	title: string
+	preview: ReactNode
+	templateId: string
+	id?: string
+	testId?: string
 }) {
-	return <BrowseCard role="group" tabIndex={0} aria-label={title} id={id} data-catalog-template-id={templateId} data-testid={testId} style={geometry}>
-		<Title>{title}</Title><Preview aria-hidden="true" className="pointer-events-none">{preview}</Preview>
-	</BrowseCard>
+	return (
+		<BrowseCard
+			role="group"
+			tabIndex={0}
+			aria-label={title}
+			id={id}
+			data-catalog-template-id={templateId}
+			data-testid={testId}
+			style={geometry}
+		>
+			<Title>{title}</Title>
+			<Preview aria-hidden="true" className="pointer-events-none">
+				{preview}
+			</Preview>
+		</BrowseCard>
+	)
 }
 
 /** Selection-only catalog tile. No badge, selected ring, nested action, or artwork
@@ -179,10 +383,21 @@ export function TemplateCatalogBrowseCard({ title, preview, templateId, id, test
  * the original catalog; aria-disabled and the press guard prevent its removal.
  * The caller owns selection and supplies a non-interactive, contain-fit preview.
  */
-export function TemplateCatalogCard({ title, preview, isSelected = false, isSelectionLocked = false,
-	onToggle, onOpen, templateId, testId,
+export function TemplateCatalogCard({
+	title,
+	preview,
+	isSelected = false,
+	isSelectionLocked = false,
+	onToggle,
+	onOpen,
+	templateId,
+	testId,
+	classification,
+	description,
 }: {
 	title: string
+	classification?: ReactNode
+	description?: ReactNode
 	preview: ReactNode
 	isSelected?: boolean
 	isSelectionLocked?: boolean
@@ -192,11 +407,27 @@ export function TemplateCatalogCard({ title, preview, isSelected = false, isSele
 	templateId?: string
 	testId?: string
 }) {
-	return <Card type="button" selection={isSelected ? 'selected' : 'available'}
-		aria-label={title} aria-pressed={onOpen ? undefined : isSelected} aria-disabled={isSelectionLocked}
-		data-template-id={templateId} data-testid={testId} style={geometry}
-		onPress={() => { if (!isSelectionLocked) { if (onOpen) onOpen(); else onToggle?.() } }}>
-		<Title>{title}</Title>
-		<Preview aria-hidden="true">{preview}</Preview>
-	</Card>
+	return (
+		<Card
+			type="button"
+			selection={isSelected ? 'selected' : 'available'}
+			aria-label={title}
+			aria-pressed={onOpen ? undefined : isSelected}
+			aria-disabled={isSelectionLocked}
+			data-template-id={templateId}
+			data-testid={testId}
+			style={geometry}
+			onPress={() => {
+				if (!isSelectionLocked) {
+					if (onOpen) onOpen()
+					else onToggle?.()
+				}
+			}}
+		>
+			<Title>{title}</Title>
+			{classification ? <span className="text-label text-fg-muted">{classification}</span> : null}
+			{description ? <p className="m-0 text-label font-normal text-fg-muted">{description}</p> : null}
+			<Preview aria-hidden="true">{preview}</Preview>
+		</Card>
+	)
 }

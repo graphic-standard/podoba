@@ -21,7 +21,7 @@ export const filledFieldClasses =
 export const fieldDescriptionClass = 'text-small text-fg-muted'
 
 /** gs `.errorText`: 16px, line-height normal, error red (`danger`, 4.83:1 on white). */
-export const fieldErrorClass = 'text-body leading-[normal] text-danger'
+export const fieldErrorClass = 'text-label leading-4 text-danger'
 
 /** Field label, shared by every labelled form control (gs 17px/20px field label). */
 export const fieldLabelClass = 'text-panel-heading font-medium text-fg'
@@ -66,3 +66,13 @@ export const outlinedFieldClasses = ({
 	invalid = 'self',
 }: { focus?: keyof typeof outlinedFocus; invalid?: keyof typeof outlinedInvalid } = {}) =>
 	`${outlinedBase} ${outlinedFocus[focus]} ${outlinedInvalid[invalid]}`
+
+/** Compact labels for dense settings cards; the value remains 14 px. */
+export const fieldLabelClasses = { default: fieldLabelClass, compact: 'text-label font-normal text-fg-muted' } as const
+export type FieldLabelSize = keyof typeof fieldLabelClasses
+
+/** Filled single-line controls share the same 42 px geometry. */
+export const fieldControlClasses = (appearance: FieldAppearance, size: FieldSize = 'md', within = false) =>
+	appearance === 'filled'
+		? `${filledFieldClasses} h-10.5 ${within ? 'data-[focus-within]:outline-solid data-[focus-within]:outline-2 data-[focus-within]:outline-ring data-[focus-within]:outline-offset-2 group-data-[invalid]:ring-1 group-data-[invalid]:ring-danger' : ''}`
+		: `${fieldSizeClasses[size]} ${outlinedFieldClasses({ focus: within ? 'within' : 'self', invalid: 'group' })}`

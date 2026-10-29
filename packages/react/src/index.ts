@@ -7,92 +7,110 @@
 // renderer) stays in GS and consumes this. See ../../EXTRACTION.md.
 
 // --- factory ---
-export { uic, uiconfig, type ConfigVariants, type NoInfer } from "./utils/uic";
+export { uic, uiconfig, type ConfigVariants, type NoInfer } from './utils/uic'
 
 // --- primitives ---
-export * from "./components/button";
-export * from "./components/compact-action-button";
-export * from "./components/input";
-export * from "./components/field-appearance";
-export * from "./components/textarea";
-export * from "./components/rich-text-editor";
-export * from "./components/focus-field";
-export * from "./components/focus-context";
-export * from "./components/checkbox";
-export * from "./components/radio";
-export * from "./components/switch";
-export * from "./components/select";
-export * from "./components/combobox";
-export * from "./components/multiselect";
-export * from "./components/number-field";
-export * from "./components/search-field";
-export * from "./components/slider";
-export * from "./components/tag-group";
-export * from "./components/file-upload";
-export * from "./components/document-upload-panel";
-export * from "./components/csv-binding-presentation";
-export * from "./components/dialog-action-button";
-export * from "./components/reload-icon";
-export * from "./components/source-icons";
-export * from "./components/animated-summary-text";
-export * from "./components/date-field";
-export * from "./components/date-picker";
-export * from "./components/dialog";
-export { AssetSelectionSurface, AssetSelectionEmpty, AssetLibraryPreview, AssetSelectionFilters, AssetSelectionGrid, type AssetSelectionSurfaceProps } from "./components/asset-selection-surface";
-export { AssetMasonryGrid, assetMasonryColumns, assetMasonryPositions } from './components/asset-masonry-grid';
-export * from "./components/side-panel";
-export * from "./components/dropdown-menu";
-export * from "./components/context-menu";
-export * from "./components/context-search-panel";
-export * from "./components/media-gallery";
-export * from "./components/media-settings-dialog";
-export * from "./components/media-asset-panel";
-export * from "./components/tooltip";
-export * from "./components/toast";
-export * from "./components/disclosure";
-export * from "./components/collapsible-card";
-export * from "./components/tabs";
-export * from "./components/section-tabs";
-export * from "./components/separator";
-export * from "./components/text";
-export * from "./components/view-toggle";
+export * from './components/button'
+export * from './components/compact-action-button'
+export * from './components/input'
+export * from './components/field-appearance'
+export * from './components/textarea'
+export * from './components/rich-text-editor'
+export * from './components/focus-field'
+export * from './components/focus-context'
+export * from './components/checkbox'
+export * from './components/radio'
+export * from './components/switch'
+export * from './components/select'
+export * from './components/combobox'
+export * from './components/multiselect'
+export * from './components/number-field'
+export * from './components/search-field'
+export * from './components/slider'
+export * from './components/tag-group'
+export * from './components/file-upload'
+export * from './components/document-upload-panel'
+export * from './components/csv-binding-presentation'
+export * from './components/dialog-action-button'
+export * from './components/reload-icon'
+export * from './components/source-icons'
+export * from './components/animated-summary-text'
+export * from './components/date-field'
+export * from './components/date-picker'
+export * from './components/dialog'
+export {
+	AssetSelectionSurface,
+	AssetSelectionEmpty,
+	AssetLibraryPreview,
+	AssetSelectionFilters,
+	AssetSelectionGrid,
+	type AssetSelectionSurfaceProps,
+} from './components/asset-selection-surface'
+export { AssetMasonryGrid, assetMasonryColumns, assetMasonryPositions } from './components/asset-masonry-grid'
+export * from './components/side-panel'
+export * from './components/dropdown-menu'
+export * from './components/context-menu'
+export * from './components/context-search-panel'
+export * from './components/media-gallery'
+export * from './components/media-settings-dialog'
+export * from './components/media-asset-panel'
+export * from './components/tooltip'
+export * from './components/toast'
+export * from './components/disclosure'
+export * from './components/collapsible-card'
+export * from './components/tabs'
+export * from './components/section-tabs'
+export * from './components/separator'
+export * from './components/text'
+export * from './components/view-toggle'
 
 // --- layout ---
-export * from "./layout/card";
-export * from "./layout/section";
-export * from "./layout/page-container";
-export * from "./layout/app-shell";
-export * from "./layout/topbar";
-export * from "./layout/persistent-page-shell";
+export * from './layout/card'
+export * from './layout/section'
+export * from './layout/page-container'
+export * from './layout/app-shell'
+export * from './layout/topbar'
+export * from './layout/persistent-page-shell'
 
 // --- product patterns (label-driven; no domain coupling) ---
-export * from "./components/avatar";
-export * from "./components/brand-page-header";
-export * from "./components/count-up";
-export * from "./components/preview-motion";
-export * from "./components/cta-pill";
-export * from "./components/stat-stack";
-export * from "./components/icons";
-export * from "./components/context-action-glyph";
-export * from "./components/subtle";
-export * from "./components/stats-card";
-export * from "./components/settings-dialog-surface";
-export * from "./components/template-catalog-card";
-export * from "./components/tile";
-export * from "./components/preview-info-card";
-export * from "./components/empty-panel-action";
-export * from "./components/table";
-export * from "./components/table-header-icon";
-export * from "./components/dashboard-grid";
-export * from "./components/task-approval-modal";
-export * from "./components/request-changes-modal";
-export * from "./components/delivery/download-modal";
-export * from "./components/delivery/send-to-print-modal";
-export * from "./components/delivery/publish-modal";
-export * from "./components/delivery/delivery-status-module";
+export * from './components/avatar'
+export * from './components/brand-page-header'
+export * from './components/count-up'
+export * from './components/preview-motion'
+export * from './components/cta-pill'
+export * from './components/stat-stack'
+export * from './components/icons'
+export * from './components/context-action-glyph'
+export * from './components/subtle'
+export * from './components/stats-card'
+export * from './components/settings-dialog-surface'
+export * from './components/template-catalog-card'
+export * from './components/tile'
+export * from './components/preview-info-card'
+export * from './components/empty-panel-action'
+export * from './components/table'
+export * from './components/table-header-icon'
+export * from './components/dashboard-grid'
+export * from './components/task-approval-modal'
+export * from './components/request-changes-modal'
+export * from './components/delivery/download-modal'
+export * from './components/delivery/send-to-print-modal'
+export * from './components/delivery/publish-modal'
+export * from './components/delivery/delivery-status-module'
 export * from './components/date-selection-calendar'
 export * from './components/compact-settings-dialog'
 
-export * from "./components/round-check-toggle";
+export * from './components/round-check-toggle'
 
 export { InlineAlert, type InlineAlertProps } from './components/inline-alert'
+
+export * from './components/island-toolbar'
+
+export * from './components/column-layout'
+
+export * from './components/media-collection'
+export * from './components/zoomable-image'
+export * from './components/preview-metadata-card'
+export * from './components/icon-button'
+export * from './components/citation'
+export * from './components/preview-error'
