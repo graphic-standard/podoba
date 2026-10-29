@@ -1,6 +1,6 @@
 import { GlobalRegistrator } from '@happy-dom/global-registrator'
 GlobalRegistrator.register()
-import { act, useLayoutEffect, useRef } from 'react'
+import { act, useLayoutEffect, useRef, useState } from 'react'
 import { afterAll, expect, test } from 'bun:test'
 const { createRoot } = await import('react-dom/client')
 const { Input } = await import('./input')
@@ -65,3 +65,33 @@ for (const Field of [Input, Textarea]) {
 		}
 	})
 }
+
+test('an explicitly added inline field receives focus from its trigger', async () => {
+	function Surface() {
+		const [editing, setEditing] = useState(false)
+		return (
+			<>
+				<button onClick={() => setEditing(true)}>Add example</button>
+				{editing ? <Textarea label="Example" autoFocus /> : null}
+			</>
+		)
+	}
+	const host = document.createElement('div')
+	document.body.append(host)
+	const root = createRoot(host)
+	try {
+		await act(async () => root.render(<Surface />))
+		await act(async () => {
+			const trigger = host.querySelector('button')
+			trigger?.focus()
+			trigger?.click()
+		})
+		await act(async () => {
+			await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+		})
+		expect(document.activeElement === host.querySelector('textarea')).toBe(true)
+	} finally {
+		act(() => root.unmount())
+		host.remove()
+	}
+})
