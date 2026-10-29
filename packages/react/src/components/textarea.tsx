@@ -1,3 +1,4 @@
+import { useFieldAutoFocus } from './field-autofocus'
 import {
 	useId,
 	useRef,
@@ -80,29 +81,31 @@ export const Textarea = ({
 	appearance = 'outlined',
 	autoFocus,
 	...props
-}: TextareaProps) => (
-	// Label and gap match `Input` in both appearances (gs 17px/20px field label,
-	// 12px to the control), so a Title + Description pair reads as one form.
-	<TextField {...props} className={`${fieldStackClass} w-full`}>
-		<Label className={fieldLabelClasses[labelSize]}>{label}</Label>
-		<StyledTextArea
-			ref={textAreaRef}
-			onKeyDown={onTextAreaKeyDown}
-			onInput={onTextAreaInput}
-			autoFocus={autoFocus}
-			className={textAreaClassName}
-			placeholder={placeholder}
-			rows={rows}
-			appearance={appearance}
-		/>
-		{description ? (
-			<Text slot="description" className={fieldDescriptionClass}>
-				{description}
-			</Text>
-		) : null}
-		<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
-	</TextField>
-)
+}: TextareaProps) => {
+	const fieldRef = useFieldAutoFocus(autoFocus)
+	return (
+		// Label and gap match `Input` in both appearances (gs 17px/20px field label,
+		// 12px to the control), so a Title + Description pair reads as one form.
+		<TextField {...props} ref={fieldRef} className={`${fieldStackClass} w-full`}>
+			<Label className={fieldLabelClasses[labelSize]}>{label}</Label>
+			<StyledTextArea
+				ref={textAreaRef}
+				onKeyDown={onTextAreaKeyDown}
+				onInput={onTextAreaInput}
+				className={textAreaClassName}
+				placeholder={placeholder}
+				rows={rows}
+				appearance={appearance}
+			/>
+			{description ? (
+				<Text slot="description" className={fieldDescriptionClass}>
+					{description}
+				</Text>
+			) : null}
+			<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
+		</TextField>
+	)
+}
 
 export interface MentionTextareaProps {
 	id?: string

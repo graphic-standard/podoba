@@ -290,6 +290,7 @@ export function WizardFormDialog({
 	isPending = false,
 	isExpanded = false,
 	title,
+	ariaLabel,
 	closeLabel,
 	children,
 	footer,
@@ -299,6 +300,8 @@ export function WizardFormDialog({
 	isPending?: boolean
 	isExpanded?: boolean
 	title: ReactNode
+	/** Stable accessible name when the visual heading changes between steps. */
+	ariaLabel?: string
 	closeLabel: string
 	children: ReactNode
 	footer: ReactNode
@@ -318,7 +321,11 @@ export function WizardFormDialog({
 				data-wizard-expanded={isExpanded}
 				className={`h-23/25 max-h-23/25 w-24/25 max-w-24/25 min-[901px]:h-9/10 min-[901px]:max-h-288 min-[901px]:w-9/10 ${isExpanded ? 'min-[901px]:max-w-432' : 'min-[901px]:max-w-204'}`}
 			>
-				<Layout aria-labelledby={titleId} className="gap-8 py-6 min-[901px]:gap-10 min-[901px]:py-10">
+				<Layout
+					aria-label={ariaLabel}
+					aria-labelledby={ariaLabel ? undefined : titleId}
+					className="gap-8 py-6 min-[901px]:gap-10 min-[901px]:py-10"
+				>
 					<Button
 						variant="ghost"
 						aria-label={closeLabel}

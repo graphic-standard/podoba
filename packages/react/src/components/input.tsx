@@ -1,3 +1,4 @@
+import { useFieldAutoFocus } from './field-autofocus'
 import type { ReactNode } from 'react'
 import { FieldError, Input as RACInput, Label, Text, TextField, type TextFieldProps } from 'react-aria-components'
 import { uic } from '../utils/uic'
@@ -79,21 +80,23 @@ export const Input = ({
 	inputClassName,
 	autoFocus,
 	...props
-}: InputProps) => (
-	<TextField {...props} className={`${fieldStackClass} w-full ${rootClassName ?? ''}`}>
-		<Label className={fieldLabelClasses[labelSize]}>{label}</Label>
-		<StyledInput
-			autoFocus={autoFocus}
-			className={inputClassName}
-			placeholder={placeholder}
-			appearance={appearance}
-			fieldSize={size ?? (appearance === 'filled' ? 'filled' : undefined)}
-		/>
-		{description ? (
-			<Text slot="description" className={fieldDescriptionClass}>
-				{description}
-			</Text>
-		) : null}
-		<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
-	</TextField>
-)
+}: InputProps) => {
+	const fieldRef = useFieldAutoFocus(autoFocus)
+	return (
+		<TextField {...props} ref={fieldRef} className={`${fieldStackClass} w-full ${rootClassName ?? ''}`}>
+			<Label className={fieldLabelClasses[labelSize]}>{label}</Label>
+			<StyledInput
+				className={inputClassName}
+				placeholder={placeholder}
+				appearance={appearance}
+				fieldSize={size ?? (appearance === 'filled' ? 'filled' : undefined)}
+			/>
+			{description ? (
+				<Text slot="description" className={fieldDescriptionClass}>
+					{description}
+				</Text>
+			) : null}
+			<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>
+		</TextField>
+	)
+}
