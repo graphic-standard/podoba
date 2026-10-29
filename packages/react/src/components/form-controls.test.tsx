@@ -140,3 +140,19 @@ describe('source-parity form controls', () => {
 		expect(render('destructive')).toContain('data-[disabled]:bg-surface-muted')
 	})
 })
+
+ describe('approved filled fields', () => {
+ const controls = {
+ Input: <Input label="Name" appearance="filled" labelSize="compact" />,
+ Select: <Select label="Choice" appearance="filled" labelSize="compact"><SelectItem id="a">A</SelectItem></Select>,
+ NumberField: <NumberField label="Quantity" appearance="filled" labelSize="compact" />,
+ DatePicker: <DatePicker label="Date" appearance="filled" labelSize="compact" calendarLabel="Choose date" />,
+ SearchField: <SearchField label="Search" appearance="filled" labelSize="compact" />,
+ }
+ for (const [name, control] of Object.entries(controls)) test(`${name} shares the 42px filled field and compact label`, () => {
+ const html=renderToStaticMarkup(control)
+ expect(html).toContain('h-10.5')
+ expect(html).toContain('text-label')
+ expect(html).toContain('bg-surface')
+ })
+ })

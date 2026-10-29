@@ -131,16 +131,10 @@ function TileBands({
 	'theme' | 'eyebrow' | 'badge' | 'title' | 'titleAlign' | 'subtleTitle' | 'text' | 'footer' | 'image' | 'children'
 > & { theme: TileTheme }) {
 	const titleNode =
-		title != null ? (
-			<p className={`${tileStatClass} ${titleTone(theme, subtleTitle)}`}>
-				{title}
-			</p>
-		) : null
+		title != null ? <p className={`${tileStatClass} ${titleTone(theme, subtleTitle)}`}>{title}</p> : null
 	const textNode =
 		text != null ? (
-			<p className={`text-small leading-4 ${mutedTone(theme)} ${title != null ? 'mt-3' : ''}`}>
-				{text}
-			</p>
+			<p className={`text-small leading-4 ${mutedTone(theme)} ${title != null ? 'mt-3' : ''}`}>{text}</p>
 		) : null
 
 	// Content band: custom children win; else a right-side image → two columns; else
@@ -201,7 +195,17 @@ function MediaHero({
 	className,
 }: Pick<
 	TileProps,
-	'backgroundImage' | 'imageAlt' | 'video' | 'eyebrow' | 'title' | 'footer' | 'badge' | 'onPress' | 'pressLabel' | 'closeLabel' | 'className'
+	| 'backgroundImage'
+	| 'imageAlt'
+	| 'video'
+	| 'eyebrow'
+	| 'title'
+	| 'footer'
+	| 'badge'
+	| 'onPress'
+	| 'pressLabel'
+	| 'closeLabel'
+	| 'className'
 >) {
 	const [playing, setPlaying] = useState(false)
 	const hasVideo = Boolean(video)
@@ -213,7 +217,10 @@ function MediaHero({
 
 	return (
 		<div
-			className={['@container relative isolate h-full min-h-[200px] w-full overflow-hidden rounded-lg bg-surface-inverted', className]
+			className={[
+				'@container relative isolate h-full min-h-[200px] w-full overflow-hidden rounded-lg bg-surface-inverted',
+				className,
+			]
 				.filter(Boolean)
 				.join(' ')}
 		>
@@ -244,7 +251,10 @@ function MediaHero({
 						<img src={backgroundImage} alt={imageAlt ?? ''} className="absolute inset-0 h-full w-full object-cover" />
 					) : null}
 					{/* Legibility scrim — darkens top + bottom where text sits. */}
-					<div aria-hidden="true" className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
+					<div
+						aria-hidden="true"
+						className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60"
+					/>
 
 					{pressable ? (
 						<button
@@ -274,9 +284,7 @@ function MediaHero({
 						    press overlay; only `footer` re-enables its own pointer events. */}
 						<div data-slot="media-content" className="mt-auto flex min-h-0 flex-col gap-2 @sm:gap-4">
 							{title ? (
-								<h2 className="max-w-md text-title font-medium leading-tight text-white @sm:text-display">
-									{title}
-								</h2>
+								<h2 className="max-w-md text-title font-medium leading-tight text-white @sm:text-display">{title}</h2>
 							) : null}
 							{footer != null || badge != null ? (
 								<div className="flex items-center justify-between gap-3 @sm:gap-4">
@@ -363,7 +371,12 @@ export function Tile({
 
 	if (onPress) {
 		return (
-			<button type="button" onClick={onPress} aria-label={rest['aria-label']} className={`${surface} w-full text-left ${interactive}`}>
+			<button
+				type="button"
+				onClick={onPress}
+				aria-label={rest['aria-label']}
+				className={`${surface} w-full text-left ${interactive}`}
+			>
 				{body}
 			</button>
 		)
@@ -377,7 +390,7 @@ export function Tile({
  * label pill, distinct from podoba's interactive React-Aria `Tag` (tag-group.tsx);
  * named `Badge` to avoid the collision.
  */
-export type BadgeColor = 'green' | 'yellow' | 'grey' | 'dark'
+export type BadgeColor = 'green' | 'yellow' | 'grey' | 'dark' | 'red'
 
 const BADGE: Record<BadgeColor, string> = {
 	// gs `GSTag` green = the brand green (not the pale accent-mint). One saturated
@@ -390,6 +403,7 @@ const BADGE: Record<BadgeColor, string> = {
 	green: 'bg-brand-green text-fg-on-brand',
 	yellow: 'bg-accent-yellow text-fg-on-brand',
 	grey: 'bg-surface-muted text-fg',
+	red: 'bg-danger text-white',
 	dark: 'bg-surface-inverted text-fg-inverted',
 }
 

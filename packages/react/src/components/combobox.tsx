@@ -67,6 +67,8 @@ export type ComboBoxProps<T extends object> = RACComboBoxProps<T> & {
 	placeholder?: string
 	/** Input height, matching `Input`'s `size`. */
 	size?: FieldSize
+	/** Hide the toggle for fields driven only by text input. */
+	showToggle?: boolean
 	children: ReactNode
 }
 
@@ -76,6 +78,7 @@ export const ComboBox = <T extends object>({
 	errorMessage,
 	placeholder,
 	size = 'md',
+	showToggle = true,
 	children,
 	selectedKey,
 	onSelectionChange,
@@ -133,11 +136,13 @@ export const ComboBox = <T extends object>({
 		>
 			<Label className={fieldLabelClass}>{label}</Label>
 			<div className="relative">
-				<ComboBoxInput placeholder={placeholder} fieldSize={size} />
+				<ComboBoxInput placeholder={placeholder} fieldSize={size} className={showToggle ? undefined : 'pr-4'} />
 				{/* RAC uses this Button to toggle the listbox open/closed. */}
-				<RACButton className="absolute inset-y-0 right-0 flex w-11 cursor-pointer data-[disabled]:cursor-not-allowed items-center justify-center rounded-r-lg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
-					<Chevron />
-				</RACButton>
+				{showToggle ? (
+					<RACButton className="absolute inset-y-0 right-0 flex w-11 cursor-pointer data-[disabled]:cursor-not-allowed items-center justify-center rounded-r-lg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
+						<Chevron />
+					</RACButton>
+				) : null}
 			</div>
 			{desc}
 			<FieldError className={fieldErrorClass}>{errorMessage}</FieldError>

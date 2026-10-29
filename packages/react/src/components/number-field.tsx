@@ -11,11 +11,12 @@ import {
 } from 'react-aria-components'
 import {
 	fieldDescriptionClass,
+	fieldControlClasses,
+	type FieldAppearance,
 	fieldErrorClass,
-	fieldLabelClass,
-	fieldSizeClasses,
+	fieldLabelClasses,
+	type FieldLabelSize,
 	fieldStackClass,
-	outlinedFieldClasses,
 	type FieldSize,
 } from './field-appearance'
 
@@ -30,6 +31,8 @@ const stepper =
 
 export type NumberFieldProps = RACNumberFieldProps & {
 	/** Visible label (required for accessibility). */
+	appearance?: FieldAppearance
+	labelSize?: FieldLabelSize
 	label: ReactNode
 	description?: ReactNode
 	errorMessage?: string
@@ -38,14 +41,20 @@ export type NumberFieldProps = RACNumberFieldProps & {
 	size?: FieldSize
 }
 
-export const NumberField = ({ label, description, errorMessage, placeholder, size = 'md', ...props }: NumberFieldProps) => (
+export const NumberField = ({
+	label,
+	labelSize = 'default',
+	appearance = 'outlined',
+	description,
+	errorMessage,
+	placeholder,
+	size = 'md',
+	...props
+}: NumberFieldProps) => (
 	<RACNumberField {...props} className={`group ${fieldStackClass}`}>
-		<Label className={fieldLabelClass}>{label}</Label>
+		<Label className={fieldLabelClasses[labelSize]}>{label}</Label>
 		<Group
-			className={
-				`flex w-full items-center overflow-hidden rounded-lg ${fieldSizeClasses[size]} ` +
-				outlinedFieldClasses({ focus: 'within', invalid: 'group' })
-			}
+			className={`flex w-full items-center overflow-hidden rounded-lg ${fieldControlClasses(appearance, size, true)}`}
 		>
 			<RACButton slot="decrement" className={`${stepper} border-r border-border`}>
 				–

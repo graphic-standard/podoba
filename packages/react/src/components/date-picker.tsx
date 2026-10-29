@@ -21,12 +21,15 @@ import {
 	Text,
 } from 'react-aria-components'
 import { clsx } from 'clsx'
-import { dateInputClass, segmentClass } from './date-field'
+import { segmentClass } from './date-field'
 import { useInFocusOverlay } from './focus-context'
 import {
 	fieldDescriptionClass,
+	fieldControlClasses,
+	type FieldAppearance,
 	fieldErrorClass,
-	fieldLabelClass,
+	fieldLabelClasses,
+	type FieldLabelSize,
 	fieldStackClass,
 	type FieldSize,
 } from './field-appearance'
@@ -42,7 +45,17 @@ const navButton =
 	'hover:bg-surface-muted hover:text-fg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[disabled]:cursor-not-allowed data-[disabled]:opacity-40'
 
 const Chevron = ({ dir }: { dir: 'left' | 'right' }) => (
-	<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+	<svg
+		width="16"
+		height="16"
+		viewBox="0 0 24 24"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="2"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		aria-hidden="true"
+	>
 		<path d={dir === 'left' ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
 	</svg>
 )
@@ -83,31 +96,59 @@ function CalendarBody() {
 }
 
 export type DatePickerProps<T extends DateValue> = RACDatePickerProps<T> & {
+	appearance?: FieldAppearance
+	labelSize?: FieldLabelSize
 	label: ReactNode
 	/** Field height, matching `Input`'s `size`. */
 	size?: FieldSize
+	calendarLabel?: string
 	description?: ReactNode
 	errorMessage?: string
 }
 
-export const DatePicker = <T extends DateValue>({ label, description, errorMessage, size, ...props }: DatePickerProps<T>) => {
+export const DatePicker = <T extends DateValue>({
+	label,
+	labelSize = 'default',
+	appearance = 'outlined',
+	description,
+	errorMessage,
+	size,
+	calendarLabel = 'Open calendar',
+	...props
+}: DatePickerProps<T>) => {
 	// In a focus overlay, show the calendar inline (open) instead of a popover.
 	const inFocus = useInFocusOverlay()
 	return (
 		<RACDatePicker {...props} className={`group ${fieldStackClass}`}>
-			<Label className={fieldLabelClass}>{label}</Label>
+			<Label className={fieldLabelClasses[labelSize]}>{label}</Label>
 			{/* In focus mode the field is bare + large and the calendar is borderless,
 			    so field + calendar read as one seamless editor rather than boxes. */}
-			<Group className={inFocus ? 'flex w-full items-center' : `${dateInputClass(size)} pr-2`}>
+			<Group
+				className={
+					inFocus
+						? 'flex w-full items-center'
+						: `flex w-full items-center gap-0.5 rounded-lg px-4 pr-2 ${fieldControlClasses(appearance, size, true)}`
+				}
+			>
 				<DateInput className={clsx('flex flex-1 items-center gap-0.5', inFocus && 'text-display font-medium')}>
 					{(segment) => <DateSegment segment={segment} className={segmentClass} />}
 				</DateInput>
 				{inFocus ? null : (
 					<RACButton
-						aria-label="Open calendar"
+						aria-label={calendarLabel}
 						className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-fg-muted outline-none data-[disabled]:cursor-not-allowed transition-colors hover:bg-surface-muted hover:text-fg data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring"
 					>
-						<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+						<svg
+							width="16"
+							height="16"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							strokeWidth="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							aria-hidden="true"
+						>
 							<rect x="3" y="4" width="18" height="18" rx="2" />
 							<path d="M16 2v4M8 2v4M3 10h18" />
 						</svg>

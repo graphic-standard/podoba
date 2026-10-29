@@ -1,17 +1,11 @@
 import type { ReactNode } from 'react'
-import {
-	FieldError,
-	Input as RACInput,
-	Label,
-	Text,
-	TextField,
-	type TextFieldProps,
-} from 'react-aria-components'
+import { FieldError, Input as RACInput, Label, Text, TextField, type TextFieldProps } from 'react-aria-components'
 import { uic } from '../utils/uic'
 import {
 	fieldDescriptionClass,
 	fieldErrorClass,
-	fieldLabelClass,
+	fieldLabelClasses,
+	type FieldLabelSize,
 	fieldSizeClasses,
 	fieldStackClass,
 	filledFieldClasses,
@@ -59,6 +53,7 @@ export type InputProps = TextFieldProps & {
 	/** Filled matches the original Manager dialog fields; outlined remains the default. */
 	appearance?: FieldAppearance
 	/** Visible field label (required for accessibility). */
+	labelSize?: FieldLabelSize
 	label: ReactNode
 	/** Helper text rendered under the field. */
 	description?: ReactNode
@@ -72,10 +67,28 @@ export type InputProps = TextFieldProps & {
 	inputClassName?: string
 }
 
-export const Input = ({ label, description, errorMessage, placeholder, size, appearance = 'outlined', rootClassName, inputClassName, ...props }: InputProps) => (
+export const Input = ({
+	label,
+	labelSize = 'default',
+	description,
+	errorMessage,
+	placeholder,
+	size,
+	appearance = 'outlined',
+	rootClassName,
+	inputClassName,
+	autoFocus,
+	...props
+}: InputProps) => (
 	<TextField {...props} className={`${fieldStackClass} w-full ${rootClassName ?? ''}`}>
-		<Label className={fieldLabelClass}>{label}</Label>
-		<StyledInput className={inputClassName} placeholder={placeholder} appearance={appearance} fieldSize={size ?? (appearance === 'filled' ? 'filled' : undefined)} />
+		<Label className={fieldLabelClasses[labelSize]}>{label}</Label>
+		<StyledInput
+			autoFocus={autoFocus}
+			className={inputClassName}
+			placeholder={placeholder}
+			appearance={appearance}
+			fieldSize={size ?? (appearance === 'filled' ? 'filled' : undefined)}
+		/>
 		{description ? (
 			<Text slot="description" className={fieldDescriptionClass}>
 				{description}

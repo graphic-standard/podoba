@@ -34,7 +34,6 @@ const ALLOWED: Record<string, { count: number; why: string }> = {
 	// Manager port — tracked separately rather than half-fixed here.
 	'components/asset-selection-surface.tsx': { count: 1, why: 'close glyph' },
 	'components/compact-settings-dialog.tsx': { count: 1, why: 'close glyph' },
-	'components/delivery/send-to-print-modal.tsx': { count: 1, why: 'close glyph' },
 	'components/dialog.tsx': { count: 1, why: 'close glyph' },
 	'components/focus-field.tsx': { count: 1, why: 'close glyph' },
 	'components/search-field.tsx': { count: 2, why: 'search + clear glyphs' },
