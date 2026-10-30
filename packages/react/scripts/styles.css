@@ -1,0 +1,11 @@
+/* Entry for the prebuilt `@podoba/react/styles.css` (built by build-css.ts).
+ *
+ * The tokens are NOT imported here: the app loads `@podoba/tokens/variables.css`
+ * itself, so it can swap or override them. `source(none)` keeps Tailwind from
+ * reading this package's README and scripts as class candidates; tests are left
+ * out because they name classes that must not exist. */
+@import "tailwindcss" source(none);
+@import "@podoba/tailwind";
+
+@source "../src";
+@source not "../src/**/*.test.*";

@@ -26,6 +26,7 @@
 				"@radix-ui/react-slot": "1.2.4",
 				"tailwindcss": "4.3.2",
 				"@tailwindcss/vite": "4.3.2",
+				"@tailwindcss/cli": "4.3.2",
 				"@tailwindcss/typography": "0.5.20",
 				"@tiptap/react": "^3.27.4",
 				"@tiptap/pm": "^3.27.4",
