@@ -1,0 +1,28 @@
+# Dependabot keeps the commit-SHA pins in .github/workflows current. Each `uses:`
+# is pinned to a full SHA with the release as a trailing comment; Dependabot bumps
+# both together, and only after the release has aged past the cooldown.
+#
+# github-actions only. npm updates go through the committed bun.lock and are a
+# separate decision.
+
+version: 2
+
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Europe/Prague
+    # Leave a fresh release a few days for a compromise or a bad tag to surface
+    # before it runs in the publish job.
+    cooldown:
+      default-days: 3
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(ci)"
+    groups:
+      actions-all:
+        patterns:
+          - "*"
