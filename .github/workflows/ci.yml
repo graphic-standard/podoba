@@ -26,7 +26,8 @@ jobs:
         with:
           bun-version: 1.3.14
 
-      - run: bun install
+      # Fails when package.json and the committed bun.lock disagree.
+      - run: bun install --frozen-lockfile
 
       - name: Typecheck
         run: bun run typecheck
