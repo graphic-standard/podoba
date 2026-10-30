@@ -33,3 +33,8 @@ jobs:
 
       - name: Test
         run: bun test
+
+      # The same build `npm publish` runs on prepack, so a class Tailwind cannot
+      # compile fails here rather than in the release.
+      - name: Build @podoba/react/styles.css
+        run: bun --filter=@podoba/react build:css
