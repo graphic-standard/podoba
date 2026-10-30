@@ -11,8 +11,8 @@ gs-platform, pramen (editor + admin), praha-sportovni, and everything built next
 | Package | What it is | Depends on |
 |---|---|---|
 | [`@podoba/tokens`](packages/tokens) | Design tokens: static `tokens.json` (DTCG) + generated `variables.css`. Framework-agnostic — usable from React, email, native, docs. | — |
-| [`@podoba/tailwind`](packages/tailwind) | Tailwind preset binding the token CSS-vars to `theme.extend`. Consumers do `presets: [podobaPreset]`. | tailwindcss (peer) |
-| [`@podoba/react`](packages/react) | The components: React Aria primitives + layout, built with `uic`. | `@podoba/tokens`, `@podoba/tailwind`, react (peer) |
+| [`@podoba/tailwind`](packages/tailwind) | Tailwind v4 theme (`@import "@podoba/tailwind"`) binding the token CSS-vars to `@theme`. Only for apps that run Tailwind themselves. | tailwindcss (peer) |
+| [`@podoba/react`](packages/react) | The components: React Aria primitives + layout, built with `uic`. Ships prebuilt `styles.css` for apps without Tailwind. | `@podoba/tokens`, `@podoba/tailwind`, react (peer) |
 
 A consumer that only needs the palette (an email renderer, a native app, a docs site)
 pulls `@podoba/tokens` alone and never drags in React or Tailwind.
