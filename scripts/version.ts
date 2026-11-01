@@ -1,7 +1,8 @@
 // Bump every @podoba/* package to one shared version (lockstep). package.json is
 // the source of truth for releases; this is the only supported way to change it,
-// so the three manifests can never drift. Prints the NEW version to stdout (and
-// nothing else there) so callers can capture it: NEW=$(bun scripts/version.ts patch)
+// so the three manifests (and their entries in bun.lock) can never drift. Prints
+// the NEW version to stdout (and nothing else there) so callers can capture it:
+// NEW=$(bun scripts/version.ts patch)
 //
 // Usage:
 //   bun scripts/version.ts            # patch bump (default)
@@ -39,13 +40,31 @@ function nextVersion(cur: string, bump: string): string {
 const next = nextVersion(cur, process.argv[2] ?? "patch");
 if (next === cur) throw new Error(`new version ${next} equals current ${cur}`);
 
+// Build every new file first and write only once all of them are known to be
+// valid, so a failed check never leaves the bump half applied.
+//
 // Surgically replace only the "version" field so the diff is one line per file
 // and existing formatting (inline arrays, key order, indentation) is preserved.
 const VERSION_FIELD = /("version"\s*:\s*")[^"]+(")/;
-for (let i = 0; i < paths.length; i++) {
-  if (!VERSION_FIELD.test(sources[i])) throw new Error(`no "version" field in ${paths[i]}`);
-  writeFileSync(paths[i], sources[i].replace(VERSION_FIELD, `$1${next}$2`));
+const bumped = sources.map((src, i) => {
+  if (!VERSION_FIELD.test(src)) throw new Error(`no "version" field in ${paths[i]}`);
+  return src.replace(VERSION_FIELD, `$1${next}$2`);
+});
+
+// bun.lock records each workspace's version too, and bun never refreshes it on its
+// own: neither `bun install` nor `--lockfile-only` rewrites it after a bump. Update
+// the same field there so the release commit carries it, instead of it surfacing as
+// noise in some later dependency PR.
+const LOCK = `${ROOT}bun.lock`;
+let lock = readFileSync(LOCK, "utf8");
+for (const dir of ORDER) {
+  const entry = new RegExp(`("packages/${dir}": \\{\\s*"name": "[^"]+",\\s*"version": ")[^"]+(")`);
+  if (!entry.test(lock)) throw new Error(`no version for packages/${dir} in bun.lock`);
+  lock = lock.replace(entry, `$1${next}$2`);
 }
+
+for (let i = 0; i < paths.length; i++) writeFileSync(paths[i], bumped[i]);
+writeFileSync(LOCK, lock);
 
 // Human log to stderr; the version alone to stdout (for `NEW=$(...)`).
 console.error(`✓ bumped @podoba/* ${cur} → ${next}`);

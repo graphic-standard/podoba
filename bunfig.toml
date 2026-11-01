@@ -1,6 +1,8 @@
 [install]
 # Refuse any package version published in the last 12 hours. A compromised release
-# is usually caught and pulled within that window, and CI installs in the job that
-# holds the npm publish token. Never lower this to unblock an install: widen the
-# semver range so an older version satisfies it.
+# is usually caught and pulled within that window. This acts wherever versions get
+# resolved, which is a local `bun add` / `bun install` that rewrites bun.lock: CI
+# installs with --frozen-lockfile and never resolves, so the lockfile diff in review
+# is what carries the choice into CI. Never lower this to unblock an install: widen
+# the semver range so an older version satisfies it.
 minimumReleaseAge = 43200
