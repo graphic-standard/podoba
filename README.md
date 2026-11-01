@@ -21,3 +21,18 @@ pulls `@podoba/tokens` alone and never drags in React or Tailwind.
 
 Scaffold only. Nothing has moved from `@app/ui` yet — see [EXTRACTION.md](EXTRACTION.md)
 for the exact file-move manifest, what stays behind in GS, and the couplings to sever.
+
+## Dependencies
+
+`bun.lock` is committed, and CI and the publish job install with
+`bun install --frozen-lockfile`, so they run exactly what the lockfile pins. Change a
+dependency with `bun add` / `bun remove` (or edit `package.json` and run `bun install`)
+and commit the updated `bun.lock` in the same change; CI fails when the two disagree.
+
+`bunfig.toml` refuses versions published in the last 12 hours (`minimumReleaseAge`).
+When an install fails with `blocked by minimum-release-age`, widen the semver range so
+an older version satisfies it, or wait. Don't lower the setting.
+
+CI runs bun 1.3.14 (`packageManager` in `package.json`); a newer local bun reads the
+same lockfile, but regenerate it with that version if its format ever changes:
+`bunx bun@1.3.14 install`.
