@@ -22,7 +22,7 @@ directly.
    - Up to date: `git fetch origin && git status -sb` shows no "behind".
 
 2. **Bump the version** with the script — it enforces lockstep and writes all
-   three manifests, printing the new version to stdout (`BUMP` is the skill arg:
+   three manifests plus their entries in `bun.lock`, printing the new version to stdout (`BUMP` is the skill arg:
    `patch` | `minor` | `major` | explicit `x.y.z`):
    ```bash
    cd "$(git rev-parse --show-toplevel)"
@@ -31,7 +31,7 @@ directly.
    ```
    Guard: the tag `v$NEW` must not already exist — `git tag -l "v$NEW"` and
    `git ls-remote --tags origin "v$NEW"` must both be empty. If either isn't, stop
-   and revert the bump (`git checkout -- packages/*/package.json`).
+   and revert the bump (`git checkout -- packages/*/package.json bun.lock`).
 
 3. **Sanity check** before committing:
    ```bash
@@ -41,7 +41,7 @@ directly.
 
 5. **Commit** (explicit file list — never `git add -A`):
    ```bash
-   git add packages/tokens/package.json packages/tailwind/package.json packages/react/package.json \
+   git add packages/tokens/package.json packages/tailwind/package.json packages/react/package.json bun.lock \
      && git commit -m "release: v$NEW"
    git push origin main
    ```
