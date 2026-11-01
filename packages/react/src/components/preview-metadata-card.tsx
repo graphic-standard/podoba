@@ -60,7 +60,7 @@ export function PreviewMetadataCard({
 			) : (
 				<div className="p-5">
 					{heading}
-					<div className="mt-4">{children}</div>
+					{children != null && children !== false ? <div className="mt-4">{children}</div> : null}
 				</div>
 			)}
 		</Surface>

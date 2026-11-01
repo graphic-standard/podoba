@@ -1,3 +1,5 @@
+import { IconButton } from './icon-button'
+import { ChevronLeftIcon, ChevronRightIcon } from './icons'
 import { useState, type ReactNode } from 'react'
 import { Button as RACButton } from 'react-aria-components'
 import { Button } from './button'
@@ -26,9 +28,11 @@ export function MediaPanelCard({
 	preview,
 	onOpen,
 	textAppearance,
+	titlePosition = 'top',
 }: {
 	title: string
 	caption?: string
+	titlePosition?: 'top' | 'bottom'
 	textAppearance?: { title?: MediaTextAppearance; caption?: MediaTextAppearance }
 	preview: ReactNode
 	onOpen: () => void
@@ -38,9 +42,11 @@ export function MediaPanelCard({
 			<div aria-hidden="true" className="absolute inset-0 -z-20">
 				{preview}
 			</div>
-			<MediaReadableText appearance={textAppearance?.title}>
-				<strong className="text-panel-heading font-medium">{title}</strong>
-			</MediaReadableText>
+			<div className={titlePosition === 'bottom' ? 'mt-auto max-w-full self-start rounded-lg bg-surface px-3 py-2 text-fg' : undefined}>
+				<MediaReadableText appearance={titlePosition === 'bottom' ? { color: 'dark', background: 'none' } : textAppearance?.title}>
+					<strong className="text-panel-heading font-medium">{title}</strong>
+				</MediaReadableText>
+			</div>
 			{caption ? (
 				<MediaReadableText secondary appearance={textAppearance?.caption}>
 					<span className="text-label font-normal">{caption}</span>
@@ -61,21 +67,27 @@ export function MediaCarousel({
 	previousLabel,
 	nextLabel,
 	onOpen,
+	imageFit = 'contain',
 }: {
 	items: readonly MediaCarouselItem[]
 	label: string
 	previousLabel: string
 	nextLabel: string
 	onOpen?: (index: number) => void
+	/** Only orientation mode crops landscape photographs; diagrams stay contained by default. */
+	imageFit?: 'contain' | 'cover' | 'orientation'
 }) {
+	const [imageRatios, setImageRatios] = useState<Record<string, number>>({})
 	const [picked, setPicked] = useState(0),
 		index = Math.min(picked, Math.max(0, items.length - 1)),
 		item = items[index]
 	if (!item) return null
+	const cover = imageFit === 'cover' || (imageFit === 'orientation' && (imageRatios[item.id] ?? 0) > 1)
 	const go = (next: number) => setPicked(Math.max(0, Math.min(items.length - 1, next)))
 	return (
 		<div
 			role="group"
+			data-media-readability
 			aria-label={label}
 			tabIndex={0}
 			className="relative overflow-hidden rounded-lg bg-surface-muted outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -90,7 +102,15 @@ export function MediaCarousel({
 				}
 			}}
 		>
-			<div className="grid aspect-3/2 min-w-0 place-items-center px-12 py-8">
+			<div
+				className={`grid aspect-3/2 min-w-0 place-items-center ${cover ? '[&_img]:object-cover' : '[&_img]:object-contain'}`}
+				onLoadCapture={(event) => {
+					const image = event.target
+					if (imageFit !== 'orientation' || !(image instanceof HTMLImageElement) || !image.naturalWidth || !image.naturalHeight) return
+					const ratio = image.naturalWidth / image.naturalHeight
+					setImageRatios(previous => previous[item.id] === ratio ? previous : { ...previous, [item.id]: ratio })
+				}}
+			>
 				{onOpen ? (
 					<Button
 						variant="ghost"
@@ -105,31 +125,19 @@ export function MediaCarousel({
 				)}
 			</div>
 			<div className="pointer-events-none absolute bottom-5 start-5 max-w-3/4 rounded-lg bg-surface p-4 text-fg">
-				<p className="m-0 text-label font-normal text-fg-muted">{item.caption ?? label}</p>
-				<p className="m-0 mt-2 text-small font-medium">{item.title}</p>
-				<p className="m-0 mt-2 text-label text-fg-muted" aria-live="polite">
-					{index + 1} / {items.length}
-				</p>
+				<div className="text-label font-normal">{item.title}</div>
+				{item.caption ? <div className="mt-1 text-caption text-fg-muted">{item.caption}</div> : null}
+				<div className="mt-2 text-caption tabular-nums text-fg-muted" aria-live="polite">{index + 1} / {items.length}</div>
 			</div>
 			{index > 0 ? (
-				<Button
-					variant="ghost"
-					aria-label={previousLabel}
-					onPress={() => go(index - 1)}
-					className="absolute start-3 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full bg-surface p-0 text-fg-muted shadow-md"
-				>
-					‹
-				</Button>
+				<IconButton variant="ghost" label={previousLabel} onPress={() => go(index - 1)} className="absolute start-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full bg-surface-inverted p-0 text-fg-inverted hover:bg-surface-inverted">
+					<ChevronLeftIcon className="size-4" />
+				</IconButton>
 			) : null}
 			{index < items.length - 1 ? (
-				<Button
-					variant="ghost"
-					aria-label={nextLabel}
-					onPress={() => go(index + 1)}
-					className="absolute end-3 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full bg-surface p-0 text-fg-muted shadow-md"
-				>
-					›
-				</Button>
+				<IconButton variant="ghost" label={nextLabel} onPress={() => go(index + 1)} className="absolute end-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full bg-surface-inverted p-0 text-fg-inverted hover:bg-surface-inverted">
+					<ChevronRightIcon className="size-4" />
+				</IconButton>
 			) : null}
 		</div>
 	)
