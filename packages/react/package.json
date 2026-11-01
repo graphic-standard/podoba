@@ -14,13 +14,16 @@
 	"types": "./src/index.ts",
 	"exports": {
 		".": "./src/index.ts",
-		"./editor": "./src/editor/index.ts"
+		"./editor": "./src/editor/index.ts",
+		"./styles.css": "./dist/styles.css"
 	},
-	"files": ["src", "!src/**/*.test.*"],
+	"files": ["src", "!src/**/*.test.*", "dist/styles.css"],
 	"publishConfig": {
 		"access": "public"
 	},
 	"scripts": {
+		"build:css": "bun scripts/build-css.ts",
+		"prepack": "bun scripts/build-css.ts",
 		"test": "bun test src",
 		"typecheck": "tsc --build"
 	},
@@ -61,6 +64,8 @@
 		"@types/react-dom": "catalog:ui",
 		"typescript": "catalog:",
 		"@types/bun": "catalog:",
+		"tailwindcss": "catalog:ui",
+		"@tailwindcss/cli": "catalog:ui",
 		"@tiptap/react": "catalog:ui",
 		"@tiptap/pm": "catalog:ui",
 		"@tiptap/starter-kit": "catalog:ui",
