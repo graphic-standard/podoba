@@ -495,10 +495,6 @@ const ProductionFooter = uic('footer', {
 const ProductionPreview = uic('aside', {
 	displayName: 'ProductionSettingsPreview',
 	baseClass: 'relative grid min-h-0 min-w-0 place-items-center overflow-hidden p-10',
-	style: {
-		background:
-			'radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--color-surface) 8%, transparent) 0, transparent 42%), color-mix(in srgb, var(--color-fg) 84%, var(--color-surface))',
-	},
 })
 const ProductionArtwork = uic('div', {
 	displayName: 'ProductionSettingsArtwork',
@@ -524,11 +520,14 @@ export function ProductionSettingsDialog({
 	testId = 'production-settings',
 	isPending = false,
 	previewSize = 'contained',
+	previewTone = 'dark',
 	previewLabel,
 }: {
 	isPending?: boolean
 	previewLabel?: string
 	previewSize?: 'contained' | 'full'
+	/** Background tone of the preview pane; defaults to dark. */
+	previewTone?: 'dark' | 'light'
 	isOpen: boolean
 	onOpenChange: (open: boolean) => void
 	prefix: ReactNode
@@ -599,6 +598,7 @@ export function ProductionSettingsDialog({
 						<ProductionFooter>{footer}</ProductionFooter>
 					</section>
 					<ProductionPreview
+						style={{ background: previewTone === 'light' ? 'var(--color-surface-card)' : 'radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--color-surface) 8%, transparent) 0, transparent 42%), color-mix(in srgb, var(--color-fg) 84%, var(--color-surface))' }}
 						aria-label={previewLabel}
 						className={compact ? 'col-start-1 row-start-1' : undefined}
 						data-testid={`${testId}-preview`}
@@ -615,7 +615,7 @@ export function ProductionSettingsDialog({
 						aria-label={closeLabel}
 						isDisabled={isPending}
 						onPress={() => onOpenChange(false)}
-						className="absolute right-4 top-4 z-20 h-9 w-9 rounded-md p-0 text-white/60 hover:bg-transparent hover:text-white"
+						className={`absolute right-4 top-4 z-20 h-9 w-9 rounded-md p-0 hover:bg-transparent ${previewTone === 'light' ? 'text-fg-muted hover:text-fg' : 'text-white/60 hover:text-white'}`}
 					>
 						<svg
 							width="18"
