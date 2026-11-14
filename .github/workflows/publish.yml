@@ -48,7 +48,7 @@ jobs:
       # so it installs nothing that was not chosen on purpose. The npm version must
       # stay inside its own Node engine range (npm 12.2.1: ^22.22.2 || ^24.15.0 ||
       # >=26.0.0), so bump the two together.
-      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 22.23.4
       - name: Upgrade npm (OIDC trusted publishing needs >= 11.5.1)
