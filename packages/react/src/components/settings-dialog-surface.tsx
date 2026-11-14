@@ -219,7 +219,7 @@ export function SettingsDialogSurface({
 								) : (
 									<DisplayHeading
 										id={titleId}
-										className={`m-0 whitespace-pre-line pb-0.5 text-fg-muted ${create ? 'mb-4 max-w-5/6' : ''}`}
+										className={`m-0 whitespace-pre-line pb-0.5 text-fg-muted-large ${create ? 'mb-4 max-w-5/6' : ''}`}
 										style={{
 											letterSpacing: 0,
 											...(basic ? { maxWidth: '83.333%' } : csv && isWide ? { maxWidth: '34ch' } : {}),
@@ -349,7 +349,7 @@ export function WizardFormDialog({
 						<Container className="max-w-384 px-5 min-[901px]:px-6">
 							<DisplayHeading
 								id={titleId}
-								className="m-0 whitespace-pre-line pb-0.5 text-fg-muted"
+								className="m-0 whitespace-pre-line pb-0.5 text-fg-muted-large"
 								style={{ letterSpacing: 0 }}
 							>
 								{title}
@@ -477,7 +477,7 @@ const ProductionHeader = uic('header', {
 })
 const ProductionTitle = uic('h1', {
 	displayName: 'ProductionSettingsTitle',
-	baseClass: 'm-0 max-w-132 text-display-large font-medium text-fg-muted',
+	baseClass: 'm-0 max-w-132 text-display-large font-medium text-fg-muted-large',
 	style: { letterSpacing: '-0.02em' },
 })
 const ProductionDescription = uic('p', {
