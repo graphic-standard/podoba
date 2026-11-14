@@ -26,3 +26,17 @@ test('shared dialog headings use the same large-text muted tone and retain empha
   }
  } finally { await act(async () => root.unmount()); host.remove() }
 })
+
+test('production preview supports light and keeps the dark default', async () => {
+ const host = document.body.appendChild(document.createElement('div'))
+ const root = createRoot(host)
+ const draw = (light: boolean) => <ProductionSettingsDialog isOpen onOpenChange={() => {}} prefix="A" title="preview" description="Description" closeLabel="Close" preview={null} footer={null} {...(light ? { previewTone: 'light' as const } : {})}>Content</ProductionSettingsDialog>
+ try {
+  await act(async () => root.render(draw(false)))
+  expect(document.querySelector<HTMLElement>('[data-testid="production-settings-preview"]')?.style.background).not.toBe('var(--color-surface-card)')
+  expect(document.querySelector('button[aria-label="Close"]')?.className).toContain('text-white/60')
+  await act(async () => root.render(draw(true)))
+  expect(document.querySelector<HTMLElement>('[data-testid="production-settings-preview"]')?.style.background).toBe('var(--color-surface-card)')
+  expect(document.querySelector('button[aria-label="Close"]')?.className).toContain('text-fg-muted')
+ } finally { await act(async () => root.unmount()); host.remove() }
+})
