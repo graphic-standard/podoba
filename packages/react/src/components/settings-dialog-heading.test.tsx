@@ -3,10 +3,23 @@ GlobalRegistrator.register()
 import { afterAll, expect, test } from 'bun:test'
 import { act } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ProductionSettingsDialog, SettingsDialogEmphasis, SettingsDialogSurface, WizardFormDialog } from './settings-dialog-surface'
+import { ProductionSettingsDialog, SettingsDialogDisclosure, SettingsDialogEmphasis, SettingsDialogSurface, WizardFormDialog } from './settings-dialog-surface'
 
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 afterAll(() => GlobalRegistrator.unregister())
+
+test('controlled settings disclosure obeys its expanded state', async () => {
+ const host = document.body.appendChild(document.createElement('div'))
+ const root = createRoot(host)
+ const draw = (expanded: boolean) => <SettingsDialogDisclosure title="Details" isExpanded={expanded} onExpandedChange={() => {}}>Contents</SettingsDialogDisclosure>
+ try {
+  await act(async () => root.render(draw(false)))
+  const trigger = host.querySelector<HTMLButtonElement>('button')!
+  expect(trigger.getAttribute('aria-expanded')).toBe('false')
+  await act(async () => root.render(draw(true)))
+  expect(trigger.getAttribute('aria-expanded')).toBe('true')
+ } finally { await act(async () => root.unmount()); host.remove() }
+})
 
 test('shared dialog headings use the same large-text muted tone and retain emphasis', async () => {
  const host = document.body.appendChild(document.createElement('div'))

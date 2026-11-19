@@ -1,7 +1,7 @@
 import { Button as AriaButton } from 'react-aria-components'
 import { uic } from '../utils/uic'
 
-export const DIALOG_ACTION_VARIANTS = ['primary', 'secondary'] as const
+export const DIALOG_ACTION_VARIANTS = ['primary', 'secondary', 'destructive'] as const
 export type DialogActionVariant = (typeof DIALOG_ACTION_VARIANTS)[number]
 
 /** Source UI dialog action, distinct from the frontend dashboard CTA Button.
@@ -16,6 +16,7 @@ export const DialogActionButton = uic(AriaButton, {
 		'data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed data-[pending]:cursor-progress',
 	variants: { variant: {
 		primary: 'border-0 bg-brand-primary text-fg-inverted data-[hovered]:bg-neutral-600 data-[pressed]:bg-brand-primary',
+		destructive: 'border-0 bg-danger text-danger-fg data-[hovered]:opacity-90 data-[pressed]:opacity-80',
 		secondary: 'border border-border bg-surface-card text-fg data-[hovered]:bg-surface-muted data-[hovered]:border-border-muted data-[pressed]:bg-surface-muted',
 	} },
 	defaultVariants: { variant: 'primary' },

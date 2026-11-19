@@ -664,14 +664,18 @@ export function SettingsDialogDisclosure({
 	description,
 	children,
 	defaultExpanded = true,
+	isExpanded,
+	onExpandedChange,
 }: {
 	title: ReactNode
 	description?: ReactNode
 	children: ReactNode
 	defaultExpanded?: boolean
+	isExpanded?: boolean
+	onExpandedChange?: (expanded: boolean) => void
 }) {
 	return (
-		<DisclosureRoot defaultExpanded={defaultExpanded}>
+		<DisclosureRoot defaultExpanded={defaultExpanded} isExpanded={isExpanded} onExpandedChange={onExpandedChange}>
 			<DisclosureTrigger slot="trigger">
 				<DisclosureCopy>
 					<DisclosureTitle>{title}</DisclosureTitle>
@@ -697,4 +701,11 @@ export function SettingsDialogDisclosure({
 			<DisclosureBody>{children}</DisclosureBody>
 		</DisclosureRoot>
 	)
+}
+
+/** Decorative waiting indicator; the surrounding action supplies the label. */
+export function LoadingDots() {
+ return <span aria-hidden="true" className="inline-flex h-4 items-center gap-1">
+  {[0, 1, 2].map(index => <span key={index} className="h-1 w-1 rounded-full bg-current motion-safe:animate-pulse motion-reduce:animate-none" style={{ animationDuration: '1200ms', animationDelay: `${index * 180}ms` }} />)}
+ </span>
 }
