@@ -247,13 +247,16 @@ export function MediaReadableText({
 		const measure = () => {
 			cancelAnimationFrame(frame)
 			frame = requestAnimationFrame(async () => {
-				const image = panel.querySelector<HTMLImageElement>('img')
-				if (!image?.complete || !image.naturalWidth) {
+				const media = panel.querySelector<HTMLImageElement | HTMLVideoElement>('img, video')
+				const isVideo = media instanceof HTMLVideoElement
+				const width = isVideo ? media.videoWidth : media?.naturalWidth ?? 0
+				const height = isVideo ? media.videoHeight : media?.naturalHeight ?? 0
+				if (!media || !width || !height || (isVideo ? media.readyState < 2 : !media.complete)) {
 					setPixels([])
 					return
 				}
 				const box = text.getBoundingClientRect(),
-					rect = image.getBoundingClientRect()
+					rect = media.getBoundingClientRect()
 				const bounds = panel.getBoundingClientRect()
 				setPanelBox({
 					left: bounds.left - box.left,
@@ -262,16 +265,16 @@ export function MediaReadableText({
 					height: bounds.height,
 				})
 				if (!box.width || !box.height || !rect.width || !rect.height) return
-				const imageStyle = getComputedStyle(image)
+				const imageStyle = getComputedStyle(media)
 				const scale =
 					imageStyle.objectFit === 'contain'
-						? Math.min(rect.width / image.naturalWidth, rect.height / image.naturalHeight)
-						: Math.max(rect.width / image.naturalWidth, rect.height / image.naturalHeight)
+						? Math.min(rect.width / width, rect.height / height)
+						: Math.max(rect.width / width, rect.height / height)
 				const position = imageStyle.objectPosition
 					.split(' ')
 					.map((part) => (part.endsWith('%') ? parseFloat(part) / 100 : 0.5))
-				const sx = (image.naturalWidth - rect.width / scale) * (position[0] ?? 0.5) + (box.left - rect.left) / scale
-				const sy = (image.naturalHeight - rect.height / scale) * (position[1] ?? 0.5) + (box.top - rect.top) / scale
+				const sx = (width - rect.width / scale) * (position[0] ?? 0.5) + (box.left - rect.left) / scale
+				const sy = (height - rect.height / scale) * (position[1] ?? 0.5) + (box.top - rect.top) / scale
 				const canvas = document.createElement('canvas')
 				canvas.width = 32
 				canvas.height = 16
@@ -280,8 +283,8 @@ export function MediaReadableText({
 				try {
 					ctx.fillStyle = getComputedStyle(panel).backgroundColor
 					ctx.fillRect(0, 0, 32, 16)
-					ctx.globalCompositeOperation = image.closest('.mix-blend-multiply') ? 'multiply' : 'source-over'
-					const readable = await readableMediaImage(image)
+					ctx.globalCompositeOperation = media.closest('.mix-blend-multiply') ? 'multiply' : 'source-over'
+					const readable = isVideo ? media : await readableMediaImage(media)
 					if (!text.isConnected) return
 					ctx.drawImage(readable, sx, sy, box.width / scale, box.height / scale, 0, 0, 32, 16)
 					const data = ctx.getImageData(0, 0, 32, 16).data,
@@ -305,6 +308,9 @@ export function MediaReadableText({
 		mutation.observe(panel, { childList: true, subtree: true, attributes: true, attributeFilter: ['src', 'class'] })
 		panel.addEventListener('load', measure, true)
 		panel.addEventListener('error', measure, true)
+		panel.addEventListener('loadeddata', measure, true)
+		panel.addEventListener('seeked', measure, true)
+		panel.addEventListener('timeupdate', measure, true)
 		measure()
 		return () => {
 			cancelAnimationFrame(frame)
@@ -312,6 +318,9 @@ export function MediaReadableText({
 			mutation.disconnect()
 			panel.removeEventListener('load', measure, true)
 			panel.removeEventListener('error', measure, true)
+			panel.removeEventListener('loadeddata', measure, true)
+			panel.removeEventListener('seeked', measure, true)
+			panel.removeEventListener('timeupdate', measure, true)
 		}
 	}, [children])
 	const resolved = resolveMediaText(pixels, appearance, secondary)
