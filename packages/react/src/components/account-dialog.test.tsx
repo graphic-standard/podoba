@@ -177,6 +177,23 @@ describe('AccountDialog', () => {
 		expect(dialog()?.textContent).toContain('Appearance')
 	})
 
+	test('preference cards sit three across from sm up, fewer fill the row', () => {
+		render({ preferences: <><AccountPreferenceCard title="A" hint="a">x</AccountPreferenceCard><AccountPreferenceCard title="B" hint="b">x</AccountPreferenceCard><AccountPreferenceCard title="C" hint="c">x</AccountPreferenceCard></> })
+		const grid = [...document.querySelectorAll<HTMLElement>('section')].find((s) => s.textContent?.startsWith('Settings'))?.querySelector('.grid')
+		expect(grid?.className).toContain('sm:grid-cols-3')
+		expect(grid?.className).not.toContain('auto-fit')
+		expect(grid?.className).toContain('sm:[&:has(>:only-child)]:grid-cols-1')
+		expect(grid?.children.length).toBe(3)
+	})
+
+	test('an app card dims while pressed, as a Button does', () => {
+		render()
+		for (const name of ['Studio', 'Sites']) {
+			expect(card(name)?.className).toContain('data-[pressed]:bg-surface-muted')
+			expect(card(name)?.className).toContain('duration-120')
+		}
+	})
+
 	test('a panel replaces the body and names the dialog', () => {
 		render({ panel: <p>Site list</p>, panelTitle: 'Sites' })
 		expect(dialog()?.getAttribute('aria-label')).toBe('Sites')

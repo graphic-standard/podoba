@@ -274,8 +274,7 @@ export function AccountDialog({
 								{preferences ? (
 									<section className="flex flex-col gap-3">
 										<Text weight="medium">{labels.preferences}</Text>
-										{/* Up to three cards in a row (14rem each at least); one or two fill it. */}
-										<div className="grid grid-cols-1 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))]">{preferences}</div>
+										<div className={PREFERENCE_GRID}>{preferences}</div>
 									</section>
 								) : null}
 
@@ -322,12 +321,23 @@ const APP_COLUMNS: Record<number, string> = {
 	4: 'sm:grid-cols-4',
 }
 
+// Three preference cards side by side from `sm` up, as the suite has always drawn them;
+// one or two fill the row instead of leaving empty thirds. The children are counted with
+// `:has()`, since the slot is free content (often a fragment) and cannot be counted in
+// React.
+const PREFERENCE_GRID =
+	'grid grid-cols-1 gap-3 sm:grid-cols-3 ' +
+	'sm:[&:has(>:only-child)]:grid-cols-1 sm:[&:has(>:nth-child(2):last-child)]:grid-cols-2'
+
 // The card reads as Podoba's `Card` (surface-card, 8px radius, 16px padding): plain in
 // the light theme, outlined in the dark one, and outlined in the person's avatar colour
-// when it is the current app.
+// when it is the current app. Pressed, it dims to surface-muted with Button's 120ms ease,
+// as the suite's cards did when they were ghost Buttons.
 const CARD =
 	'relative flex min-h-44 w-full flex-col items-start justify-end gap-3 overflow-hidden rounded-lg bg-surface-card p-4 text-left text-compact leading-4 text-fg no-underline ' +
 	'cursor-pointer outline-none dark:border dark:border-border ' +
+	'transition-[background-color,border-color] duration-120 ease-[ease] motion-reduce:transition-none ' +
+	'data-[pressed]:bg-surface-muted ' +
 	'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2 ' +
 	'data-[disabled]:cursor-default'
 
