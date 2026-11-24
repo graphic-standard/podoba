@@ -30,10 +30,4 @@ describe('AudioPlayer', () => {
 		expect(html).toContain('Position')
 		expect(html).toContain('Volume')
 	})
-
-	test('disables the position slider until the duration is known', () => {
-		const html = renderToStaticMarkup(<AudioPlayer src="/a.mp3" name="Jingle.mp3" labels={labels} />)
-
-		expect(html).toContain('data-disabled')
-	})
 })

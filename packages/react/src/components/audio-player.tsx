@@ -18,7 +18,11 @@ export interface AudioPlayerProps {
 	/** Accessible name of the whole player, e.g. the file name. */
 	name: string
 	labels: AudioPlayerLabels
-	/** Called when the source cannot load or the browser refuses playback. */
+	/**
+	 * Called once when the source cannot load (the media `error` event) or the browser
+	 * refuses playback (`NotAllowedError`, e.g. an autoplay policy). Not called when the
+	 * user pauses before playback started, which also rejects the pending `play()`.
+	 */
 	onError?: () => void
 }
 
@@ -36,6 +40,12 @@ export function formatAudioTime(value: number): string {
  * A play/pause button, the elapsed time, a position slider, the duration and a
  * volume slider. Label-driven: the host passes every string. The position slider is
  * disabled until the browser knows the duration.
+ *
+ * Changing `src` on a mounted player resets it (the media `emptied` event), so a
+ * host can reuse one player for a list of files.
+ *
+ * iOS Safari keeps `HTMLMediaElement.volume` read-only, so there the volume slider
+ * moves without changing the loudness; the device buttons control it.
  */
 export function AudioPlayer({ src, name, labels, onError }: AudioPlayerProps) {
 	const audio = useRef<HTMLAudioElement>(null)
@@ -47,9 +57,12 @@ export function AudioPlayer({ src, name, labels, onError }: AudioPlayerProps) {
 		const element = audio.current
 		if (!element) return
 		if (element.paused) {
-			void element.play().catch(() => {
+			void element.play().catch((error: unknown) => {
 				setPlaying(false)
-				onError?.()
+				// A load failure also rejects play(), but the media `error` event already
+				// reported it; a pause before playback started rejects with AbortError.
+				// Only a refusal by the browser is news to the host.
+				if ((error as { name?: unknown } | null)?.name === 'NotAllowedError') onError?.()
 			})
 		} else element.pause()
 	}
@@ -59,10 +72,16 @@ export function AudioPlayer({ src, name, labels, onError }: AudioPlayerProps) {
 				ref={audio}
 				src={src}
 				preload="metadata"
-				onError={onError}
+				onError={() => onError?.()}
 				onPlay={() => setPlaying(true)}
 				onPause={() => setPlaying(false)}
 				onEnded={() => setPlaying(false)}
+				// A new source resets the element without firing pause or durationchange.
+				onEmptied={() => {
+					setPlaying(false)
+					setPosition(0)
+					setDuration(0)
+				}}
 				onTimeUpdate={(event) => setPosition(event.currentTarget.currentTime)}
 				onDurationChange={(event) =>
 					setDuration(Number.isFinite(event.currentTarget.duration) ? event.currentTarget.duration : 0)
@@ -90,7 +109,10 @@ export function AudioPlayer({ src, name, labels, onError }: AudioPlayerProps) {
 				<span className="shrink-0 text-label tabular-nums">{formatAudioTime(duration)}</span>
 			</div>
 			<div className="mt-4 flex items-center gap-4">
-				<span className="text-label">{labels.volume}</span>
+				{/* The slider carries the same text as its screen-reader label. */}
+				<span aria-hidden="true" className="text-label">
+					{labels.volume}
+				</span>
 				<Slider
 					label={labels.volume}
 					size="sm"
