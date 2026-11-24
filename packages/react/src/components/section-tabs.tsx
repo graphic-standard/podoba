@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import { Button } from './button'
-import { SwitchViewIcon } from './source-icons'
 
 /**
  * SectionTabs — horizontal section/filter tab row (port of gs-platform
@@ -25,9 +24,8 @@ export type SectionTab = {
 	disabled?: boolean
 	/**
 	 * gs `switchable` tab: pressing the already selected tab switches the view
-	 * (e.g. Tasks list and board) instead of re-selecting it. While selected it shows
-	 * the source "switch view" burst before the label, revealed on hover and keyboard
-	 * focus (width 0 to 14px, opacity 0 to 1, 120ms `ease`).
+	 * (e.g. Tasks list and board) instead of re-selecting it. The selected tab keeps
+	 * its plain label; the native tooltip below carries the hint.
 	 */
 	switchable?: boolean
 	/** Native tooltip on a selected switchable tab (translated, e.g. "Switch view"). */
@@ -72,14 +70,6 @@ const tabBase =
 	'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-50 data-[disabled]:bg-transparent data-[disabled]:text-fg-muted'
 
 const tabActive = 'bg-surface-muted text-fg'
-
-// gs `.tabButton` (switchable form): 12px gap, so the selected tab is 12px wider even
-// while the 0px icon is hidden (measured 77px at rest, 91px on hover for "All (18)").
-const tabSwitchable = 'group/switch'
-const tabSwitchIcon =
-	'h-3.5 w-0 shrink-0 overflow-hidden opacity-0 transition-[width,opacity] duration-120 ease-[ease] motion-reduce:transition-none ' +
-	'group-data-[hovered]/switch:w-3.5 group-data-[hovered]/switch:opacity-100 ' +
-	'group-data-[focus-visible]/switch:w-3.5 group-data-[focus-visible]/switch:opacity-100'
 
 export function SectionTabs({
 	tabs,
@@ -132,16 +122,13 @@ export function SectionTabs({
 						aria-pressed={selected}
 						onPress={() => onChange(tab.key)}
 						data-switchable={switchHint || undefined}
-						className={[tabBase, selected && !tab.disabled ? tabActive : '', switchHint ? tabSwitchable : '']
+						className={[tabBase, selected && !tab.disabled ? tabActive : '']
 							.filter(Boolean)
 							.join(' ')}
 					>
 						{switchHint ? (
 							// React Aria's Button drops `title`, so the native hint rides on the content.
-							<span title={tab.switchHintLabel} className="inline-flex items-center gap-3">
-								<SwitchViewIcon className={tabSwitchIcon} />
-								<span>{tab.label}</span>
-							</span>
+							<span title={tab.switchHintLabel}>{tab.label}</span>
 						) : (
 							<span>{tab.label}</span>
 						)}
