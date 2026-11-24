@@ -5,7 +5,8 @@ import type { IconProps } from './icons'
  * equivalent for. The Radix ones are Radix Icons 1.3.2 (MIT) on their 15px grid,
  * filled with `currentColor`, exactly as the Manager rendered them (the document
  * library Scope / Role / Status column headers). `SwitchViewIcon` is the Manager's
- * 16px "switch view" burst shown on a selected switchable section tab.
+ * 16px "switch view" burst; `SectionTabs` no longer draws it, it stays for hosts
+ * that place it themselves.
  *
  * All are decorative (`aria-hidden`); size via width/height or `className`.
  */
