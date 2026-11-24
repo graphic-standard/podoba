@@ -247,7 +247,7 @@ export function AccountDialog({
 								{apps.length > 0 ? (
 									<section className="flex flex-col gap-3">
 										<Text weight="medium">{labels.apps}</Text>
-										<div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+										<div className={`grid grid-cols-1 gap-3 ${APP_COLUMNS[Math.min(apps.length, 4)]}`}>
 											{apps.map((app) => (
 												<AppCard
 													key={app.id}
@@ -301,6 +301,15 @@ export function AccountDialog({
 			</ModalSurface>
 		</ModalOverlay>
 	)
+}
+
+// One row of up to four cards, as many columns as there are apps (static classes, so
+// Tailwind sees them); more than four wrap.
+const APP_COLUMNS: Record<number, string> = {
+	1: 'sm:grid-cols-1',
+	2: 'sm:grid-cols-2',
+	3: 'sm:grid-cols-3',
+	4: 'sm:grid-cols-4',
 }
 
 // The card reads as Podoba's `Card` (surface-card, 8px radius, 16px padding): plain in
