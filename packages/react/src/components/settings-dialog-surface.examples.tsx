@@ -22,9 +22,9 @@ function Example({ variant = 'create', pending = false, error = false, wide = fa
 		</SettingsDialogSurface>
 	</>
 }
-function ProductionExample({ light = false }: { light?: boolean }) {
+function ProductionExample({ light = false, background }: { light?: boolean; background?: string }) {
 	const [open, setOpen] = useState(false)
-	return <><Button onPress={() => setOpen(true)}>Open production settings</Button><ProductionSettingsDialog isOpen={open} onOpenChange={setOpen} previewTone={light ? "light" : "dark"} prefix="Template settings" title="Poster" description="Configure production details." closeLabel="Close settings" preview={<span>Artwork preview</span>} footer={<><ProductionSettingsAction variant="secondary" onPress={() => setOpen(false)}>Close</ProductionSettingsAction><ProductionSettingsAction isDisabled>Save</ProductionSettingsAction></>}><SettingsDialogDisclosure title="General"><Input label="Name" appearance="filled" defaultValue="Poster" /></SettingsDialogDisclosure></ProductionSettingsDialog></>
+	return <><Button onPress={() => setOpen(true)}>Open production settings</Button><ProductionSettingsDialog isOpen={open} onOpenChange={setOpen} previewTone={light ? "light" : "dark"} previewBackground={background} prefix="Template settings" title="Poster" description="Configure production details." closeLabel="Close settings" preview={<span>Artwork preview</span>} footer={<><ProductionSettingsAction variant="secondary" onPress={() => setOpen(false)}>Close</ProductionSettingsAction><ProductionSettingsAction isDisabled>Save</ProductionSettingsAction></>}><SettingsDialogDisclosure title="General"><Input label="Name" appearance="filled" defaultValue="Poster" /></SettingsDialogDisclosure></ProductionSettingsDialog></>
 }
 function WizardExample({ expanded = false, pending = false }: { expanded?: boolean; pending?: boolean }) {
 	const [open, setOpen] = useState(false)
@@ -34,7 +34,7 @@ export const examples = {
 	wizard: () => <WizardExample />,
 	wizardSizes: () => <><WizardExample /><WizardExample expanded /></>,
 	wizardPending: () => <WizardExample pending />,
-	production: () => <><ProductionExample /><ProductionExample light /></>,
+	production: () => <><ProductionExample /><ProductionExample light /><ProductionExample light background="#f2c14e" /></>,
 	default: () => <Example />,
 	productionColumns: () => <SettingsDialogProductionColumns><Input label="Material" appearance="filled" /><Input label="Surface finish" appearance="filled" /></SettingsDialogProductionColumns>,
 	disclosures: () => <><SettingsDialogDisclosure title="Settings" description="Campaign templates"><Input label="Name" appearance="filled" defaultValue="Poster" /></SettingsDialogDisclosure><SettingsDialogDisclosure title="Print" description="Available for Print templates" defaultExpanded={false}><Input label="Material" appearance="filled" isDisabled /></SettingsDialogDisclosure></>,

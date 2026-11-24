@@ -53,3 +53,36 @@ test('production preview supports light and keeps the dark default', async () =>
   expect(document.querySelector('button[aria-label="Close"]')?.className).toContain('text-fg-muted')
  } finally { await act(async () => root.unmount()); host.remove() }
 })
+
+test('production preview takes a solid background over the tone; an empty one falls back to the tone', async () => {
+ const host = document.body.appendChild(document.createElement('div'))
+ const root = createRoot(host)
+ const draw = (background: string) => <ProductionSettingsDialog isOpen onOpenChange={() => {}} prefix="A" title="color" description="Description" closeLabel="Close" preview={null} footer={null} previewTone="light" previewBackground={background}>Content</ProductionSettingsDialog>
+ const pane = () => document.querySelector<HTMLElement>('[data-testid="production-settings-preview"]')
+ try {
+  await act(async () => root.render(draw('rgb(255, 0, 0)')))
+  expect(pane()?.style.background).toBe('rgb(255, 0, 0)')
+  await act(async () => root.render(draw('')))
+  expect(pane()?.style.background).toBe('var(--color-surface-card)')
+ } finally { await act(async () => root.unmount()); host.remove() }
+})
+
+test('compact layout: the fields scroll with a minimum height, the section scrolls as a fallback', async () => {
+ const originalMatchMedia = window.matchMedia
+ // Force the compact layout (narrow or portrait), which happy-dom does not report.
+ window.matchMedia = ((query: string) => ({ matches: true, media: query, onchange: null, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {}, dispatchEvent: () => false })) as typeof window.matchMedia
+ const host = document.body.appendChild(document.createElement('div'))
+ const root = createRoot(host)
+ try {
+  await act(async () => root.render(<ProductionSettingsDialog isOpen onOpenChange={() => {}} prefix="A" title="compact" description="Description" closeLabel="Close" preview={null} footer={null}>Content</ProductionSettingsDialog>))
+  expect(document.querySelector('[data-testid="production-settings"]')?.getAttribute('data-production-compact')).toBe('true')
+  const fields = document.querySelector<HTMLElement>('[data-testid="production-settings-form"]')
+  expect(fields?.className).toContain('overflow-y-auto')
+  expect(fields?.className).toContain('min-h-32')
+  expect(fields?.className).not.toContain('shrink-0')
+  expect(fields?.parentElement?.className).toContain('overflow-y-auto')
+ } finally {
+  await act(async () => root.unmount()); host.remove()
+  window.matchMedia = originalMatchMedia
+ }
+})
