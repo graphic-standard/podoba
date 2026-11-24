@@ -98,7 +98,20 @@ export interface AccountDialogLabels {
 	version: string
 }
 
-export interface AccountDialogProps {
+/** A `panel` always comes with the dialog's accessible name for while it is shown. */
+export type AccountDialogPanelProps =
+	| { panel?: never; panelTitle?: string }
+	| {
+			/** Replaces the body (hero included) while set, e.g. a list the dialog drills
+			 * into. The panel brings its own heading and way back. */
+			panel: ReactNode
+			/** Accessible name of the dialog while `panel` is shown (usually its heading). */
+			panelTitle: string
+	  }
+
+export type AccountDialogProps = AccountDialogBaseProps & AccountDialogPanelProps
+
+interface AccountDialogBaseProps {
 	/** Controlled open state. */
 	isOpen: boolean
 	/** Notified on Esc, a click outside and the close button (always `false`). */
@@ -122,11 +135,6 @@ export interface AccountDialogProps {
 	isSigningOut?: boolean
 	/** The running version, so a bug report can say what it was. Left out when empty. */
 	version?: string
-	/** Replaces the body (hero included) while set, e.g. a list the dialog drills into.
-	 * The panel brings its own heading and way back. */
-	panel?: ReactNode
-	/** Accessible name of the dialog while `panel` is shown (usually the panel's heading). */
-	panelTitle?: string
 	labels: AccountDialogLabels
 	'data-testid'?: string
 }
@@ -137,8 +145,9 @@ export function AccountDialogName({ children }: { children: ReactNode }) {
 }
 
 /**
- * The avatar button for the top bar that opens the {@link AccountDialog}. Pass the
- * accessible name (e.g. "Account") as `label`.
+ * The avatar button for the top bar that opens the {@link AccountDialog}. Its accessible
+ * name is `label` (e.g. "Account") followed by the person's name, so a screen reader says
+ * whose account it is. Spacing in the bar is the bar's: pass it through `className`.
  */
 export function AccountButton({
 	user,
@@ -152,7 +161,7 @@ export function AccountButton({
 	className?: string
 }) {
 	return (
-		<Button variant="ghost" aria-label={label} aria-haspopup="dialog" className={['ml-2 p-2', className].filter(Boolean).join(' ')} onPress={onPress}>
+		<Button variant="ghost" aria-label={`${label}, ${user.name}`} aria-haspopup="dialog" className={['p-2', className].filter(Boolean).join(' ')} onPress={onPress}>
 			<Avatar name={user.name} src={user.picture} />
 		</Button>
 	)
@@ -210,7 +219,7 @@ export function AccountDialog({
 					) : (
 						<>
 							<div
-								className={`group relative flex h-48 items-end justify-center overflow-hidden rounded-t-lg sm:h-56 ${illustrated ? '' : 'bg-surface-muted'}`}
+								className={`group relative flex items-end justify-center overflow-hidden rounded-t-lg ${illustrated ? 'h-48 sm:h-56' : 'h-36 bg-surface-muted'}`}
 								style={illustrated ? { backgroundColor: user.background } : undefined}
 								data-testid="account-dialog-hero"
 							>
@@ -223,7 +232,7 @@ export function AccountDialog({
 									<img src={user.figure} alt={user.name} width={512} height={512} className="h-full w-full object-contain object-bottom" />
 								) : (
 									<div className="flex h-full items-center">
-										<Avatar name={user.name} src={user.picture} size="lg" />
+										<Avatar name={user.name} src={user.picture} size="xl" />
 									</div>
 								)}
 								<Button
@@ -265,7 +274,8 @@ export function AccountDialog({
 								{preferences ? (
 									<section className="flex flex-col gap-3">
 										<Text weight="medium">{labels.preferences}</Text>
-										<div className="grid grid-cols-1 gap-3 sm:grid-cols-3">{preferences}</div>
+										{/* Up to three cards in a row (14rem each at least); one or two fill it. */}
+										<div className="grid grid-cols-1 gap-3 sm:grid-cols-[repeat(auto-fit,minmax(14rem,1fr))]">{preferences}</div>
 									</section>
 								) : null}
 
@@ -319,7 +329,7 @@ const CARD =
 	'relative flex min-h-44 w-full flex-col items-start justify-end gap-3 overflow-hidden rounded-lg bg-surface-card p-4 text-left text-compact leading-4 text-fg no-underline ' +
 	'cursor-pointer outline-none dark:border dark:border-border ' +
 	'data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring data-[focus-visible]:ring-offset-2 ' +
-	'data-[disabled]:cursor-default data-[disabled]:opacity-50'
+	'data-[disabled]:cursor-default'
 
 function AppCard({
 	app,
@@ -336,6 +346,9 @@ function AppCard({
 }) {
 	const disabled = Boolean(app.soon || app.lockedLabel || app.isDisabled || (!app.href && !app.onPress))
 	const className = `${CARD} ${app.current ? 'border border-border' : ''}`
+	// A disabled card softens its name, description and artwork, never the badge that
+	// says why it is disabled (fading the whole card would drop that below AA too).
+	const faded = disabled ? 'opacity-50' : ''
 	const style: CSSProperties | undefined = app.current && accent ? { borderColor: accent } : undefined
 	const body = (
 		<>
@@ -349,15 +362,15 @@ function AppCard({
 					<Badge label={soonLabel} color="grey" />
 				</span>
 			) : null}
-			<span className={`relative z-20 flex w-full flex-col items-center gap-2 text-center ${app.artwork ? 'mt-auto' : ''}`}>
+			<span className={`relative z-20 flex w-full flex-col items-center gap-2 text-center ${app.artwork ? 'mt-auto' : ''} ${faded}`}>
 				<Text weight="medium">{app.name}</Text>
-				<Text size="micro" tone="muted" className="whitespace-nowrap leading-4">
+				<Text size="micro" tone="muted" className="text-balance leading-4">
 					{app.description}
 				</Text>
 			</span>
 			{app.artwork ? (
 				<>
-					<AppArtwork artwork={app.artwork} active={active} keepPosition={Boolean(app.current)} />
+					<AppArtwork artwork={app.artwork} active={active} keepPosition={Boolean(app.current)} className={faded} />
 					<span
 						aria-hidden="true"
 						className="pointer-events-none absolute inset-0 z-10 rounded-[inherit] bg-white/60 backdrop-blur-xl [mask-image:linear-gradient(to_bottom,transparent_40%,black_85%,black_100%)] dark:bg-surface-card/80"
@@ -387,7 +400,17 @@ function AppCard({
 	)
 }
 
-function AppArtwork({ artwork, active, keepPosition }: { artwork: AccountAppArtwork; active: boolean; keepPosition: boolean }) {
+function AppArtwork({
+	artwork,
+	active,
+	keepPosition,
+	className,
+}: {
+	artwork: AccountAppArtwork
+	active: boolean
+	keepPosition: boolean
+	className?: string
+}) {
 	const video = useRef<HTMLVideoElement>(null)
 	const [playing, setPlaying] = useState(false)
 	useEffect(() => {
@@ -405,7 +428,7 @@ function AppArtwork({ artwork, active, keepPosition }: { artwork: AccountAppArtw
 	}, [active, keepPosition])
 	const layer = `absolute inset-0 h-full w-full scale-125 object-contain ${artwork.className ?? ''}`
 	return (
-		<span aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 block h-full w-full shrink-0 overflow-hidden">
+		<span aria-hidden="true" className={`pointer-events-none absolute inset-0 z-0 block h-full w-full shrink-0 overflow-hidden ${className ?? ''}`}>
 			{artwork.video ? (
 				<video ref={video} src={artwork.video} muted loop playsInline preload="none" onPlaying={() => setPlaying(true)} className={layer} />
 			) : null}

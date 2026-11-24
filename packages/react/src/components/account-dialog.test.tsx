@@ -114,6 +114,14 @@ describe('AccountDialog', () => {
 		expect(card('Partners')?.textContent).toContain('Admins only')
 		expect(card('Print')?.hasAttribute('disabled')).toBe(true)
 		expect(card('Print')?.textContent).toContain('Coming soon')
+		// The reason stays at full ink; only the name, description and artwork soften.
+		for (const name of ['Partners', 'Print']) {
+			const node = card(name)
+			expect(node?.className).not.toContain('opacity-50')
+			const badge = [...(node?.querySelectorAll<HTMLElement>('span') ?? [])].find((s) => s.textContent === 'Admins only' || s.textContent === 'Coming soon')
+			expect(badge?.closest('.opacity-50')).toBeNull()
+			expect([...(node?.querySelectorAll('.opacity-50') ?? [])].some((s) => s.textContent?.includes(name))).toBe(true)
+		}
 	})
 
 	test('pressing an app runs its action', () => {
@@ -180,7 +188,7 @@ describe('AccountButton', () => {
 	test('is a named button that announces a dialog', () => {
 		let pressed = 0
 		mount(<AccountButton user={{ name: 'Alex Novak' }} label="Account" onPress={() => pressed++} />)
-		const button = document.querySelector<HTMLElement>('[aria-label="Account"]')
+		const button = document.querySelector<HTMLElement>('[aria-label="Account, Alex Novak"]')
 		expect(button?.getAttribute('aria-haspopup')).toBe('dialog')
 		act(() => button?.click())
 		expect(pressed).toBe(1)
