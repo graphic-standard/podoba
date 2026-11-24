@@ -1,14 +1,14 @@
-import { Button as RACButton, type ButtonProps as RACButtonProps } from 'react-aria-components'
-import { uic } from '../utils/uic'
+import {
+	Button as RACButton,
+	Link as RACLink,
+	type ButtonProps as RACButtonProps,
+	type LinkProps as RACLinkProps,
+} from 'react-aria-components'
+import { uic, uiconfig } from '../utils/uic'
 
-/**
- * Button — management SPA action button.
- *
- * Built on React Aria Components `Button` (full keyboard + ARIA + press
- * handling for free) wrapped with `uic` for type-safe Tailwind variants.
- */
-export const Button = uic(RACButton, {
-	displayName: 'Button',
+// The look shared by `Button` and `LinkButton`. React Aria's Link sets the same
+// data-hovered / data-pressed / data-disabled / data-focus-visible hooks as its Button.
+const buttonLook = uiconfig({
 	// gs `Button.module.scss`: pill radius, FIXED 13px / weight-400 text (`text-compact`)
 	// on every size — size variants change PADDING ONLY, never the text scale. The
 	// source eases background-color, color, box-shadow and border-color over 120ms `ease`.
@@ -77,7 +77,38 @@ export const Button = uic(RACButton, {
 	},
 })
 
+/**
+ * Button — management SPA action button.
+ *
+ * Built on React Aria Components `Button` (full keyboard + ARIA + press
+ * handling for free) wrapped with `uic` for type-safe Tailwind variants.
+ */
+export const Button = uic(RACButton, {
+	displayName: 'Button',
+	baseClass: buttonLook.baseClass,
+	variants: buttonLook.variants,
+	defaultVariants: buttonLook.defaultVariants,
+})
+
+/**
+ * LinkButton — a real link (`<a href>`) that looks like a {@link Button}.
+ *
+ * For an action that navigates, often away from the app, where a middle click and
+ * "open in a new tab" have to work. Same variants and sizes as `Button`.
+ */
+export const LinkButton = uic(RACLink, {
+	displayName: 'LinkButton',
+	baseClass: [buttonLook.baseClass, 'no-underline'],
+	variants: buttonLook.variants,
+	defaultVariants: buttonLook.defaultVariants,
+})
+
 export type ButtonProps = RACButtonProps & {
 	variant?: 'primary' | 'secondary' | 'ghost' | 'destructive'
 	size?: 'sm' | 'md' | 'lg' | 'prominent' | 'dialog-sm'
+}
+
+export type LinkButtonProps = RACLinkProps & {
+	variant?: ButtonProps['variant']
+	size?: ButtonProps['size']
 }

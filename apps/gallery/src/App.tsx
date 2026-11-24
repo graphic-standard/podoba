@@ -108,6 +108,7 @@ import {
 } from "@podoba/react";
 // Opt-in subpath — this import is what pulls Tiptap/ProseMirror into the bundle.
 import { BlockEditor } from "@podoba/react/editor";
+import { examples as accountDialogExamples } from "../../../packages/react/src/components/account-dialog.examples";
 import { type ComponentType, createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 // ── gallery chrome ──────────────────────────────────────────────────────────
@@ -1853,6 +1854,22 @@ const SECTIONS: SectionDef[] = [
 				<SendToPrintModalDemo />
 				<PublishModalDemo />
 			</Demo>
+		),
+	},
+	{
+		id: "account-dialog",
+		group: "Product patterns",
+		title: "Account window",
+		subtitle:
+			"AccountButton + AccountDialog: the window behind the avatar, the same in every app of the suite. App cards are links (href) or buttons (onPress); preferences, extra sections, footer rows and a drill-in panel are slots.",
+		content: (
+			<>
+				{(Object.entries(accountDialogExamples) as [string, () => ReactNode][]).map(([name, render]) => (
+					<Demo key={name} label={name}>
+						{render()}
+					</Demo>
+				))}
+			</>
 		),
 	},
 	{
