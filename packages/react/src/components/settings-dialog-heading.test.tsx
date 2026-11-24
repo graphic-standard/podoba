@@ -53,3 +53,16 @@ test('production preview supports light and keeps the dark default', async () =>
   expect(document.querySelector('button[aria-label="Close"]')?.className).toContain('text-fg-muted')
  } finally { await act(async () => root.unmount()); host.remove() }
 })
+
+test('production preview takes a solid background over the tone, and only the fields scroll', async () => {
+ const host = document.body.appendChild(document.createElement('div'))
+ const root = createRoot(host)
+ try {
+  await act(async () => root.render(<ProductionSettingsDialog isOpen onOpenChange={() => {}} prefix="A" title="color" description="Description" closeLabel="Close" preview={null} footer={null} previewTone="light" previewBackground="rgb(255, 0, 0)">Content</ProductionSettingsDialog>))
+  expect(document.querySelector<HTMLElement>('[data-testid="production-settings-preview"]')?.style.background).toBe('rgb(255, 0, 0)')
+  const fields = document.querySelector<HTMLElement>('[data-testid="production-settings-form"]')
+  expect(fields?.className).toContain('overflow-y-auto')
+  expect(fields?.className).toContain('min-h-0')
+  expect(fields?.parentElement?.className).toContain('overflow-hidden')
+ } finally { await act(async () => root.unmount()); host.remove() }
+})

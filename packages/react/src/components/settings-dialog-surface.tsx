@@ -521,6 +521,7 @@ export function ProductionSettingsDialog({
 	isPending = false,
 	previewSize = 'contained',
 	previewTone = 'dark',
+	previewBackground,
 	previewLabel,
 }: {
 	isPending?: boolean
@@ -528,6 +529,12 @@ export function ProductionSettingsDialog({
 	previewSize?: 'contained' | 'full'
 	/** Background tone of the preview pane; defaults to dark. */
 	previewTone?: 'dark' | 'light'
+	/**
+	 * A solid CSS background for the preview pane that wins over `previewTone`, e.g.
+	 * the value of a color token being edited. Keep `previewTone` matching its
+	 * lightness, since it also styles the close button.
+	 */
+	previewBackground?: string
 	isOpen: boolean
 	onOpenChange: (open: boolean) => void
 	prefix: ReactNode
@@ -579,7 +586,7 @@ export function ProductionSettingsDialog({
 					}}
 				>
 					<section
-						className={`flex min-h-0 min-w-0 flex-col bg-surface ${compact ? 'row-start-2 overflow-y-auto' : 'overflow-hidden'}`}
+						className={`flex min-h-0 min-w-0 flex-col overflow-hidden bg-surface ${compact ? 'row-start-2' : ''}`}
 						aria-labelledby={titleId}
 					>
 						<ProductionHeader>
@@ -590,7 +597,9 @@ export function ProductionSettingsDialog({
 						</ProductionHeader>
 						<ProductionFields
 							data-testid={`${testId}-form`}
-							className={compact ? 'shrink-0' : 'flex-1 overflow-y-auto'}
+							// Only the fields scroll, in both layouts: the header and the footer
+							// with the dialog's actions stay in view on a short compact screen.
+							className="min-h-0 flex-1 overflow-y-auto"
 							style={{ scrollbarGutter: 'stable' }}
 						>
 							{children}
@@ -598,7 +607,7 @@ export function ProductionSettingsDialog({
 						<ProductionFooter>{footer}</ProductionFooter>
 					</section>
 					<ProductionPreview
-						style={{ background: previewTone === 'light' ? 'var(--color-surface-card)' : 'radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--color-surface) 8%, transparent) 0, transparent 42%), color-mix(in srgb, var(--color-fg) 84%, var(--color-surface))' }}
+						style={{ background: previewBackground ?? (previewTone === 'light' ? 'var(--color-surface-card)' : 'radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--color-surface) 8%, transparent) 0, transparent 42%), color-mix(in srgb, var(--color-fg) 84%, var(--color-surface))') }}
 						aria-label={previewLabel}
 						className={compact ? 'col-start-1 row-start-1' : undefined}
 						data-testid={`${testId}-preview`}
