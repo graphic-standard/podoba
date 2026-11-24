@@ -7,13 +7,15 @@
  *
  * Presentational only (hard rule #1): names/urls arrive via props.
  */
-export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg'
+export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 const SIZE: Record<AvatarSize, string> = {
 	xs: 'h-5 w-5 text-micro',
 	sm: 'h-6 w-6 text-caption',
 	md: 'h-7 w-7 text-caption',
 	lg: 'h-9 w-9 text-compact',
+	// A hero-sized avatar (e.g. the account window without an illustrated figure).
+	xl: 'h-24 w-24 text-heading2',
 }
 
 /** First + last initial (single word → first two letters). */
