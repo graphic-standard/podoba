@@ -358,7 +358,9 @@ function SheetMenuSurface({
 		panelRef.current = element
 	}, [panelRef])
 	return (
-		<RACModalOverlay isOpen={isOpen} onOpenChange={onOpenChange} isDismissable className={sheetOverlayClass}>
+		// The backdrop counts as part of the menu surface: a hold or right-click on it must
+		// not reopen the menu with the backdrop as its target.
+		<RACModalOverlay isOpen={isOpen} onOpenChange={onOpenChange} isDismissable className={sheetOverlayClass} data-context-menu-panel="" data-context-menu-backdrop="">
 			<RACModal ref={ref as React.Ref<HTMLDivElement>} data-context-menu-panel="" data-context-menu-sheet="" className={className ? `${sheetClass} ${className}` : sheetClass}>
 				<div aria-hidden="true" className="mx-auto mb-2 h-1 w-9 shrink-0 rounded-full bg-white/25" />
 				{children}
@@ -592,6 +594,12 @@ function WrapperContextMenu({
 	const onContextMenu = (e: React.MouseEvent) => {
 		if (e.defaultPrevented) return
 		const target = e.target instanceof HTMLElement ? e.target : e.currentTarget as HTMLElement
+		// Our own portalled surfaces (the sheet's backdrop) bubble here through React;
+		// they are not a target. Keep the OS menu off them and leave the menu alone.
+		if (target.closest('[data-context-menu-panel]')) {
+			e.preventDefault()
+			return
+		}
 		if (shouldOpenRef.current?.(target) === false) {
 			setOpen(false)
 			return
@@ -622,7 +630,7 @@ function WrapperContextMenu({
 		}
 		const handle = (e: MouseEvent) => {
 			const target = e.target as HTMLElement
-			if (popoverRef.current?.contains(target)) {
+			if (popoverRef.current?.contains(target) || target.closest?.('[data-context-menu-backdrop]')) {
 				// On our own panel: suppress the OS menu, leave the panel as-is. Stop
 				// propagation so the wrapper's onContextMenu doesn't also fire.
 				e.preventDefault()
@@ -819,6 +827,14 @@ export function ContextMenu(props: ContextMenuProps | ContextMenuWrapperProps): 
  * `menu.targetProps` instead of `onContextMenu={menu.open}` also keeps iOS's callout
  * and text selection off the target during the hold. `<ContextMenuButton
  * onOpen={menu.open} />` is the visible touch opener.
+ *
+ * Two edges of `targetProps`:
+ *  - `className` is a class string, not a merge: put it together with the target's own
+ *    (``className={`${menu.targetProps.className} my-row`}``) rather than spreading it
+ *    next to another `className`, where one would silently replace the other.
+ *  - The selection lock covers the whole target. Unlike the wrapper's `shouldOpen`, it
+ *    cannot know where your handler declines to open; put text the user should be able
+ *    to select by holding (not a field, those are always exempt) outside the target.
  */
 export function useContextMenu(): {
 	isOpen: boolean

@@ -25,9 +25,12 @@ import { useEffect } from 'react'
  *
  * Our own `contextmenu` is stopped at `<html>`, after React's root handlers: a listener
  * on `document` (an app-wide fallback menu) never sees a long press, so iOS keeps text
- * selection on plain page content.
+ * selection on plain page content. The exception is an app whose React root is
+ * `document` itself; its fallback should skip events where
+ * {@link isLongPressContextMenu} is true.
  *
- * Cancelled by moving more than {@link LONG_PRESS_SLOP} px, a scroll, a second finger,
+ * Cancelled by moving more than {@link LONG_PRESS_SLOP} px, a scroll of the page or of a
+ * box around the finger, a second finger,
  * or the browser's own `pointercancel`. Text fields and open menu panels are left alone.
  */
 
@@ -195,9 +198,12 @@ const onPointerEnd = (event: PointerEvent) => {
 	if (g && event.pointerId === g.pointerId) end(g)
 }
 
-const onScroll = () => {
+/** A scroll of the page or of a box around the finger; a carousel elsewhere is not. */
+const onScroll = (event: Event) => {
 	const g = gesture
-	if (g && !g.fired) end(g)
+	if (!g || g.fired) return
+	const scrolled = event.target
+	if (scrolled === window || scrolled === document || (scrolled instanceof Node && scrolled.contains(g.target))) end(g)
 }
 
 const onSelectStart = (event: Event) => {
@@ -242,9 +248,24 @@ const onContextMenuCapture = (event: MouseEvent) => {
 	}, 0)
 }
 
-/** `<html>` bubble: our event stops after React's root, before `document` listeners. */
+/**
+ * Whether React renders into `document` itself (`hydrateRoot(document, …)`, as
+ * full-document SSR frameworks do). React then listens on `document`, so stopping at
+ * `<html>` would keep every `onContextMenu` handler from running.
+ */
+function documentIsReactRoot(): boolean {
+	// React clears the key to null on unmount rather than deleting it.
+	const props = document as unknown as Record<string, unknown>
+	return Object.keys(document).some((key) => key.startsWith('__reactContainer$') && props[key] != null)
+}
+
+/**
+ * `<html>` bubble: our event stops after React's root, before `document` listeners.
+ * Not when the root IS `document`: there an app-wide fallback on `document` sees the
+ * long press too and should skip it with {@link isLongPressContextMenu}.
+ */
 const onContextMenuBubble = (event: MouseEvent) => {
-	if (event === dispatching && isLongPressContextMenu(event)) event.stopPropagation()
+	if (event === dispatching && isLongPressContextMenu(event) && !documentIsReactRoot()) event.stopPropagation()
 }
 
 function install() {

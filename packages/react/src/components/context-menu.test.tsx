@@ -132,6 +132,23 @@ describe('long press on touch', () => {
 		expect(menu()).not.toBeNull()
 	})
 
+	test('a scroll elsewhere on the page (a carousel) does not cancel the hold', async () => {
+		await act(async () => root.render(
+			<div>
+				<div id="carousel" style={{ overflow: 'auto' }}>slides</div>
+				<ContextMenu groups={groups}><div id="card">Card</div></ContextMenu>
+			</div>,
+		))
+		const card = host.querySelector('#card')!
+		await act(async () => {
+			touch('pointerdown', card)
+			await wait(100)
+			host.querySelector('#carousel')!.dispatchEvent(new Event('scroll'))
+			await wait(LONG_PRESS_MS)
+		})
+		expect(menu()).not.toBeNull()
+	})
+
 	test('a mouse held down is not a long press', async () => {
 		await act(async () => root.render(<ContextMenu groups={groups}><div id="card">Card</div></ContextMenu>))
 		const card = host.querySelector('#card')!
@@ -281,6 +298,30 @@ describe('phone bottom sheet', () => {
 			await wait(50)
 		})
 		expect(renamed).toBe(1)
+	})
+
+	test('a hold on the sheet backdrop does not reopen the menu with the backdrop as target', async () => {
+		setPhone(true)
+		const targets: string[] = []
+		await act(async () => root.render(
+			<ContextMenu groups={({ target }) => {
+				targets.push(target.closest('[data-item]')?.getAttribute('data-item') ?? target.tagName)
+				return groups
+			}}><div data-item="a" id="card">Card</div></ContextMenu>,
+		))
+		await longPress(host.querySelector('#card')!, { lift: false })
+		await act(async () => { touch('pointerup', host.querySelector('#card')!); await wait(450) })
+		const backdrop = document.querySelector('[data-context-menu-backdrop]')!
+		expect(backdrop).not.toBeNull()
+		await act(async () => {
+			touch('pointerdown', backdrop, 200, 40)
+			await wait(LONG_PRESS_MS + 60)
+		})
+		expect(targets).toEqual(['a'])
+		// Android's own event on the backdrop does not reopen it either.
+		await act(async () => { backdrop.dispatchEvent(new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX: 200, clientY: 40 })) })
+		expect(targets).toEqual(['a'])
+		await act(async () => { touch('pointerup', backdrop, 200, 40) })
 	})
 
 	test('presentation forces the sheet on a desktop, or the panel on a phone', async () => {
