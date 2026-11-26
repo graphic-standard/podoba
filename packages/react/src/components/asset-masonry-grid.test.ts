@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 
-import { assetMasonryColumns, assetMasonryPositions } from './asset-masonry-grid'
+import { assetMasonryColumns, assetMasonryHeight, assetMasonryPositions } from './asset-masonry-grid'
 
 test('two columns on a phone, more as the container grows, never fewer', () => {
 	for (const [width, count] of [[0, 1], [240, 1], [279, 1], [280, 2], [358, 2], [599, 2], [600, 3], [767, 3], [899, 3], [900, 3], [1023, 3], [1180, 4], [1392, 4], [1472, 5]] as const) {
@@ -15,6 +15,19 @@ test('two columns on a phone, more as the container grows, never fewer', () => {
 		expect(count).toBeGreaterThanOrEqual(previous)
 		previous = count
 	}
+})
+
+test('heights keep the image shape on a phone column; the floor scales with the column', () => {
+	// A 173px phone column: a 3:2 landscape keeps its 115px, a 5:2 panorama its 69px.
+	expect(assetMasonryHeight(173, 3 / 2)).toBeCloseTo(115.33)
+	expect(assetMasonryHeight(173, 5 / 2)).toBeCloseTo(69.2)
+	// Wider than 5:2 stops at the floor, which is 5:2 of the column (or 150px past 375px).
+	expect(assetMasonryHeight(173, 4)).toBeCloseTo(69.2)
+	expect(assetMasonryHeight(400, 8)).toBe(150)
+	// Tall images stop at 800px; a missing ratio counts as square.
+	expect(assetMasonryHeight(340, 0.2)).toBe(800)
+	expect(assetMasonryHeight(200, 0)).toBe(200)
+	expect(assetMasonryHeight(200, Number.NaN)).toBe(200)
 })
 
 test('places each next asset in the shortest column and excludes the trailing gutter', () => {
