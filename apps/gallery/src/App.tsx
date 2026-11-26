@@ -63,6 +63,8 @@ import {
 	UserMenuSeparator,
 	BrandPageHeader,
 	ContextMenu,
+	ContextMenuButton,
+	type ContextMenuGroup,
 	CtaPill,
 	DashboardGrid,
 	DashboardTile,
@@ -641,6 +643,97 @@ function ContextMenuDemo() {
 				]}
 			/>
 		</>
+	);
+}
+
+// ── context menu on touch (long press · bottom sheet · ⋯) ─────────────────
+const touchAssets = [
+	{ id: "logo", name: "Logo, primary", kind: "SVG · 12 kB" },
+	{ id: "poster", name: "Spring poster", kind: "PDF · 2.4 MB" },
+	{ id: "banner", name: "Web banner", kind: "PNG · 380 kB" },
+];
+
+function touchAssetGroups(name: string): ContextMenuGroup[] {
+	return [
+		{
+			id: "item",
+			label: name,
+			items: [
+				{ id: "open", label: "Open", icon: <ExternalLinkIcon className="h-3.5 w-3.5" /> },
+				{ id: "rename", label: "Rename", icon: <FileTextIcon className="h-3.5 w-3.5" /> },
+				{ id: "download", label: "Download", icon: <DownloadIcon className="h-3.5 w-3.5" /> },
+			],
+		},
+		{
+			id: "more",
+			label: "More",
+			items: [
+				{ id: "star", label: "Add to favourites", icon: <StarIcon className="h-3.5 w-3.5" /> },
+				{ id: "delete", label: "Delete", icon: <TrashIcon className="h-3.5 w-3.5" />, destructive: true },
+			],
+		},
+	];
+}
+
+function ContextMenuTouchDemo() {
+	const [last, setLast] = useState("nothing yet");
+	// A desktop browser has no coarse pointer, so this forces what a phone shows:
+	// the bottom sheet and the ⋯ buttons. "This device" is the real, automatic behaviour.
+	const [preview, setPreview] = useState<"device" | "phone">("device");
+	const phone = preview === "phone";
+	return (
+		<div className="flex w-full max-w-md flex-col gap-3">
+			<div role="group" aria-label="Preview" className="flex gap-1 self-start rounded-md border border-border p-0.5">
+				{(
+					[
+						["device", "This device"],
+						["phone", "Phone (touch)"],
+					] as const
+				).map(([id, label]) => (
+					<button
+						key={id}
+						type="button"
+						aria-pressed={preview === id}
+						onClick={() => setPreview(id)}
+						className={`rounded px-2.5 py-1 text-xs ${preview === id ? "bg-surface-muted font-medium text-fg" : "text-fg-muted"}`}
+					>
+						{label}
+					</button>
+				))}
+			</div>
+			{/* One wrapper around the list: the resolver reads which card was pressed. */}
+			<ContextMenu
+				presentation={phone ? "sheet" : "auto"}
+				aria-label="Asset actions"
+				className="flex flex-col gap-2"
+				onOpenChange={(open, target) => {
+					if (open) setLast(target?.closest("[data-asset]")?.getAttribute("data-asset") ?? "list");
+				}}
+				groups={({ target }) => {
+					const id = target.closest("[data-asset]")?.getAttribute("data-asset");
+					const asset = touchAssets.find((a) => a.id === id);
+					return asset ? touchAssetGroups(asset.name) : [];
+				}}
+			>
+				{touchAssets.map((asset) => (
+					<div
+						key={asset.id}
+						data-asset={asset.id}
+						className="flex items-center gap-3 rounded-lg border border-border bg-surface-card py-2 ps-4 pe-2"
+					>
+						<div className="min-w-0 flex-1">
+							<div className="truncate text-small font-medium text-fg">{asset.name}</div>
+							<div className="text-label text-fg-muted">{asset.kind}</div>
+						</div>
+						{/* Shows only on a touch screen; opens this card's menu. */}
+						<ContextMenuButton aria-label={`More for ${asset.name}`} visibility={phone ? "always" : "touch"} />
+					</div>
+				))}
+			</ContextMenu>
+			<span className="text-label text-fg-muted" data-testid="touch-last-target">
+				Last menu: {last}
+			</span>
+		</div>
 	);
 }
 
@@ -1330,6 +1423,18 @@ const SECTIONS: SectionDef[] = [
 			</Demo>
 		),
 	},
+	{
+		id: "context-menu-touch",
+		group: "Actions",
+		title: "Context menu on touch",
+		subtitle:
+			"The same menus on a phone: a long press opens them at the finger, a phone shows them as a bottom sheet, and a ⋯ button (touch screens only) opens them too. A desktop is unchanged.",
+		content: (
+			<Demo label="Long-press a card, or tap ⋯ on a touch screen">
+				<ContextMenuTouchDemo />
+			</Demo>
+		),
+	},
 
 	// ── Overlays ──
 	// ── Modals (a core Graphic Standard element) ──
@@ -1988,6 +2093,25 @@ export function App() {
 	};
 
 	const activeTitle = SECTIONS.find((s) => s.id === active);
+
+	// `?only=<section id>` shows one demo across the whole window, without the sidebar:
+	// how a demo looks on a phone-width screen.
+	const only = SECTIONS.find((s) => s.id === new URLSearchParams(window.location.search).get("only"));
+	if (only) {
+		return (
+			<div className="min-h-screen text-fg" style={{ background: `var(--color-${bg})` }}>
+				<section id={only.id} className="flex flex-col gap-6 px-4 py-8">
+					<div className="flex flex-col gap-1.5">
+						<span className="text-micro font-medium uppercase tracking-wider text-fg-muted">{only.group}</span>
+						<h2 className="text-heading3 font-medium text-fg">{only.title}</h2>
+						{only.subtitle ? <p className="text-sm leading-relaxed text-fg-muted">{only.subtitle}</p> : null}
+					</div>
+					<div className="flex flex-col gap-12">{only.content}</div>
+				</section>
+				<ToastRegion />
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex h-screen overflow-hidden text-fg">

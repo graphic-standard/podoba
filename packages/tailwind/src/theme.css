@@ -265,6 +265,9 @@
 	--animate-create-hub-sheet: create-hub-sheet var(--motion-create-hub-sheet-duration)
 		var(--motion-create-hub-enter-easing) both;
 	--animate-expand-cta: expand-cta 220ms cubic-bezier(0.16, 1, 0.3, 1);
+	/* ContextMenu as a phone bottom sheet: rises from the bottom edge, drops back out. */
+	--animate-context-sheet-in: context-sheet-in 240ms cubic-bezier(0.16, 1, 0.3, 1) both;
+	--animate-context-sheet-out: context-sheet-out 180ms cubic-bezier(0.4, 0, 1, 1) forwards;
 	/* gs DropdownMenu `slideDownAndFade` / `slideUpAndFade`: 200ms both ways. */
 	--animate-dropdown-in: dropdown-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
 	--animate-dropdown-out: dropdown-out 200ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -363,6 +366,24 @@
 	}
 	to {
 		max-height: var(--control-height-create-hub-full);
+	}
+}
+
+@keyframes context-sheet-in {
+	from {
+		transform: translateY(100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+@keyframes context-sheet-out {
+	from {
+		transform: translateY(0);
+	}
+	to {
+		transform: translateY(100%);
 	}
 }
 
