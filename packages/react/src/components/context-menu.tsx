@@ -1,12 +1,33 @@
-import { type CSSProperties, type ReactNode, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
+	type CSSProperties,
+	type ReactNode,
+	createContext,
+	useCallback,
+	useContext,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from 'react'
+import {
+	Button as RACButton,
 	Header,
 	Menu as RACMenu,
 	MenuItem as RACMenuItem,
 	MenuSection as RACMenuSection,
+	Modal as RACModal,
+	ModalOverlay as RACModalOverlay,
 	Popover as RACPopover,
 } from 'react-aria-components'
 import { uic } from '../utils/uic'
+import {
+	CONTEXT_MENU_TARGET_ATTRIBUTE,
+	registerContextMenuTarget,
+	useLongPressContextMenu,
+} from './context-menu-touch'
+
+export { isLongPressContextMenu, LONG_PRESS_MS, useLongPressContextMenu } from './context-menu-touch'
 
 /**
  * ContextMenu — right-click action menu (port of gs-platform `ContextActionPanel`).
@@ -28,6 +49,14 @@ import { uic } from '../utils/uic'
  *  - **Wrapper**: wrap a target with `<ContextMenu groups={…}>{target}</ContextMenu>`;
  *    the right-click on the wrapper opens the menu and the component owns the state.
  *    `groups` may be a {@link ContextMenuGroupsResolver} for contextual menus.
+ *
+ * Touch, with no change on the screen that uses it:
+ *  - A long press ({@link LONG_PRESS_MS}) opens the same menu at the finger, on iOS too
+ *    (see `context-menu-touch.ts`), and never twice on Android.
+ *  - On a phone (coarse pointer, under 768px) the menu is a bottom sheet with large
+ *    rows and the same groups. A desktop, and a tablet, keep the panel at the cursor.
+ *  - {@link ContextMenuButton} (or the wrapper's `touchButton`) is the visible "⋯" that
+ *    opens the same menu; it only shows on a touch screen.
  *
  * Presentational only (hard rule #1) — no app imports.
  */
@@ -85,7 +114,16 @@ export interface ContextMenuProps {
 	/** Optional fallback pill for disabled items. No implicit badge. */
 	soonLabel?: ReactNode
 	className?: string
+	/** See {@link ContextMenuPresentation}. */
+	presentation?: ContextMenuPresentation
 }
+
+/**
+ * `auto` (default): a bottom sheet on a phone ({@link CONTEXT_MENU_SHEET_QUERY}), the
+ * cursor panel elsewhere. `sheet` / `panel` force one, e.g. a menu inside a surface
+ * that is already a sheet, or a preview of the phone layout.
+ */
+export type ContextMenuPresentation = 'auto' | 'sheet' | 'panel'
 
 /** Wrapper API — wrap a target; the component owns the open state. */
 interface ContextMenuWrapperProps {
@@ -96,11 +134,21 @@ interface ContextMenuWrapperProps {
 	soonLabel?: ReactNode
 	'aria-label'?: string
 	className?: string
+	/** See {@link ContextMenuPresentation}. */
+	presentation?: ContextMenuPresentation
 	/**
 	 * Notified when the wrapper's menu opens or closes. `target` is the element that
 	 * was right-clicked (null on close), so a surface can mark the item the menu acts on.
 	 */
 	onOpenChange?: (isOpen: boolean, target: HTMLElement | null) => void
+	/**
+	 * Show a "⋯" button in the wrapper's top end corner on touch screens, opening the
+	 * same menu. For a wrapper around ONE item (a card, a row); a wrapper around a whole
+	 * list puts a {@link ContextMenuButton} in each item instead. `true` labels it
+	 * "More actions"; a string is the label. Positions the wrapper (`relative`) on touch
+	 * screens only.
+	 */
+	touchButton?: boolean | string
 }
 
 const itemId = (item: ContextMenuItem, fallback: number): string => item.id ?? item.key ?? String(fallback)
@@ -120,18 +168,29 @@ const MenuItem = uic(RACMenuItem, {
 	// `bg-surface-muted`, which flip with `[data-theme]` and would go dark-on-dark in
 	// a light shell.
 	baseClass:
-		'flex min-h-8.5 min-w-0 cursor-pointer select-none items-center gap-2.5 rounded-context-menu-item px-3 py-1.5 ' +
-		'text-compact leading-4 tracking-normal font-normal text-context-menu-fg outline-none ' +
-		'data-[focused]:bg-context-menu-hover data-[focused]:font-medium data-[hovered]:bg-context-menu-hover data-[hovered]:font-medium ' +
+		'flex min-w-0 cursor-pointer select-none items-center rounded-context-menu-item ' +
+		'tracking-normal font-normal text-context-menu-fg outline-none ' +
 		'data-[disabled]:cursor-not-allowed data-[disabled]:opacity-45',
 	variants: {
+		size: {
+			panel:
+				'min-h-8.5 gap-2.5 px-3 py-1.5 text-compact leading-4 ' +
+				'data-[focused]:bg-context-menu-hover data-[focused]:font-medium data-[hovered]:bg-context-menu-hover data-[hovered]:font-medium',
+			// Phone sheet: 48px rows for a thumb. There is no hover on touch, so only
+			// keyboard focus or the finger's own press paints the wash; a row a finger
+			// once touched must not stay looking selected.
+			sheet:
+				'min-h-12 gap-3.5 px-4 py-3 text-body leading-6 ' +
+				'data-[focus-visible]:bg-context-menu-hover data-[pressed]:bg-context-menu-hover',
+		},
 		// `context-menu-danger` (#fee2e2), not `danger-light`, which flips to a ~15%
 		// translucent red under `[data-theme="dark"]` and would all but vanish here, and
 		// not `text-danger`, a light-surface red that fails contrast on the dark panel.
 		destructive: { true: 'text-context-menu-danger data-[focused]:text-context-menu-danger' },
 	},
+	defaultVariants: { size: 'panel' },
 }) as (
-	props: React.ComponentProps<typeof RACMenuItem> & { destructive?: boolean },
+	props: React.ComponentProps<typeof RACMenuItem> & { destructive?: boolean; size?: 'panel' | 'sheet' },
 ) => ReturnType<typeof RACMenuItem>
 
 // gs `.panel`: 258px (`--dimension-context-menu-width`), radius 12px, 8px/6px padding,
@@ -247,6 +306,117 @@ function CursorMenuPopover({
 }
 
 /**
+ * Where the menu is a bottom sheet: a phone, i.e. a coarse primary pointer on a narrow
+ * screen. A tablet (coarse, wide) and a touch laptop (fine) keep the cursor panel.
+ */
+export const CONTEXT_MENU_SHEET_QUERY = '(pointer: coarse) and (max-width: 767px)'
+
+const subscribeSheet = (change: () => void) => {
+	if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return () => {}
+	const media = window.matchMedia(CONTEXT_MENU_SHEET_QUERY)
+	media.addEventListener?.('change', change)
+	return () => media.removeEventListener?.('change', change)
+}
+const sheetSnapshot = () =>
+	typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(CONTEXT_MENU_SHEET_QUERY).matches
+
+function useSheetLayout(): boolean {
+	return useSyncExternalStore(subscribeSheet, sheetSnapshot, () => false)
+}
+
+// The backdrop sits on the visible viewport, like the shared ModalOverlay, so the
+// sheet stays above iOS's toolbars and keyboard.
+const sheetOverlayClass =
+	'fixed inset-x-0 top-0 z-50 flex h-[var(--visual-viewport-height,100dvh)] items-end bg-black/40 ' +
+	'data-[entering]:animate-modal-overlay-in data-[exiting]:animate-modal-overlay-out'
+// The same dark panel, docked: full width, rounded top, clear of the home indicator.
+const sheetClass =
+	'box-border flex max-h-[85%] w-full flex-col overflow-y-auto rounded-t-2xl ' +
+	'bg-gradient-to-b from-context-menu-top to-context-menu-bottom shadow-context-menu outline-none ' +
+	'px-2 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] ' +
+	'data-[entering]:animate-context-sheet-in data-[exiting]:animate-context-sheet-out motion-reduce:animate-none'
+
+/**
+ * Phone surface: a modal bottom sheet. RAC's Modal contains focus, hides the page from
+ * assistive tech while open, closes on Escape and on a tap on the backdrop, and puts
+ * focus back where it was; the menu inside is the same RAC `Menu`.
+ */
+function SheetMenuSurface({
+	isOpen,
+	onOpenChange,
+	panelRef,
+	className,
+	children,
+}: {
+	isOpen: boolean
+	onOpenChange: (open: boolean) => void
+	panelRef: React.RefObject<HTMLElement | null>
+	className?: string
+	children: ReactNode
+}) {
+	const ref = useCallback((element: HTMLElement | null) => {
+		panelRef.current = element
+	}, [panelRef])
+	return (
+		// The backdrop counts as part of the menu surface: a hold or right-click on it must
+		// not reopen the menu with the backdrop as its target.
+		<RACModalOverlay isOpen={isOpen} onOpenChange={onOpenChange} isDismissable className={sheetOverlayClass} data-context-menu-panel="" data-context-menu-backdrop="">
+			<RACModal ref={ref as React.Ref<HTMLDivElement>} data-context-menu-panel="" data-context-menu-sheet="" className={className ? `${sheetClass} ${className}` : sheetClass}>
+				<div aria-hidden="true" className="mx-auto mb-2 h-1 w-9 shrink-0 rounded-full bg-white/25" />
+				{children}
+			</RACModal>
+		</RACModalOverlay>
+	)
+}
+
+/** Cursor panel on a desktop, bottom sheet on a phone; the same menu inside. */
+function ContextMenuSurface({
+	position,
+	panelRef,
+	isOpen,
+	onOpenChange,
+	className,
+	children,
+	positionKey,
+	presentation = 'auto',
+}: {
+	position: { x: number; y: number }
+	panelRef: React.RefObject<HTMLElement | null>
+	isOpen: boolean
+	onOpenChange: (open: boolean) => void
+	className?: string
+	children: (sheet: boolean) => ReactNode
+	/** Remounts the cursor panel per position (the controlled API's existing behaviour). */
+	positionKey?: string
+	presentation?: ContextMenuPresentation
+}) {
+	const phone = useSheetLayout()
+	const sheet = presentation === 'sheet' || (presentation === 'auto' && phone)
+	if (sheet) {
+		return (
+			<SheetMenuSurface isOpen={isOpen} onOpenChange={onOpenChange} panelRef={panelRef} className={className}>
+				{children(true)}
+			</SheetMenuSurface>
+		)
+	}
+	return (
+		<CursorMenuPopover
+			key={positionKey}
+			panelRef={panelRef}
+			position={position}
+			isOpen={isOpen}
+			onOpenChange={onOpenChange}
+			placement="bottom start"
+			offset={0}
+			containerPadding={8}
+			className={className}
+		>
+			{children(false)}
+		</CursorMenuPopover>
+	)
+}
+
+/**
  * The popover body shared by both modes — the RAC `Menu` of grouped items. `onItem`
  * fires after an item's own handler so either mode can close the menu.
  */
@@ -255,12 +425,15 @@ function ContextMenuBody({
 	soonLabel,
 	ariaLabel,
 	onItem,
+	sheet = false,
 }: {
 	groups: ContextMenuGroup[]
 	soonLabel?: ReactNode
 	ariaLabel: string
 	onItem?: () => void
+	sheet?: boolean
 }) {
+	const size = sheet ? 'sheet' : 'panel'
 	return (
 		<RACMenu aria-label={ariaLabel} className={menuClass} autoFocus onClose={onItem}>
 			{groups.map((group, gi) => (
@@ -269,7 +442,9 @@ function ContextMenuBody({
 				<RACMenuSection key={groupId(group, gi)} className={gi > 0 ? 'mt-4.5 grid min-w-0 grid-cols-[minmax(0,1fr)] gap-0.5' : 'grid min-w-0 grid-cols-[minmax(0,1fr)] gap-0.5'}>
 					{group.label ? (
 						// The grid contributes 2px: 2px margin + 2px gap = source 4px below label.
-						<Header className="mx-2 mt-1.5 mb-0.5 text-compact leading-4 tracking-normal font-medium text-white">{group.label}</Header>
+						<Header className={sheet
+							? 'mx-4 mt-1 mb-1 text-small leading-5 tracking-normal font-medium text-white'
+							: 'mx-2 mt-1.5 mb-0.5 text-compact leading-4 tracking-normal font-medium text-white'}>{group.label}</Header>
 					) : null}
 					{group.items.map((item, ii) => {
 						const id = itemId(item, ii)
@@ -282,13 +457,14 @@ function ContextMenuBody({
 								textValue={typeof item.label === 'string' ? item.label : id}
 								isDisabled={item.disabled}
 								destructive={item.destructive}
+								size={size}
 								onAction={() => {
 									select?.()
 									onItem?.()
 								}}
 							>
 								{item.icon ? (
-									<span className="inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center [&>svg]:size-full">
+									<span className={`inline-flex ${sheet ? 'h-5 w-5' : 'h-3.5 w-3.5'} shrink-0 items-center justify-center [&>svg]:size-full`}>
 										{item.icon}
 									</span>
 								) : null}
@@ -316,6 +492,7 @@ function ControlledContextMenu({
 	soonLabel,
 	'aria-label': ariaLabel = 'Actions',
 	className,
+	presentation,
 }: ContextMenuProps): React.JSX.Element | null {
 	const popoverRef = useRef<HTMLElement>(null)
 	const visibleGroups = visibleGroupsOf(groups)
@@ -324,25 +501,39 @@ function ControlledContextMenu({
 	}
 	const pos = position ?? { x: 0, y: 0 }
 	return (
-			<CursorMenuPopover
-				key={`${pos.x}:${pos.y}`}
-				panelRef={popoverRef}
-				position={pos}
-				isOpen={isOpen}
-				onOpenChange={(open) => {
-					if (!open) {
-						onClose()
-					}
-				}}
-				placement="bottom start"
-				offset={0}
-				containerPadding={8}
-				className={className}
-			>
-				<ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={onClose} />
-			</CursorMenuPopover>
+		<ContextMenuSurface
+			presentation={presentation}
+			positionKey={`${pos.x}:${pos.y}`}
+			panelRef={popoverRef}
+			position={pos}
+			isOpen={isOpen}
+			onOpenChange={(open) => {
+				if (!open) {
+					onClose()
+				}
+			}}
+			className={className}
+		>
+			{(sheet) => <ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={onClose} sheet={sheet} />}
+		</ContextMenuSurface>
 	)
 }
+
+/** What a {@link ContextMenuButton} inside a wrapper uses to open the wrapper's menu. */
+interface WrapperMenuContext {
+	openFrom: (target: HTMLElement, x: number, y: number) => void
+	isOpen: boolean
+	target: HTMLElement | null
+}
+const WrapperMenu = createContext<WrapperMenuContext | null>(null)
+
+/**
+ * Coarse-pointer-only target styling: no iOS link/image callout on a hold, except in
+ * text fields, where the callout is paste and select. Text selection is held off by
+ * the long-press detector only while a finger rests on a target.
+ */
+export const contextMenuTargetClass =
+	'[-webkit-touch-callout:none] [&_:is(input,textarea,[contenteditable])]:[-webkit-touch-callout:default]'
 
 /** Wrapper context menu — wraps a target and owns its own open state. */
 function WrapperContextMenu({
@@ -353,14 +544,20 @@ function WrapperContextMenu({
 	'aria-label': ariaLabel = 'Actions',
 	className,
 	onOpenChange,
+	touchButton,
+	presentation,
 }: ContextMenuWrapperProps): React.JSX.Element {
+	useLongPressContextMenu()
 	const [isOpen, setOpenState] = useState(false)
 	const onOpenChangeRef = useRef(onOpenChange)
 	onOpenChangeRef.current = onOpenChange
 	const targetRef = useRef<HTMLElement | null>(null)
+	// State twin of targetRef, for a ⋯ button's aria-expanded.
+	const [openTarget, setOpenTarget] = useState<HTMLElement | null>(null)
 	const setOpen = useCallback((open: boolean) => {
 		setOpenState(open)
 		if (!open) targetRef.current = null
+		setOpenTarget(targetRef.current)
 		onOpenChangeRef.current?.(open, open ? targetRef.current : null)
 	}, [])
 	const wrapperRef = useRef<HTMLDivElement>(null)
@@ -377,6 +574,14 @@ function WrapperContextMenu({
 	const shouldOpenRef = useRef(shouldOpen)
 	shouldOpenRef.current = shouldOpen
 
+	// The detector holds off text selection only on targets that would open the menu.
+	useEffect(() => {
+		const wrapper = wrapperRef.current
+		if (!wrapper) return
+		return registerContextMenuTarget(wrapper, (target) =>
+			shouldOpenRef.current?.(target instanceof HTMLElement ? target : wrapper) !== false)
+	}, [])
+
 	const openAt = (x: number, y: number, target: HTMLElement) => {
 		if (typeof groupsRef.current === 'function') {
 			setResolved(groupsRef.current({ target }))
@@ -389,6 +594,12 @@ function WrapperContextMenu({
 	const onContextMenu = (e: React.MouseEvent) => {
 		if (e.defaultPrevented) return
 		const target = e.target instanceof HTMLElement ? e.target : e.currentTarget as HTMLElement
+		// Our own portalled surfaces (the sheet's backdrop) bubble here through React;
+		// they are not a target. Keep the OS menu off them and leave the menu alone.
+		if (target.closest('[data-context-menu-panel]')) {
+			e.preventDefault()
+			return
+		}
 		if (shouldOpenRef.current?.(target) === false) {
 			setOpen(false)
 			return
@@ -419,7 +630,7 @@ function WrapperContextMenu({
 		}
 		const handle = (e: MouseEvent) => {
 			const target = e.target as HTMLElement
-			if (popoverRef.current?.contains(target)) {
+			if (popoverRef.current?.contains(target) || target.closest?.('[data-context-menu-backdrop]')) {
 				// On our own panel: suppress the OS menu, leave the panel as-is. Stop
 				// propagation so the wrapper's onContextMenu doesn't also fire.
 				e.preventDefault()
@@ -444,6 +655,7 @@ function WrapperContextMenu({
 			}
 			setPosition({ x: clientX, y: clientY })
 			targetRef.current = target
+			setOpenTarget(target)
 			onOpenChangeRef.current?.(true, target)
 		}
 		document.addEventListener('contextmenu', handle, true)
@@ -453,23 +665,136 @@ function WrapperContextMenu({
 	const sourceGroups = typeof groups === 'function' ? resolved : groups
 	const visibleGroups = visibleGroupsOf(sourceGroups)
 
+	// A ⋯ button is an explicit opener, so `shouldOpen` (which usually turns buttons
+	// away to keep their native menu) does not apply to it.
+	const context: WrapperMenuContext = { openFrom: (target, x, y) => openAt(x, y, target), isOpen, target: openTarget }
+	const wrapperClass = [className, contextMenuTargetClass, touchButton ? 'pointer-coarse:relative' : null].filter(Boolean).join(' ')
+
 	return (
-		<div ref={wrapperRef} className={className} onContextMenu={onContextMenu} onKeyDown={onKeyDown}>
-			{children}
+		<div
+			ref={wrapperRef}
+			className={wrapperClass}
+			{...{ [CONTEXT_MENU_TARGET_ATTRIBUTE]: '' }}
+			onContextMenu={onContextMenu}
+			onKeyDown={onKeyDown}
+		>
+			<WrapperMenu.Provider value={context}>
+				{children}
+				{touchButton ? (
+					<ContextMenuButton
+						aria-label={typeof touchButton === 'string' ? touchButton : undefined}
+						className="absolute end-1.5 top-1.5 z-10 size-10 bg-surface/90 text-fg shadow-xs"
+					/>
+				) : null}
+			</WrapperMenu.Provider>
 			{visibleGroups.length > 0 ? (
-				<CursorMenuPopover
-					panelRef={popoverRef}
-					position={position}
-					isOpen={isOpen}
-					onOpenChange={setOpen}
-					placement="bottom start"
-					offset={0}
-					containerPadding={8}
-				>
-					<ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={() => setOpen(false)} />
-				</CursorMenuPopover>
+				<ContextMenuSurface presentation={presentation} panelRef={popoverRef} position={position} isOpen={isOpen} onOpenChange={setOpen}>
+					{(sheet) => <ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={() => setOpen(false)} sheet={sheet} />}
+				</ContextMenuSurface>
 			) : null}
 		</div>
+	)
+}
+
+/** What a ⋯ button hands its `onOpen`: the shape `useContextMenu().open` takes. */
+export interface ContextMenuOpenEvent {
+	preventDefault: () => void
+	clientX: number
+	clientY: number
+	/** The ⋯ button, so a resolver can read `target.closest('[data-…]')`. */
+	target: HTMLElement
+	currentTarget: HTMLElement
+}
+
+export interface ContextMenuButtonProps {
+	/** Defaults to "More actions". */
+	'aria-label'?: string
+	/**
+	 * Opens the menu. Omit inside a `<ContextMenu>` wrapper: the button opens the
+	 * wrapper's menu as if its item had been right-clicked. Pass `menu.open` from
+	 * {@link useContextMenu} for a controlled menu.
+	 */
+	onOpen?: (event: ContextMenuOpenEvent) => void
+	/** For a controlled menu: whether the menu this button opened is open. */
+	isExpanded?: boolean
+	/**
+	 * `touch` (default) shows the button only where there is no right-click: a coarse
+	 * pointer. Elsewhere it is not rendered visibly nor in the tab order, so desktop and
+	 * keyboard use stay as they were (Shift+F10 / the menu key still open the menu).
+	 */
+	visibility?: 'touch' | 'always'
+	className?: string
+	/** Replaces the ⋯ glyph. */
+	children?: ReactNode
+}
+
+const MoreButtonSurface = uic(RACButton, {
+	displayName: 'ContextMenuButton',
+	baseClass:
+		'inline-flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent p-0 ' +
+		'text-fg-muted outline-none [-webkit-tap-highlight-color:transparent] ' +
+		'data-[pressed]:bg-surface-muted data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring',
+	variants: {
+		visibility: { touch: 'hidden pointer-coarse:inline-flex', always: '' },
+	},
+}) as (props: React.ComponentProps<typeof RACButton> & { visibility?: 'touch' | 'always'; className?: string; children?: ReactNode }) => ReturnType<typeof RACButton>
+
+function MoreGlyph() {
+	return (
+		<svg viewBox="0 0 15 15" width="20" height="20" fill="currentColor" aria-hidden="true">
+			<circle cx="3" cy="7.5" r="1.25" />
+			<circle cx="7.5" cy="7.5" r="1.25" />
+			<circle cx="12" cy="7.5" r="1.25" />
+		</svg>
+	)
+}
+
+/**
+ * The visible "⋯" that opens the same context menu, for touch screens, where a
+ * right-click does not exist and a long press is not discoverable. Put one in each item
+ * of a wrapped list (it opens with that item as the target), or pass `onOpen` for a
+ * controlled menu: `<ContextMenuButton onOpen={menu.open} />`.
+ */
+export function ContextMenuButton({
+	'aria-label': ariaLabel = 'More actions',
+	onOpen,
+	isExpanded,
+	visibility = 'touch',
+	className,
+	children,
+}: ContextMenuButtonProps): React.JSX.Element {
+	const wrapper = useContext(WrapperMenu)
+	const ref = useRef<HTMLButtonElement>(null)
+	const expanded = isExpanded ?? (wrapper ? wrapper.isOpen && wrapper.target === ref.current && ref.current !== null : undefined)
+	return (
+		<MoreButtonSurface
+			ref={ref}
+			aria-label={ariaLabel}
+			aria-haspopup="menu"
+			aria-expanded={expanded}
+			visibility={visibility}
+			className={className}
+			// Inside a card that is itself a link or a button, the tap stays on the ⋯.
+			onClick={(event: React.MouseEvent) => {
+				event.preventDefault()
+				event.stopPropagation()
+			}}
+			onPress={() => {
+				const button = ref.current
+				if (!button) return
+				const rect = button.getBoundingClientRect()
+				// The panel's top start corner just under the button; the clamp keeps it on screen.
+				const x = rect.left
+				const y = rect.bottom + 4
+				if (onOpen) {
+					onOpen({ preventDefault: () => {}, clientX: x, clientY: y, target: button, currentTarget: button })
+				} else {
+					wrapper?.openFrom(button, x, y)
+				}
+			}}
+		>
+			{children ?? <MoreGlyph />}
+		</MoreButtonSurface>
 	)
 }
 
@@ -497,6 +822,19 @@ export function ContextMenu(props: ContextMenuProps | ContextMenuWrapperProps): 
  *   </>
  * )
  * ```
+ *
+ * A touch long press reaches `onContextMenu` too while the hook is mounted. Spreading
+ * `menu.targetProps` instead of `onContextMenu={menu.open}` also keeps iOS's callout
+ * and text selection off the target during the hold. `<ContextMenuButton
+ * onOpen={menu.open} />` is the visible touch opener.
+ *
+ * Two edges of `targetProps`:
+ *  - `className` is a class string, not a merge: put it together with the target's own
+ *    (``className={`${menu.targetProps.className} my-row`}``) rather than spreading it
+ *    next to another `className`, where one would silently replace the other.
+ *  - The selection lock covers the whole target. Unlike the wrapper's `shouldOpen`, it
+ *    cannot know where your handler declines to open; put text the user should be able
+ *    to select by holding (not a field, those are always exempt) outside the target.
  */
 export function useContextMenu(): {
 	isOpen: boolean
@@ -504,7 +842,13 @@ export function useContextMenu(): {
 	open: (e: { preventDefault: () => void; clientX: number; clientY: number }) => void
 	close: () => void
 	props: Pick<ContextMenuProps, 'isOpen' | 'position' | 'onClose'>
+	targetProps: {
+		onContextMenu: (e: { preventDefault: () => void; clientX: number; clientY: number }) => void
+		className: string
+		'data-context-menu-target': ''
+	}
 } {
+	useLongPressContextMenu()
 	const [state, setState] = useState<{ isOpen: boolean; position: { x: number; y: number } | null }>({
 		isOpen: false,
 		position: null,
@@ -525,5 +869,6 @@ export function useContextMenu(): {
 		open,
 		close,
 		props: { isOpen: state.isOpen, position: state.position, onClose: close },
+		targetProps: { onContextMenu: open, className: contextMenuTargetClass, 'data-context-menu-target': '' },
 	}
 }
