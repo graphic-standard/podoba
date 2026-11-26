@@ -118,7 +118,7 @@ describe('long press on touch', () => {
 			touch('pointerup', card)
 			touch('pointerdown', card)
 			await wait(100)
-			window.dispatchEvent(new Event('scroll'))
+			document.dispatchEvent(new Event('scroll')) // a page scroll targets document
 			await wait(LONG_PRESS_MS)
 		})
 		expect(menu()).toBeNull()

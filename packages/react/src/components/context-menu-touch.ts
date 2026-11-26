@@ -203,7 +203,8 @@ const onScroll = (event: Event) => {
 	const g = gesture
 	if (!g || g.fired) return
 	const scrolled = event.target
-	if (scrolled === window || scrolled === document || (scrolled instanceof Node && scrolled.contains(g.target))) end(g)
+	// Not a node: the window itself, i.e. the page.
+	if (!(scrolled instanceof Node) || scrolled === document || scrolled.contains(g.target)) end(g)
 }
 
 const onSelectStart = (event: Event) => {
