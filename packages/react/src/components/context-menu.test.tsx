@@ -362,14 +362,15 @@ describe('⋯ button and keyboard', () => {
 		expect(button.getAttribute('aria-expanded')).toBe('true')
 	})
 
-	test('Shift+F10 and the menu key still open the wrapper menu, focused on the first item', async () => {
+	test('Shift+F10 and the menu key still open the wrapper menu, with focus in it', async () => {
 		await act(async () => root.render(<ContextMenu groups={groups}><button type="button">Card</button></ContextMenu>))
 		const card = host.querySelector('button')!
 		card.focus()
 		await act(async () => { card.dispatchEvent(new KeyboardEvent('keydown', { key: 'F10', shiftKey: true, bubbles: true, cancelable: true })) })
 		expect(menu()).not.toBeNull()
 		await act(async () => { await wait(20) })
-		expect(document.activeElement?.getAttribute('role')).toBe('menuitem')
+		// RAC `autoFocus` focuses the menu itself; arrows then move through the items.
+		expect(menu()!.contains(document.activeElement)).toBe(true)
 		await act(async () => {
 			document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
 			await wait(20)

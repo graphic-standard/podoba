@@ -176,9 +176,9 @@ const MenuItem = uic(RACMenuItem, {
 			panel:
 				'min-h-8.5 gap-2.5 px-3 py-1.5 text-compact leading-4 ' +
 				'data-[focused]:bg-context-menu-hover data-[focused]:font-medium data-[hovered]:bg-context-menu-hover data-[hovered]:font-medium',
-			// Phone sheet: 48px rows for a thumb. Menu autofocus lands on the first row, so
-			// only a keyboard focus ring or the finger's own press paints the wash; a tap
-			// must not open with the first action looking selected.
+			// Phone sheet: 48px rows for a thumb. There is no hover on touch, so only
+			// keyboard focus or the finger's own press paints the wash; a row a finger
+			// once touched must not stay looking selected.
 			sheet:
 				'min-h-12 gap-3.5 px-4 py-3 text-body leading-6 ' +
 				'data-[focus-visible]:bg-context-menu-hover data-[pressed]:bg-context-menu-hover',
