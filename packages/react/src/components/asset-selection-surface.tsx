@@ -4,7 +4,7 @@ import { Button as AriaButton } from 'react-aria-components'
 import { ModalDialog, ModalOverlay, ModalSurface } from './dialog'
 import { DisplayHeading } from './text'
 import { uic } from '../utils/uic'
-import { assetMasonryColumns, assetMasonryPositions } from './asset-masonry-grid'
+import { assetMasonryColumns, assetMasonryHeight, assetMasonryPositions } from './asset-masonry-grid'
 
 const Body = uic('div', {
 	displayName: 'AssetSelectionBody',
@@ -272,13 +272,13 @@ export function AssetSelectionGrid({
 		observer.observe(element)
 		return () => observer.disconnect()
 	}, [])
-	// Shared with AssetMasonryGrid rather than restated: the two had already drifted.
-	// Only the HEIGHT rule is local — this grid gets explicit width/height per item
-	// (square fallback when either is missing), the other derives from aspectRatio.
+	// Columns and heights are shared with AssetMasonryGrid rather than restated: the two
+	// had already drifted. This grid gets explicit width/height per item (square when
+	// either is missing); the height rule is the same one.
 	const columns = assetMasonryColumns(width)
 	const columnWidth = columns.width
 	const heights = items.map((item) =>
-		item.width && item.height ? Math.min(800, Math.max(150, (columnWidth * item.height) / item.width)) : columnWidth,
+		item.width && item.height ? assetMasonryHeight(columnWidth, item.width / item.height) : columnWidth,
 	)
 	const layout = assetMasonryPositions(heights, columns.count, columns.gap)
 	const positioned = items.map((item, index) => ({

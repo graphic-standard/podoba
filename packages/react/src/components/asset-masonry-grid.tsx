@@ -1,11 +1,26 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 
+/**
+ * Columns for a container `width` (not the viewport). Never fewer as the container
+ * grows: a phone-width library (about 280–600px) shows two columns, a tablet three,
+ * and from 900px one more per 280px column. Below 280px a single column.
+ */
 export function assetMasonryColumns(width: number) {
 	const gap = 12
 	if (width <= 0) return { count: 1, width: 200, gap }
-	const minimum = width < 768 ? 200 : width < 1024 ? 250 : 280
-	const count = Math.max(width < 768 ? 1 : width < 1024 ? 2 : 3, Math.floor((width + gap) / (minimum + gap)))
+	const count = width < 280 ? 1 : width < 600 ? 2 : width < 900 ? 3 : Math.max(3, Math.floor((width + gap) / (280 + gap)))
 	return { count, width: (width - (count - 1) * gap) / count, gap }
+}
+
+/**
+ * A tile's height for a column width and an image ratio (width / height), capped at
+ * 800px. The floor scales with the column: 150px, or a 5:2 panorama's height when the
+ * column is narrower than 375px, so a 3:2 landscape in a 173px phone column keeps its
+ * 115px instead of being stretched to 150px. A missing ratio counts as square.
+ */
+export function assetMasonryHeight(columnWidth: number, aspectRatio: number): number {
+	const ratio = Number.isFinite(aspectRatio) && aspectRatio > 0 ? aspectRatio : 1
+	return Math.min(800, Math.max(Math.min(150, columnWidth / 2.5), columnWidth / ratio))
 }
 
 export function assetMasonryPositions(heights: number[], count: number, gap = 12) {
@@ -53,7 +68,7 @@ export function AssetMasonryGrid({ items, label }: {
 	const heights = items.map(item => {
 		const size = measured[item.id]
 		if (size && Math.abs(size.width - columns.width) < 1 && size.height > 0) return size.height
-		return Math.min(800, Math.max(150, columns.width / (item.aspectRatio > 0 ? item.aspectRatio : 1)))
+		return assetMasonryHeight(columns.width, item.aspectRatio)
 	})
 	const layout = assetMasonryPositions(heights, columns.count, columns.gap)
 	return <ul ref={container} aria-label={label} data-testid="asset-grid" className="relative m-0 w-full list-none p-0" style={{ height: layout.height }}>
