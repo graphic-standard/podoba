@@ -1,10 +1,14 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 
+/**
+ * Columns for a container `width` (not the viewport). Never fewer as the container
+ * grows: a phone-width library (about 280–600px) shows two columns, a tablet three,
+ * and from 900px one more per 280px column. Below 280px a single column.
+ */
 export function assetMasonryColumns(width: number) {
 	const gap = 12
 	if (width <= 0) return { count: 1, width: 200, gap }
-	const minimum = width < 768 ? 200 : width < 1024 ? 250 : 280
-	const count = Math.max(width < 768 ? 1 : width < 1024 ? 2 : 3, Math.floor((width + gap) / (minimum + gap)))
+	const count = width < 280 ? 1 : width < 600 ? 2 : width < 900 ? 3 : Math.max(3, Math.floor((width + gap) / (280 + gap)))
 	return { count, width: (width - (count - 1) * gap) / count, gap }
 }
 
