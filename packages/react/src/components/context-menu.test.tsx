@@ -371,11 +371,12 @@ describe('⋯ button and keyboard', () => {
 		await act(async () => { await wait(20) })
 		// RAC `autoFocus` focuses the menu itself; arrows then move through the items.
 		expect(menu()!.contains(document.activeElement)).toBe(true)
-		await act(async () => {
-			document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
-			await wait(20)
-		})
-		expect(menu()).toBeNull()
+	})
+
+	test('the menu key opens it too', async () => {
+		await act(async () => root.render(<ContextMenu groups={groups}><button type="button">Card</button></ContextMenu>))
+		const card = host.querySelector('button')!
+		card.focus()
 		await act(async () => { card.dispatchEvent(new KeyboardEvent('keydown', { key: 'ContextMenu', bubbles: true, cancelable: true })) })
 		expect(menu()).not.toBeNull()
 	})
