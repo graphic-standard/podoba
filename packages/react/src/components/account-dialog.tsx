@@ -207,7 +207,7 @@ export function AccountDialog({
 
 	return (
 		<ModalOverlay isOpen={isOpen} isDismissable onOpenChange={onOpenChange}>
-			<ModalSurface className="max-h-[85vh] w-[90vw] max-w-[900px] overflow-y-auto p-0">
+			<ModalSurface className="max-h-[calc(var(--visual-viewport-height,100dvh)*0.85)] w-[90vw] max-w-[900px] overflow-y-auto p-0">
 				<ModalDialog
 					aria-labelledby={panel ? undefined : titleId}
 					aria-label={panel ? panelTitle : undefined}

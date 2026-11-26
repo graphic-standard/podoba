@@ -37,7 +37,8 @@ export interface SidePanelProps {
 const SidePanelOverlay = uic(RACModalOverlay, {
 	displayName: 'SidePanel.Overlay',
 	baseClass:
-		'fixed inset-0 z-50 flex justify-end bg-modal-backdrop backdrop-blur-modal-backdrop ' +
+		// The visible viewport, not `inset-0`: see ModalOverlay in dialog.tsx (iOS keyboard).
+		'fixed inset-x-0 top-0 h-[var(--visual-viewport-height,100dvh)] z-50 flex justify-end bg-modal-backdrop backdrop-blur-modal-backdrop ' +
 		'data-[entering]:animate-modal-overlay-in data-[exiting]:animate-modal-overlay-out ' +
 		'motion-reduce:data-[entering]:animate-none motion-reduce:data-[exiting]:animate-none',
 })
@@ -45,7 +46,7 @@ const SidePanelOverlay = uic(RACModalOverlay, {
 const SidePanelSurface = uic(RACModal, {
 	displayName: 'SidePanel.Surface',
 	baseClass:
-		'ml-auto flex h-dvh w-full flex-col overflow-hidden bg-surface outline-none shadow-modal-surface ' +
+		'ml-auto flex h-full w-full flex-col overflow-hidden bg-surface outline-none shadow-modal-surface ' +
 		'sm:rounded-l-lg data-[entering]:animate-side-panel-in data-[exiting]:animate-side-panel-out ' +
 		'motion-reduce:data-[entering]:animate-none motion-reduce:data-[exiting]:animate-none',
 	variants: {

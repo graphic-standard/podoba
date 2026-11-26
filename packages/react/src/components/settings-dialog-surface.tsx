@@ -571,8 +571,9 @@ export function ProductionSettingsDialog({
 				style={{
 					width: compact ? '96vw' : 'min(90vw, 110rem)',
 					maxWidth: compact ? '96vw' : 'min(90vw, 110rem)',
-					height: compact ? '92vh' : 'min(82vh, 63.125rem)',
-					maxHeight: compact ? '92vh' : 'min(82vh, 63.125rem)',
+					// The visible viewport, not `vh`: see ModalOverlay (iOS keyboard).
+					height: compact ? 'calc(var(--visual-viewport-height, 100dvh) * 0.92)' : 'min(calc(var(--visual-viewport-height, 100dvh) * 0.82), 63.125rem)',
+					maxHeight: compact ? 'calc(var(--visual-viewport-height, 100dvh) * 0.92)' : 'min(calc(var(--visual-viewport-height, 100dvh) * 0.82), 63.125rem)',
 				}}
 			>
 				<ProductionLayout
