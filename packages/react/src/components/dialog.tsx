@@ -19,10 +19,19 @@ import { uic } from '../utils/uic'
 export const DialogTrigger = RACDialogTrigger
 
 // Current gs modal backdrop: warm surface-card scrim at 66% under a 10px blur.
+//
+// Sized to the VISIBLE viewport, not `inset-0`. iOS Safari does not shrink the
+// layout viewport when the on-screen keyboard opens, so an `inset-0` overlay (and
+// a panel sized as a share of it) stays full height and its lower part, scroll
+// area included, sits under the keyboard: the focused field cannot be reached.
+// React Aria's ModalOverlay sets `--visual-viewport-height` from `visualViewport`
+// on every render; sizing to it keeps every dialog inside the visible area, so its
+// body scrolls internally and the focused field can be brought above the keyboard.
+// On desktop the visual viewport is the window, so nothing changes there.
 export const ModalOverlay = uic(RACModalOverlay, {
 	displayName: 'DialogOverlay',
 	baseClass:
-		'fixed inset-0 z-50 flex items-center justify-center p-4 ' +
+		'fixed inset-x-0 top-0 h-[var(--visual-viewport-height,100dvh)] z-50 flex items-center justify-center p-4 ' +
 		'bg-modal-backdrop backdrop-blur-modal-backdrop ' +
 		'data-[entering]:animate-modal-overlay-in data-[exiting]:animate-modal-overlay-out',
 })
@@ -53,16 +62,17 @@ export const ModalDialog = RACDialog
 export type DialogSize = 'sm' | 'md' | 'lg' | 'xl' | 'full'
 
 // gs size presets (exact px max-widths from the designer's spec): sm 420 / md 586
-// / lg 720 / xl 900. All cap to `90vw` width and `85vh` height with internal
-// scroll. Default is `md` (gs DialogContent default = 586px).
+// / lg 720 / xl 900. All cap to `90vw` width and 85% of the VISIBLE viewport height
+// (see ModalOverlay: `vh` ignores the iOS keyboard) with internal scroll. Default is
+// `md` (gs DialogContent default = 586px).
 const SIZE_CLASS: Record<DialogSize, string> = {
-	sm: 'w-[90vw] max-w-[420px] max-h-[85vh] overflow-y-auto',
-	md: 'w-[90vw] max-w-[586px] max-h-[85vh] overflow-y-auto',
-	lg: 'w-[90vw] max-w-[720px] max-h-[85vh] overflow-y-auto',
-	xl: 'w-[90vw] max-w-[900px] max-h-[85vh] overflow-y-auto',
+	sm: 'w-[90vw] max-w-[420px] max-h-[calc(var(--visual-viewport-height,100dvh)*0.85)] overflow-y-auto',
+	md: 'w-[90vw] max-w-[586px] max-h-[calc(var(--visual-viewport-height,100dvh)*0.85)] overflow-y-auto',
+	lg: 'w-[90vw] max-w-[720px] max-h-[calc(var(--visual-viewport-height,100dvh)*0.85)] overflow-y-auto',
+	xl: 'w-[90vw] max-w-[900px] max-h-[calc(var(--visual-viewport-height,100dvh)*0.85)] overflow-y-auto',
 	// Our addition (not in gs): a fixed near-fullscreen canvas (flex column so the
 	// body fills and any inner region can scroll with the header/footer pinned).
-	full: 'w-[95vw] max-w-[95vw] h-[92vh] flex flex-col',
+	full: 'w-[95vw] max-w-[95vw] h-[calc(var(--visual-viewport-height,100dvh)*0.92)] flex flex-col',
 }
 
 /** Title size scales with the modal: small dialogs stay compact, large canvases get
@@ -156,9 +166,9 @@ export const Dialog = ({
 			<ModalSurface
 				className={
 					widthPreset === 'responsive-detail'
-						? 'w-[90vw] max-w-125 md:max-w-150 lg:max-w-160 xl:max-w-180 max-h-[85vh] overflow-y-auto'
+						? 'w-[90vw] max-w-125 md:max-w-150 lg:max-w-160 xl:max-w-180 max-h-[calc(var(--visual-viewport-height,100dvh)*0.85)] overflow-y-auto'
 						: widthPreset === 'custom-task-detail'
-							? 'w-[90vw] min-w-[400px] max-w-[500px] md:max-w-[600px] lg:max-w-[640px] xl:max-w-[720px] max-h-[85vh] overflow-y-auto max-[460px]:min-w-0'
+							? 'w-[90vw] min-w-[400px] max-w-[500px] md:max-w-[600px] lg:max-w-[640px] xl:max-w-[720px] max-h-[calc(var(--visual-viewport-height,100dvh)*0.85)] overflow-y-auto max-[460px]:min-w-0'
 							: SIZE_CLASS[size]
 				}
 				style={maxWidth === undefined ? undefined : { maxWidth }}

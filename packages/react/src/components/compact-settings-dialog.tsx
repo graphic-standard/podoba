@@ -74,7 +74,7 @@ export function CompactSettingsDialog({
 			isDismissable={!isPending}
 			isKeyboardDismissDisabled={isPending}
 		>
-			<ModalSurface className="relative w-[90vw] max-w-180 max-h-[85vh] overflow-y-auto p-5 min-[768px]:max-[1023px]:w-[85vw] max-[767px]:w-[calc(100vw-6*var(--spacing))] max-[767px]:max-w-[calc(100vw-6*var(--spacing))] max-[767px]:max-h-[calc(100vh-6*var(--spacing))]">
+			<ModalSurface className="relative w-[90vw] max-w-180 max-h-[calc(var(--visual-viewport-height,100dvh)*0.85)] overflow-y-auto p-5 min-[768px]:max-[1023px]:w-[85vw] max-[767px]:w-[calc(100vw-6*var(--spacing))] max-[767px]:max-w-[calc(100vw-6*var(--spacing))] max-[767px]:max-h-[calc(var(--visual-viewport-height,100dvh)-6*var(--spacing))]">
 				<ModalDialog aria-labelledby={titleId} aria-describedby={descriptionId} className="outline-none">
 					<Heading id={titleId} level="1" className="m-0 mb-4 max-w-5/6 tracking-normal">
 						{title}
