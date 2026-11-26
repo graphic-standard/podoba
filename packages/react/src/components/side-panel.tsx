@@ -46,7 +46,7 @@ const SidePanelOverlay = uic(RACModalOverlay, {
 const SidePanelSurface = uic(RACModal, {
 	displayName: 'SidePanel.Surface',
 	baseClass:
-		'ml-auto flex h-dvh w-full flex-col overflow-hidden bg-surface outline-none shadow-modal-surface ' +
+		'ml-auto flex h-full w-full flex-col overflow-hidden bg-surface outline-none shadow-modal-surface ' +
 		'sm:rounded-l-lg data-[entering]:animate-side-panel-in data-[exiting]:animate-side-panel-out ' +
 		'motion-reduce:data-[entering]:animate-none motion-reduce:data-[exiting]:animate-none',
 	variants: {

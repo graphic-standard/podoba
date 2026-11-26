@@ -171,7 +171,7 @@ export function MediaLightbox({
 }) {
 	return (
 		<ModalOverlay isOpen={isOpen} onOpenChange={onOpenChange} isDismissable>
-			<ModalSurface className="h-[90dvh] w-24/25 max-w-360 overflow-hidden p-0">
+			<ModalSurface className="h-[calc(var(--visual-viewport-height,100dvh)*0.9)] w-24/25 max-w-360 overflow-hidden p-0">
 				<ModalDialog aria-label={title} className="relative h-full outline-none">
 					<MediaPreviewScene className="h-full px-6 pb-32 pt-6">{preview}</MediaPreviewScene>
 					<div className="absolute bottom-6 start-6 max-w-3/4 rounded-lg bg-surface p-4 text-fg">

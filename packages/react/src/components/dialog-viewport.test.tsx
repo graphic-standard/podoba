@@ -5,6 +5,7 @@ import { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Dialog } from './dialog'
 import { SettingsDialogSurface } from './settings-dialog-surface'
+import { SidePanel } from './side-panel'
 
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 afterAll(() => GlobalRegistrator.unregister())
@@ -34,6 +35,16 @@ test('dialog overlays are sized to the visible viewport, not the layout viewport
    expect(overlay.classList.contains('inset-0')).toBe(false)
   } finally { await cleanup() }
  }
+})
+
+test('the side panel fills its visible-viewport overlay instead of the whole screen', async () => {
+ const { overlay, cleanup } = await overlayOf(<SidePanel isOpen onOpenChange={() => {}} title="Details" closeLabel="Close" footer={<button type="button">Save</button>}>Body</SidePanel>)
+ try {
+  expect(overlay.classList.contains(VISIBLE_HEIGHT)).toBe(true)
+  const panel = overlay.firstElementChild as HTMLElement | null
+  expect(panel?.classList.contains('h-full')).toBe(true)
+  expect(panel?.classList.contains('h-dvh')).toBe(false)
+ } finally { await cleanup() }
 })
 
 test('dialog height caps follow the visible viewport', async () => {
