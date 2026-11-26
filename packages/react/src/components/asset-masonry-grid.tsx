@@ -12,6 +12,17 @@ export function assetMasonryColumns(width: number) {
 	return { count, width: (width - (count - 1) * gap) / count, gap }
 }
 
+/**
+ * A tile's height for a column width and an image ratio (width / height), capped at
+ * 800px. The floor scales with the column: 150px, or a 5:2 panorama's height when the
+ * column is narrower than 375px, so a 3:2 landscape in a 173px phone column keeps its
+ * 115px instead of being stretched to 150px. A missing ratio counts as square.
+ */
+export function assetMasonryHeight(columnWidth: number, aspectRatio: number): number {
+	const ratio = Number.isFinite(aspectRatio) && aspectRatio > 0 ? aspectRatio : 1
+	return Math.min(800, Math.max(Math.min(150, columnWidth / 2.5), columnWidth / ratio))
+}
+
 export function assetMasonryPositions(heights: number[], count: number, gap = 12) {
 	const bottoms = Array.from({ length: Math.max(1, count) }, () => 0)
 	const positions = heights.map(height => {
@@ -57,7 +68,7 @@ export function AssetMasonryGrid({ items, label }: {
 	const heights = items.map(item => {
 		const size = measured[item.id]
 		if (size && Math.abs(size.width - columns.width) < 1 && size.height > 0) return size.height
-		return Math.min(800, Math.max(150, columns.width / (item.aspectRatio > 0 ? item.aspectRatio : 1)))
+		return assetMasonryHeight(columns.width, item.aspectRatio)
 	})
 	const layout = assetMasonryPositions(heights, columns.count, columns.gap)
 	return <ul ref={container} aria-label={label} data-testid="asset-grid" className="relative m-0 w-full list-none p-0" style={{ height: layout.height }}>

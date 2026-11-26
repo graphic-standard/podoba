@@ -47,7 +47,7 @@ export {
 	AssetSelectionGrid,
 	type AssetSelectionSurfaceProps,
 } from './components/asset-selection-surface'
-export { AssetMasonryGrid, assetMasonryColumns, assetMasonryPositions } from './components/asset-masonry-grid'
+export { AssetMasonryGrid, assetMasonryColumns, assetMasonryHeight, assetMasonryPositions } from './components/asset-masonry-grid'
 export * from './components/side-panel'
 export * from './components/dropdown-menu'
 export * from './components/context-menu'
