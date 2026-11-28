@@ -45,6 +45,9 @@ function PhotoPreviewStage({ src, name, onError, onDimensions, zoomHint = defaul
 	const fitRef = useRef(fit)
 	fitRef.current = fit
 	const tap = useRef<{ x: number; y: number } | null>(null)
+	// The last pointer's type. Browsers also send a dblclick after a touch double-tap,
+	// which the tap detection already handled, so dblclick only counts for a mouse.
+	const lastPointerType = useRef('mouse')
 	const lastTap = useRef<{ time: number; x: number; y: number } | null>(null)
 	const surface = useRef<HTMLDivElement>(null)
 	const [surfaceSize, setSurfaceSize] = useState({ width: 0, height: 0 })
@@ -142,9 +145,10 @@ function PhotoPreviewStage({ src, name, onError, onDimensions, zoomHint = defaul
 			style={{ touchAction: fit === 'cover' ? 'none' : 'manipulation' }}
 			onDoubleClick={(event) => {
 				event.preventDefault()
-				toggleFit()
+				if (lastPointerType.current === 'mouse') toggleFit()
 			}}
 			onPointerDown={(event) => {
+				lastPointerType.current = event.pointerType || 'mouse'
 				tap.current = { x: event.clientX, y: event.clientY }
 				if (fit !== 'cover' || !geometry || event.button !== 0) return
 				event.preventDefault()

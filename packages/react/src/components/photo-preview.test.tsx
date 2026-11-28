@@ -109,6 +109,23 @@ describe('PhotoPreview', () => {
 		expect(stage().dataset.fit).toBe('cover')
 	})
 
+	test("a touch double-tap toggles once, even with the browser's dblclick after it", async () => {
+		await act(async () => root.render(<PhotoPreview src={src} name="Court" />))
+		let time = 1000
+		const touch = (type: string) => {
+			const event = new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 1, pointerType: 'touch', clientX: 50, clientY: 50, button: 0 })
+			Object.defineProperty(event, 'timeStamp', { value: time })
+			return event
+		}
+		for (let tap = 0; tap < 2; tap++) {
+			await act(async () => stage().dispatchEvent(touch('pointerdown')))
+			await act(async () => stage().dispatchEvent(touch('pointerup')))
+			time += 100
+		}
+		await act(async () => stage().dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true })))
+		expect(stage().dataset.fit).toBe('cover')
+	})
+
 	test('a new src starts fitted again', async () => {
 		await act(async () => root.render(<PhotoPreview src={src} name="Court" />))
 		await key('+')
