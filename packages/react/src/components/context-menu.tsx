@@ -228,10 +228,17 @@ const CursorPopoverSurface = uic(RACPopover, {
 function CursorMenuPopover({
 	position,
 	panelRef,
+	keepTop = false,
 	...props
 }: Omit<React.ComponentProps<typeof RACPopover>, 'ref' | 'key' | 'children' | 'className'> & {
 	position: { x: number; y: number }
 	panelRef: React.RefObject<HTMLElement | null>
+	/**
+	 * While open, never move the panel down: it only rises if it grows past the lower
+	 * gutter. For a menu whose height follows typing (a search header), so the field
+	 * the caret is in stays put as the list shrinks and grows.
+	 */
+	keepTop?: boolean
 	/**
 	 * Plain children only. `uic` intersects RAC's `ChildrenOrFunction` with a bare
 	 * `ReactNode`, which is an impossible type (a render function AND a string), so
@@ -262,9 +269,13 @@ function CursorMenuPopover({
 			if (!active) return
 			// offsetHeight includes the padding and respects the panel's viewport cap.
 			const x = Math.max(8, Math.min(sourceX, window.innerWidth - panel.offsetWidth - 8))
-			const y = Math.max(8, Math.min(sourceY, window.innerHeight - panel.offsetHeight - 8))
-			setMeasured(previous => previous?.panel === panel && previous.sourceX === sourceX && previous.sourceY === sourceY && previous.x === x && previous.y === y
-				? previous : { panel, sourceX, sourceY, x, y })
+			const clampedY = Math.max(8, Math.min(sourceY, window.innerHeight - panel.offsetHeight - 8))
+			setMeasured(previous => {
+				const same = previous?.panel === panel && previous.sourceX === sourceX && previous.sourceY === sourceY
+				// Both values sit inside the gutters, so the smaller one does too.
+				const y = keepTop && same ? Math.min(previous.y, clampedY) : clampedY
+				return same && previous.x === x && previous.y === y ? previous : { panel, sourceX, sourceY, x, y }
+			})
 		}
 		measure()
 		window.addEventListener('resize', measure)
@@ -276,7 +287,7 @@ function CursorMenuPopover({
 			window.removeEventListener('resize', measure)
 			observer?.disconnect()
 		}
-	}, [panel, props.isOpen, sourceX, sourceY])
+	}, [panel, props.isOpen, sourceX, sourceY, keepTop])
 	const onOpenChange = props.onOpenChange
 	useEffect(() => {
 		if (!panel || !props.isOpen) return
@@ -393,6 +404,7 @@ function ContextMenuSurface({
 	children,
 	positionKey,
 	presentation = 'auto',
+	keepTop,
 }: {
 	position: { x: number; y: number }
 	panelRef: React.RefObject<HTMLElement | null>
@@ -403,6 +415,8 @@ function ContextMenuSurface({
 	/** Remounts the cursor panel per position (the controlled API's existing behaviour). */
 	positionKey?: string
 	presentation?: ContextMenuPresentation
+	/** See `CursorMenuPopover`'s `keepTop`. */
+	keepTop?: boolean
 }) {
 	const phone = useSheetLayout()
 	const sheet = presentation === 'sheet' || (presentation === 'auto' && phone)
@@ -418,6 +432,7 @@ function ContextMenuSurface({
 			key={positionKey}
 			panelRef={panelRef}
 			position={position}
+			keepTop={keepTop}
 			isOpen={isOpen}
 			onOpenChange={onOpenChange}
 			placement="bottom start"
@@ -514,6 +529,7 @@ function ControlledContextMenu({
 	emptyState,
 }: ContextMenuProps): React.JSX.Element | null {
 	const popoverRef = useRef<HTMLElement>(null)
+	const headerRef = useRef<HTMLDivElement>(null)
 	const visibleGroups = visibleGroupsOf(groups)
 	const hasHeader = header != null && header !== false
 	const hasEmptyState = emptyState != null && emptyState !== false
@@ -521,14 +537,24 @@ function ControlledContextMenu({
 		return null
 	}
 	const pos = position ?? { x: 0, y: 0 }
+	const showEmpty = visibleGroups.length === 0 && hasEmptyState
 	const body = (sheet: boolean) => (
 		<>
-			{hasHeader ? <ContextMenuHeader panelRef={popoverRef}>{header}</ContextMenuHeader> : null}
+			{hasHeader ? <ContextMenuHeader ref={headerRef} panelRef={popoverRef} sheet={sheet}>{header}</ContextMenuHeader> : null}
 			{visibleGroups.length > 0 ? (
-				<ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={onClose} sheet={sheet} autoFocus={!hasHeader} />
-			) : hasEmptyState ? (
-				<div role="status" data-context-menu-empty="" className={sheet ? emptySheetClass : emptyPanelClass}>
-					{emptyState}
+				hasHeader ? (
+					<div onKeyDownCapture={(event) => backToHeader(event, headerRef.current)}>
+						<ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={onClose} sheet={sheet} autoFocus={false} />
+					</div>
+				) : (
+					<ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={onClose} sheet={sheet} />
+				)
+			) : null}
+			{/* A live region is announced only when it changes after it is in the DOM, so
+			    it stays mounted (empty while there are items) and only its text comes and goes. */}
+			{hasHeader || hasEmptyState ? (
+				<div role="status" data-context-menu-empty="" className={showEmpty ? (sheet ? emptySheetClass : emptyPanelClass) : undefined}>
+					{showEmpty ? emptyState : null}
 				</div>
 			) : null}
 		</>
@@ -539,6 +565,7 @@ function ControlledContextMenu({
 			positionKey={`${pos.x}:${pos.y}`}
 			panelRef={popoverRef}
 			position={pos}
+			keepTop={hasHeader}
 			isOpen={isOpen}
 			onOpenChange={(open) => {
 				if (!open) {
@@ -556,19 +583,51 @@ function ControlledContextMenu({
 const emptyPanelClass = 'px-3 py-1.5 text-compact leading-4 text-context-menu-fg'
 const emptySheetClass = 'px-4 py-3 text-body leading-6 text-context-menu-fg'
 
+const headerFocusable = 'input:not([disabled]),textarea:not([disabled]),[contenteditable="true"],button:not([disabled]),[tabindex]:not([tabindex="-1"])'
+const enabledItems = (scope: ParentNode | null | undefined) =>
+	scope?.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')
+
+/** ArrowUp on the first item goes back to the header's field, as in a filter-then-pick list. */
+function backToHeader(event: React.KeyboardEvent<HTMLElement>, header: HTMLElement | null) {
+	if (event.key !== 'ArrowUp' || !header) return
+	if (enabledItems(event.currentTarget)?.[0] !== event.target) return
+	const field = header.querySelector<HTMLElement>(headerFocusable)
+	if (!field) return
+	event.preventDefault()
+	event.stopPropagation()
+	field.focus()
+}
+
+// Sticky, so scrolling a long result list keeps the search field in view. It takes
+// over the panel's own top padding and side insets, and paints the panel's top tone
+// behind it so the scrolled items pass under it.
+const headerPanelClass = 'sticky top-0 z-10 -mx-1.5 -mt-2 min-w-0 bg-context-menu-top px-1.5 pt-2 pb-2'
+const headerSheetClass = 'sticky top-0 z-10 -mx-2 min-w-0 bg-context-menu-top px-2 pb-2'
+
 /**
  * Wraps a controlled menu's `header`. ArrowDown / ArrowUp that the header did not
  * handle itself (`preventDefault`) move focus to the first / last enabled item, so a
  * search field above the menu reaches the results the way a menu's own keys would.
  */
-function ContextMenuHeader({ panelRef, children }: { panelRef: React.RefObject<HTMLElement | null>; children: ReactNode }) {
+function ContextMenuHeader({
+	ref,
+	panelRef,
+	sheet,
+	children,
+}: {
+	ref: React.Ref<HTMLDivElement>
+	panelRef: React.RefObject<HTMLElement | null>
+	sheet: boolean
+	children: ReactNode
+}) {
 	return (
 		<div
+			ref={ref}
 			data-context-menu-header=""
-			className="mb-2 min-w-0"
+			className={sheet ? headerSheetClass : headerPanelClass}
 			onKeyDown={(event) => {
 				if (event.defaultPrevented || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) return
-				const rows = panelRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')
+				const rows = enabledItems(panelRef.current)
 				const row = event.key === 'ArrowDown' ? rows?.[0] : rows?.[rows.length - 1]
 				if (!row) return
 				event.preventDefault()

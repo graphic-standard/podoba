@@ -464,17 +464,42 @@ describe('controlled menu header and empty state', () => {
 		expect(document.activeElement).toBe(search())
 	})
 
-	test('filtering down to nothing keeps the panel open and shows the empty state', async () => {
+	test('filtering down to nothing keeps the panel open and fills the live region already in place', async () => {
 		await act(async () => root.render(<Picker />))
+		// The status region is mounted, empty, while there are results: only a change to
+		// a region that is already in the DOM is reliably announced.
+		const region = document.querySelector('[data-context-menu-empty]')!
+		expect(region.getAttribute('role')).toBe('status')
+		expect(region.textContent).toBe('')
 		await type('zzz')
 		expect(menu()).toBeNull()
 		expect(document.querySelector('[data-context-menu-header]')).not.toBeNull()
-		const empty = document.querySelector('[data-context-menu-empty]')!
-		expect(empty.getAttribute('role')).toBe('status')
-		expect(empty.textContent).toBe('No blocks match')
+		expect(document.querySelector('[data-context-menu-empty]')).toBe(region)
+		expect(region.textContent).toBe('No blocks match')
 		await type('ima')
 		expect([...document.querySelectorAll('[role="menuitem"]')].map((item) => item.textContent)).toEqual(['Image'])
-		expect(document.querySelector('[data-context-menu-empty]')).toBeNull()
+		expect(document.querySelector('[data-context-menu-empty]')).toBe(region)
+		expect(region.textContent).toBe('')
+	})
+
+	test('ArrowUp on the first item goes back to the header field; on a later item it stays in the list', async () => {
+		await act(async () => root.render(<Picker />))
+		await key(search(), 'ArrowDown')
+		const first = document.activeElement!
+		expect(first.textContent).toBe('Heading')
+		await key(first, 'ArrowUp')
+		expect(document.activeElement).toBe(search())
+		const items = [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')]
+		items[1]!.focus()
+		await key(items[1]!, 'ArrowUp')
+		expect(document.activeElement).not.toBe(search())
+	})
+
+	test('the header stays on top of a scrolled list', async () => {
+		await act(async () => root.render(<Picker />))
+		const header = document.querySelector('[data-context-menu-header]')!
+		expect(header.className).toContain('sticky')
+		expect(header.className).toContain('top-0')
 	})
 
 	test('ArrowDown and ArrowUp in the header move to the first and last item', async () => {
