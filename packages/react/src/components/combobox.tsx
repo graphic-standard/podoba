@@ -18,20 +18,22 @@ import {
 import { uic } from '../utils/uic'
 import { useInFocusOverlay } from './focus-context'
 import {
+	type FieldAppearance,
+	fieldControlClasses,
 	fieldDescriptionClass,
 	fieldErrorClass,
-	fieldLabelClass,
-	fieldSizeClasses,
+	fieldLabelClasses,
+	type FieldLabelSize,
 	fieldStackClass,
-	outlinedFieldClasses,
 	type FieldSize,
 } from './field-appearance'
 
 /**
  * ComboBox — a filterable single-select: a text input that narrows a listbox as
  * you type. Built on React Aria Components `ComboBox` (typeahead, keyboard nav,
- * ARIA all handled). The input uses the shared outlined skin and `size` scale,
- * so it is the same box as an outlined `Input` or `Select`, and it shares
+ * ARIA all handled). The input uses the shared field skins and `size` scale, so
+ * it is the same box as an `Input` or `SearchField` of the same `appearance`
+ * (outlined by default, or the borderless 42 px `filled`), and it shares
  * `Select`'s cream dropdown. Pass options as `ComboBoxItem` children.
  */
 const Chevron = () => (
@@ -40,14 +42,19 @@ const Chevron = () => (
 	</svg>
 )
 
-// The shared outlined skin, with room on the right for the toggle. Invalid is
-// owned by the ComboBox root, so it comes through `group-data-invalid`.
+// The shared field skin, with room on the right for the toggle. The input is
+// the focusable element, so both skins use the `self` focus form; invalid
+// reaches it either way (the outlined skin reads the root's
+// `group-data-invalid`, the filled one the `data-invalid` RAC also puts on the
+// input). Filled has one fixed 42 px height, like every filled field, so `size`
+// only applies to outlined. The skin comes in as `className`, which uic merges
+// over the base, so `pr-4` (no toggle) still wins over `pr-11`.
 const ComboBoxInput = uic(RACInput, {
 	displayName: 'ComboBoxInput',
-	baseClass: `w-full rounded-lg pl-4 pr-11 ${outlinedFieldClasses({ invalid: 'group' })}`,
-	variants: { fieldSize: fieldSizeClasses },
-	defaultVariants: { fieldSize: 'md' },
+	baseClass: 'w-full rounded-lg pl-4 pr-11',
 })
+const comboBoxInputClass = (appearance: FieldAppearance, size: FieldSize, showToggle: boolean) =>
+	`${fieldControlClasses(appearance, size)}${showToggle ? '' : ' pr-4'}`
 
 export const ComboBoxItem = uic(ListBoxItem, {
 	displayName: 'ComboBoxItem',
@@ -69,6 +76,15 @@ export type ComboBoxProps<T extends object> = RACComboBoxProps<T> & {
 	size?: FieldSize
 	/** Hide the toggle for fields driven only by text input. */
 	showToggle?: boolean
+	/** Field skin, as on `Input`: bordered `outlined` (default) or borderless 42 px `filled`. */
+	appearance?: FieldAppearance
+	/** `compact` gives the smaller muted label used in dense settings cards. */
+	labelSize?: FieldLabelSize
+	/** Shown in the list when nothing matches the typed text. Pass a translated
+	 * string or any node; defaults to "No results". React Aria closes the popover
+	 * when the list filters down to nothing, so pass `allowsEmptyCollection` too
+	 * when the message should appear there (the focus overlay always shows it). */
+	emptyState?: ReactNode
 	children: ReactNode
 }
 
@@ -79,6 +95,9 @@ export const ComboBox = <T extends object>({
 	placeholder,
 	size = 'md',
 	showToggle = true,
+	appearance = 'outlined',
+	labelSize = 'default',
+	emptyState = 'No results',
 	children,
 	selectedKey,
 	onSelectionChange,
@@ -91,13 +110,14 @@ export const ComboBox = <T extends object>({
 			{description}
 		</Text>
 	) : null
+	const empty = () => <div className="px-3 py-2 text-small text-fg-muted">{emptyState}</div>
 
 	// Focus overlay: a bare search input + an inline filtered list (RAC ComboBox
 	// only fills its listbox while open, so compose Autocomplete + ListBox here).
 	if (inFocus) {
 		return (
 			<div className={fieldStackClass}>
-				<span className={fieldLabelClass}>{label}</span>
+				<span className={fieldLabelClasses[labelSize]}>{label}</span>
 				<Autocomplete filter={contains}>
 					<SearchField aria-label={typeof label === 'string' ? label : 'Search'}>
 						<RACInput
@@ -112,7 +132,7 @@ export const ComboBox = <T extends object>({
 							const k = keys === 'all' ? undefined : [...keys][0]
 							onSelectionChange?.(k ?? null)
 						}}
-						renderEmptyState={() => <div className="px-3 py-2 text-small text-fg-muted">No results</div>}
+						renderEmptyState={empty}
 						className="mt-2 flex max-h-72 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"
 					>
 						{children}
@@ -134,9 +154,9 @@ export const ComboBox = <T extends object>({
 			{...props}
 			className={`group ${fieldStackClass}`}
 		>
-			<Label className={fieldLabelClass}>{label}</Label>
+			<Label className={fieldLabelClasses[labelSize]}>{label}</Label>
 			<div className="relative">
-				<ComboBoxInput placeholder={placeholder} fieldSize={size} className={showToggle ? undefined : 'pr-4'} />
+				<ComboBoxInput placeholder={placeholder} className={comboBoxInputClass(appearance, size, showToggle)} />
 				{/* RAC uses this Button to toggle the listbox open/closed. */}
 				{showToggle ? (
 					<RACButton className="absolute inset-y-0 right-0 flex w-11 cursor-pointer data-[disabled]:cursor-not-allowed items-center justify-center rounded-r-lg outline-none data-[focus-visible]:ring-2 data-[focus-visible]:ring-ring">
@@ -149,7 +169,7 @@ export const ComboBox = <T extends object>({
 			<Popover className="min-w-[var(--trigger-width)] overflow-hidden rounded-lg bg-surface-card shadow-lg">
 				<ListBox
 					className="flex max-h-72 flex-col gap-0.5 overflow-auto overscroll-contain p-1 outline-none"
-					renderEmptyState={() => <div className="px-3 py-2 text-small text-fg-muted">No results</div>}
+					renderEmptyState={empty}
 				>
 					{children}
 				</ListBox>
