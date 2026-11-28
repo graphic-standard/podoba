@@ -600,9 +600,11 @@ function backToHeader(event: React.KeyboardEvent<HTMLElement>, header: HTMLEleme
 
 // Sticky, so scrolling a long result list keeps the search field in view. It takes
 // over the panel's own top padding and side insets, and paints the panel's top tone
-// behind it so the scrolled items pass under it.
-const headerPanelClass = 'sticky top-0 z-10 -mx-1.5 -mt-2 min-w-0 bg-context-menu-top px-1.5 pt-2 pb-2'
-const headerSheetClass = 'sticky top-0 z-10 -mx-2 min-w-0 bg-context-menu-top px-2 pb-2'
+// behind it so the scrolled items pass under it. A sticky box sticks at the scroll
+// container's padding edge, so `-top-2` (the panel's and the sheet's 8px top padding)
+// is what puts it flush with the top; `top-0` left an 8px strip where items showed.
+const headerPanelClass = 'sticky -top-2 z-10 -mx-1.5 -mt-2 min-w-0 bg-context-menu-top px-1.5 pt-2 pb-2'
+const headerSheetClass = 'sticky -top-2 z-10 -mx-2 min-w-0 bg-context-menu-top px-2 pt-2 pb-2'
 
 /**
  * Wraps a controlled menu's `header`. ArrowDown / ArrowUp that the header did not

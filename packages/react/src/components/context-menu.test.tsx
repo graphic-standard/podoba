@@ -498,8 +498,9 @@ describe('controlled menu header and empty state', () => {
 	test('the header stays on top of a scrolled list', async () => {
 		await act(async () => root.render(<Picker />))
 		const header = document.querySelector('[data-context-menu-header]')!
-		expect(header.className).toContain('sticky')
-		expect(header.className).toContain('top-0')
+		// Sticky offsets count from the panel's padding edge: -top-2 cancels its 8px padding.
+		expect(header.className.split(' ')).toContain('sticky')
+		expect(header.className.split(' ')).toContain('-top-2')
 	})
 
 	test('ArrowDown and ArrowUp in the header move to the first and last item', async () => {
