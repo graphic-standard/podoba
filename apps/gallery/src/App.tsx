@@ -112,6 +112,7 @@ import {
 // Opt-in subpath — this import is what pulls Tiptap/ProseMirror into the bundle.
 import { BlockEditor } from "@podoba/react/editor";
 import { examples as accountDialogExamples } from "../../../packages/react/src/components/account-dialog.examples";
+import { examples as createMenuDialogExamples } from "../../../packages/react/src/components/create-menu-dialog.examples";
 import { examples as tableExamples } from "../../../packages/react/src/components/table.examples";
 import { type ComponentType, createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
@@ -1624,6 +1625,18 @@ const SECTIONS: SectionDef[] = [
 					</DialogTrigger>
 				</Demo>
 			</>
+		),
+	},
+	{
+		id: "create-menu-dialog",
+		group: "Modals",
+		title: "Create menu dialog",
+		subtitle:
+			"Near full-screen creation menu: a large title over a scrolling body of create actions. A consumer can pass a looping background video; the gallery shows it without one.",
+		content: (
+			<Demo label="Open it">
+				{createMenuDialogExamples.default()}
+			</Demo>
 		),
 	},
 	{
