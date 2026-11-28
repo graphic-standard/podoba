@@ -113,6 +113,7 @@ import {
 import { BlockEditor } from "@podoba/react/editor";
 import { examples as accountDialogExamples } from "../../../packages/react/src/components/account-dialog.examples";
 import { examples as createMenuDialogExamples } from "../../../packages/react/src/components/create-menu-dialog.examples";
+import { examples as isoDatePickerExamples } from "../../../packages/react/src/components/iso-date-picker.examples";
 import { examples as tableExamples } from "../../../packages/react/src/components/table.examples";
 import { type ComponentType, createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
@@ -1336,6 +1337,22 @@ const SECTIONS: SectionDef[] = [
 				</div>
 				<div className="w-72">
 					<FileUpload label="Attachments" allowsMultiple />
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "iso-date-picker",
+		group: "Date & time",
+		title: "Date picker over an ISO string",
+		subtitle:
+			"For forms whose data is JSON: the value in and out is an ISO string, so the form needs no date library. Local dates and date-times only, no instants: a value with Z or an offset shows empty. The stored value is shown under each field.",
+		content: (
+			<Demo label="Date · date and time · invalid stored value">
+				<div className="flex flex-wrap gap-6">
+					{isoDatePickerExamples.date()}
+					{isoDatePickerExamples.dateTime()}
+					{isoDatePickerExamples.invalid()}
 				</div>
 			</Demo>
 		),
