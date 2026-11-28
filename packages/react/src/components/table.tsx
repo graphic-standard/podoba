@@ -1,5 +1,6 @@
-import { useMemo, useState, type ComponentProps, type CSSProperties, type HTMLAttributes, type ReactNode, type ThHTMLAttributes } from 'react'
+import { useId, useMemo, useState, type ComponentProps, type CSSProperties, type HTMLAttributes, type ReactNode, type ThHTMLAttributes } from 'react'
 import { uic } from '../utils/uic'
+import { ContextMenu, type ContextMenuGroup } from './context-menu'
 
 /**
  * Table: the design-system data table, in the look of gs-platform's task GSTable. A
@@ -46,14 +47,37 @@ const TableRowBase = uic('tr', {
 		interactive: {
 			true: 'cursor-pointer transition-colors duration-150 ease-in-out hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring motion-reduce:transition-none',
 		},
+		// A row that takes focus only to reach its context menu (Shift+F10, the menu key).
+		focusable: {
+			true: 'focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+		},
 	},
 })
+
+/** Elements in a cell that handle their own press: a click on one is not a row press. */
+const NESTED_CONTROL =
+	'a[href],button,input,label,select,textarea,summary,[contenteditable="true"],' +
+	'[role="button"],[role="link"],[role="checkbox"],[role="switch"],[role="radio"],[role="combobox"],[role="menuitem"],[role="tab"],[role="option"]'
+
+/**
+ * Whether a click inside a row started on a control of its own (a link, a button, a
+ * field) rather than on the row. Clicks from portals (a dialog a cell opened) bubble
+ * through React but are not inside the row's DOM, so they never press it either.
+ */
+export function isNestedRowControl(row: Element, target: EventTarget | null): boolean {
+	if (!(target instanceof Element) || !row.contains(target)) return true
+	const control = target.closest(NESTED_CONTROL)
+	return control !== null && control !== row && row.contains(control)
+}
 
 export type TableRowProps = ComponentProps<typeof TableRowBase> & {
 	/**
 	 * Makes the whole row one pressable control: pointer, hover fill, inset focus ring,
 	 * `tabIndex={0}`, `role="button"` and Enter/Space activation. Name it with
 	 * `aria-label`, since the button role hides the cells from assistive tech.
+	 * A click that starts on a link, button or field inside a cell stays with that
+	 * control (including a Cmd/Ctrl-click that opens a link in a new tab) and does not
+	 * press the row.
 	 */
 	onPress?: () => void
 }
@@ -69,7 +93,7 @@ export function TableRow({ onPress, onClick, onKeyDown, ...rest }: TableRowProps
 			interactive
 			onClick={(event) => {
 				onClick?.(event)
-				if (!event.defaultPrevented) onPress()
+				if (!event.defaultPrevented && !isNestedRowControl(event.currentTarget, event.target)) onPress()
 			}}
 			onKeyDown={(event) => {
 				onKeyDown?.(event)
@@ -202,6 +226,16 @@ export type TableProps<Row> = {
 	enableSorting?: boolean
 	/** Whole-row press handler: renders rows as interactive (hover + keyboard). */
 	onRowClick?: (row: Row) => void
+	/**
+	 * A context menu per row: right-click, a long press on touch, or Shift+F10 / the
+	 * menu key on a focused row opens the groups returned for that row (see
+	 * `ContextMenu`). Rows without `onRowClick` become focusable for the keyboard,
+	 * without turning into buttons. Right-clicks on a link or a field in a cell keep
+	 * the browser's own menu. Return `[]` for a row with no actions.
+	 */
+	rowActions?: (row: Row) => ContextMenuGroup[]
+	/** Names the row menu for assistive tech. Defaults to "Row actions". */
+	rowActionsLabel?: string
 	/** Message shown in place of the body when `data` is empty. */
 	emptyMessage?: ReactNode
 	/** Accessible name for the table. */
@@ -229,6 +263,8 @@ export function Table<Row>({
 	getRowProps,
 	enableSorting = false,
 	onRowClick,
+	rowActions,
+	rowActionsLabel = 'Row actions',
 	emptyMessage = 'No rows.',
 	className,
 	tableClassName,
@@ -236,6 +272,8 @@ export function Table<Row>({
 	...aria
 }: TableProps<Row>) {
 	const [sort, setSort] = useState<TableSortState | null>(null)
+	// Tells this table's rows from those of a table nested in a cell.
+	const scope = useId()
 
 	const sorted = useMemo(() => {
 		if (!enableSorting || !sort) return data
@@ -253,8 +291,9 @@ export function Table<Row>({
 
 	const rowKey = getRowKey ?? ((_row: Row, index: number) => String(index))
 	const interactive = Boolean(onRowClick)
+	const rowsByKey = new Map(sorted.map((row, index) => [rowKey(row, index), row]))
 
-	return (
+	const table = (
 		<TableScroll className={className}>
 			<TableRoot className={tableClassName} data-testid={testId} {...aria}>
 				<TableHead>
@@ -288,9 +327,13 @@ export function Table<Row>({
 						<TableEmptyRow colSpan={columns.length}>{emptyMessage}</TableEmptyRow>
 					) : (
 						sorted.map((row, index) => {
+							const key = rowKey(row, index)
 							const rowProps = getRowProps?.(row)
+							const actionProps = rowActions
+								? { 'data-table-row': key, 'data-table-scope': scope, ...(interactive ? {} : { tabIndex: 0, focusable: true }) }
+								: undefined
 							return (
-								<TableRow key={rowKey(row, index)} {...rowProps} onPress={interactive ? () => onRowClick?.(row) : undefined}>
+								<TableRow key={key} {...actionProps} {...rowProps} onPress={interactive ? () => onRowClick?.(row) : undefined}>
 									{columns.map((column) => (
 										<TableCell key={column.key} align={column.align ?? 'left'}>
 											{column.render ? column.render(row) : String(defaultSortValue(column, row))}
@@ -303,5 +346,24 @@ export function Table<Row>({
 				</TableBody>
 			</TableRoot>
 		</TableScroll>
+	)
+	if (!rowActions) return table
+
+	return (
+		<ContextMenu
+			// The wrapper sits around the scroll container; it shrinks like it in a flex row.
+			className="w-full min-w-0"
+			aria-label={rowActionsLabel}
+			shouldOpen={(target) =>
+				target.closest('[data-table-row]')?.getAttribute('data-table-scope') === scope &&
+				!target.closest('a[href],input,textarea,select,[contenteditable="true"]')}
+			groups={({ target }) => {
+				const key = target.closest('[data-table-row]')?.getAttribute('data-table-row')
+				const row = key == null ? undefined : rowsByKey.get(key)
+				return row === undefined ? [] : rowActions(row)
+			}}
+		>
+			{table}
+		</ContextMenu>
 	)
 }
