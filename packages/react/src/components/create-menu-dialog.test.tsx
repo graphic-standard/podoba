@@ -82,6 +82,45 @@ describe('CreateMenuDialog', () => {
 		expect(document.querySelector('video')).toBeNull()
 	})
 
+	test('with reduced motion the video is not rendered, so it is never fetched', async () => {
+		const original = window.matchMedia
+		window.matchMedia = ((query: string) => ({
+			matches: query === '(prefers-reduced-motion: reduce)',
+			media: query,
+			onchange: null,
+			addEventListener: () => {},
+			removeEventListener: () => {},
+			addListener: () => {},
+			removeListener: () => {},
+			dispatchEvent: () => false,
+		})) as typeof window.matchMedia
+		try {
+			await act(async () =>
+				root.render(
+					<CreateMenuDialog isOpen onOpenChange={() => {}} title="Create" closeLabel="Close" backgroundVideo="/loop.mp4">
+						<p>Menu</p>
+					</CreateMenuDialog>,
+				),
+			)
+			expect(dialog()).not.toBeNull()
+			expect(document.querySelector('video')).toBeNull()
+		} finally {
+			window.matchMedia = original
+		}
+	})
+
+	test('the title block is not a banner landmark, and the video carries no filter of its own', async () => {
+		await act(async () =>
+			root.render(
+				<CreateMenuDialog isOpen onOpenChange={() => {}} title="Create" closeLabel="Close" backgroundVideo="/loop.mp4">
+					<p>Menu</p>
+				</CreateMenuDialog>,
+			),
+		)
+		expect(dialog()!.querySelector('header')).toBeNull()
+		expect(document.querySelector('video')!.className).not.toContain('brightness')
+	})
+
 	test('renders nothing while closed', async () => {
 		await act(async () =>
 			root.render(
