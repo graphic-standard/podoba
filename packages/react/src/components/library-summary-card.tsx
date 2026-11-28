@@ -12,10 +12,18 @@ export type LibrarySummaryFile = {
 	contentType?: string
 	/** Original filename; its extension labels files without a preview. */
 	filename?: string
+	/**
+	 * Still frame for a video. Touch screens have no hover, so the video never plays
+	 * there, and some mobile browsers draw no frame from `preload="metadata"` alone.
+	 */
+	poster?: string
 }
 
 export type LibrarySummaryCardProps = {
-	/** Eyebrow, e.g. the group's name ("Videos"). Also the tile's accessible name. */
+	/**
+	 * Eyebrow, e.g. the group's name ("Videos"). The pressable tile is named by its whole
+	 * visible text (title, headline, type and footer), so nothing is lost to a screen reader.
+	 */
 	title: string
 	/** The file to show. Without it the card shows `emptyTitle`. */
 	file?: LibrarySummaryFile
@@ -44,6 +52,18 @@ export type LibrarySummaryCardProps = {
 const coverText = 'relative z-10 text-white'
 
 /**
+ * A short type label: the filename's extension, else a short MIME subtype with its
+ * parameters and structured suffix dropped (`text/plain; charset=utf-8` → `PLAIN`,
+ * `image/svg+xml` → `SVG`). A long vendor subtype gives `undefined`, for the caller's label.
+ */
+export function libraryFileTypeLabel(filename?: string, contentType?: string): string | undefined {
+	const extension = filename?.includes('.') ? filename.split('.').pop()?.trim() : undefined
+	if (extension) return extension.toUpperCase()
+	const subtype = contentType?.split(';')[0]?.split('/')[1]?.split('+')[0]?.trim()
+	return subtype && subtype.length <= 6 ? subtype.toUpperCase() : undefined
+}
+
+/**
  * One tile of a library overview: the latest file of a group, previewed by its type.
  * - Images and videos fill the tile, with a scrim behind the white eyebrow and footer.
  *   A video plays on hover or focus (never under reduced motion) and is muted.
@@ -67,21 +87,25 @@ export function LibrarySummaryCard({
 	const reducedMotion = useReducedMotion()
 	const [failedSource, setFailedSource] = useState<string | null>(null)
 	const src = file?.src
-	const mime = file?.contentType ?? ''
+	const mime = (file?.contentType ?? '').split(';')[0]?.trim().toLowerCase() ?? ''
 	const isVideo = mime.startsWith('video/')
 	const inset = mime === 'image/svg+xml'
 	const visual = Boolean(file && src && (mime.startsWith('image/') || isVideo))
-	const extension = file?.filename?.includes('.')
-		? file.filename.split('.').pop()?.toUpperCase()
-		: mime.split('/')[1]?.toUpperCase()
-	const typeLabel = extension || unknownTypeLabel
+	const typeLabel = libraryFileTypeLabel(file?.filename, mime) ?? unknownTypeLabel
+	const typeLabelClass = 'max-w-full text-center text-fg-muted [overflow-wrap:anywhere]'
 
+	// No `aria-label` on the tiles below: the button is named by its visible text, so a
+	// screen reader hears the headline and footer too, not just the eyebrow.
 	if (!file) {
-		return <Tile className={className} eyebrow={title} title={emptyTitle} titleAlign="top" onPress={onPress} aria-label={title} />
+		return <Tile className={className} eyebrow={title} title={emptyTitle} titleAlign="top" onPress={onPress} />
 	}
 
 	const preview = !visual ? undefined : failedSource === src ? (
-		<div className="flex h-full w-full items-center justify-center bg-surface-inverted p-6 text-small text-fg-inverted">
+		// Under a cover the eyebrow and footer are white, so the fallback is a fixed dark
+		// surface in both themes (an inverted token turns light in the dark theme).
+		<div
+			className={`flex h-full w-full items-center justify-center p-6 text-small ${inset ? 'text-fg-muted' : 'bg-black text-white'}`}
+		>
 			{previewUnavailableLabel}
 		</div>
 	) : isVideo ? (
@@ -89,6 +113,7 @@ export function LibrarySummaryCard({
 			key={src}
 			ref={video}
 			src={src}
+			poster={file.poster}
 			aria-hidden="true"
 			muted
 			loop
@@ -119,15 +144,22 @@ export function LibrarySummaryCard({
 			video.current.currentTime = 0
 		}
 		return (
-			<div className="h-full" data-library-summary-cover="" onMouseEnter={start} onMouseLeave={stop} onFocus={start} onBlur={stop}>
+			<div
+				className={`h-full ${className ?? ''}`}
+				data-library-summary-cover=""
+				onMouseEnter={start}
+				onMouseLeave={stop}
+				onFocus={start}
+				onBlur={stop}
+			>
 				<Tile
-					className={`relative isolate ${className ?? ''}`}
+					className="relative isolate"
 					eyebrow={<span className={coverText}>{title}</span>}
 					footer={footer ? <span className={coverText}>{footer}</span> : undefined}
 					onPress={onPress}
-					aria-label={title}
 				>
-					<div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0">
+					{/* Fixed dark backdrop: the white text stays legible while the file loads or if it fails. */}
+					<div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 bg-black">
 						{preview}
 						<div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/60" />
 					</div>
@@ -138,9 +170,9 @@ export function LibrarySummaryCard({
 
 	if (inset || documentLayout === 'centered') {
 		return (
-			<Tile className={className} eyebrow={title} footer={footer} onPress={onPress} aria-label={title}>
+			<Tile className={className} eyebrow={title} footer={footer} onPress={onPress}>
 				<div className="flex min-h-0 w-full flex-1 items-center justify-center p-6">
-					{preview ?? <span className="text-fg-muted">{typeLabel}</span>}
+					{preview ?? <span className={typeLabelClass}>{typeLabel}</span>}
 				</div>
 			</Tile>
 		)
@@ -154,8 +186,11 @@ export function LibrarySummaryCard({
 			titleAlign="top"
 			footer={footer}
 			onPress={onPress}
-			aria-label={title}
-			image={<div className="flex h-40 w-full items-center justify-center rounded-lg text-fg-muted">{typeLabel}</div>}
+			image={
+				<div className="flex h-40 w-full items-center justify-center rounded-lg">
+					<span className={typeLabelClass}>{typeLabel}</span>
+				</div>
+			}
 		/>
 	)
 }

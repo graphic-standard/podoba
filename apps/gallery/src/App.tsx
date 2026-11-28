@@ -1365,9 +1365,10 @@ const SECTIONS: SectionDef[] = [
 		subtitle:
 			"One tile of a library overview: the latest file of a group. A photo or video fills the tile (a video plays on hover, never under reduced motion), SVG artwork stays inset, anything else shows a line and its extension. The app decides the groups and the wording.",
 		content: (
-			<Demo label="Photo · logo · document · recently added · empty">
+			<Demo label="Photo · video · logo · document · recently added · empty">
 				<div className="grid gap-4 md:grid-cols-2">
 					{librarySummaryCardExamples.photo()}
+					{librarySummaryCardExamples.video()}
 					{librarySummaryCardExamples.logo()}
 					{librarySummaryCardExamples.document()}
 					{librarySummaryCardExamples.recent()}

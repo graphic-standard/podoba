@@ -16,6 +16,17 @@ export const examples = {
 			<LibrarySummaryCard title="Images" file={{ name: 'Court at dusk', src: photo, contentType: 'image/png', filename: 'court.png' }} footer="12 other files" onPress={() => {}} />
 		</div>
 	),
+	// A synthetic gradient clip served by the gallery; it plays on hover or focus.
+	video: () => (
+		<div className={cell}>
+			<LibrarySummaryCard
+				title="Videos"
+				file={{ name: 'Gradient loop', src: '/library-clip.mp4', poster: '/library-clip-poster.jpg', contentType: 'video/mp4', filename: 'gradient.mp4' }}
+				footer="4 other files"
+				onPress={() => {}}
+			/>
+		</div>
+	),
 	logo: () => (
 		<div className={cell}>
 			<LibrarySummaryCard title="Logos" file={{ name: 'Acme logo', src: logo, contentType: 'image/svg+xml', filename: 'acme.svg' }} footer="No other files" onPress={() => {}} />
