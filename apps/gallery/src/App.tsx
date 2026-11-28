@@ -115,6 +115,7 @@ import { examples as accountDialogExamples } from "../../../packages/react/src/c
 import { examples as createMenuDialogExamples } from "../../../packages/react/src/components/create-menu-dialog.examples";
 import { examples as isoDatePickerExamples } from "../../../packages/react/src/components/iso-date-picker.examples";
 import { examples as librarySummaryCardExamples } from "../../../packages/react/src/components/library-summary-card.examples";
+import { examples as libraryPreviewsExamples } from "../../../packages/react/src/components/library-previews.examples";
 import { examples as tableExamples } from "../../../packages/react/src/components/table.examples";
 import { type ComponentType, createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
@@ -1375,6 +1376,19 @@ const SECTIONS: SectionDef[] = [
 					{librarySummaryCardExamples.empty()}
 				</div>
 			</Demo>
+		),
+	},
+	{
+		id: "library-previews",
+		group: "Content",
+		title: "Library file previews",
+		subtitle:
+			"A preview stage with a carousel (arrow keys, buttons, position) and a fullscreen view. The photo fills the frame with the wheel or plus, and pans by dragging or arrow keys; minus fits it again. A logo picks a light or dark surface from its own pixels; right click switches it by hand.",
+		content: (
+			<>
+				<Demo label="Stage · photo, dark logo, light logo">{libraryPreviewsExamples.stage()}</Demo>
+				<Demo label="Logo contrast · dark logo, light logo">{libraryPreviewsExamples.logos()}</Demo>
+			</>
 		),
 	},
 	{
