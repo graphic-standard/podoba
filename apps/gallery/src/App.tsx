@@ -652,22 +652,26 @@ const blockTypes = ["Heading", "Paragraph", "Image", "Gallery", "Quote", "Button
 function ContextMenuSearchDemo() {
 	const menu = useContextMenu();
 	const [query, setQuery] = useState("");
+	// A desktop browser has no coarse pointer, so the second opener forces the phone sheet.
+	const [sheet, setSheet] = useState(false);
 	const shown = blockTypes.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
+	const opener = (asSheet: boolean) => (event: { target: EventTarget }) => {
+		const rect = (event.target as HTMLElement).getBoundingClientRect();
+		setQuery("");
+		setSheet(asSheet);
+		menu.open({ preventDefault: () => {}, clientX: rect.left, clientY: rect.bottom + 4 });
+	};
 	return (
-		<>
-			<Button
-				variant="secondary"
-				size="sm"
-				onPress={(event) => {
-					const rect = (event.target as HTMLElement).getBoundingClientRect();
-					setQuery("");
-					menu.open({ preventDefault: () => {}, clientX: rect.left, clientY: rect.bottom + 4 });
-				}}
-			>
+		<div className="flex flex-wrap gap-2">
+			<Button variant="secondary" size="sm" onPress={opener(false)}>
 				<PlusIcon className="h-4 w-4" /> Add block
+			</Button>
+			<Button variant="ghost" size="sm" onPress={opener(true)}>
+				As a phone sheet
 			</Button>
 			<ContextMenu
 				{...menu.props}
+				presentation={sheet ? "sheet" : "auto"}
 				aria-label="Add block"
 				header={
 					<div className="px-1.5">
@@ -689,7 +693,7 @@ function ContextMenuSearchDemo() {
 					},
 				]}
 			/>
-		</>
+		</div>
 	);
 }
 
