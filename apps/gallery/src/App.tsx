@@ -114,6 +114,7 @@ import { BlockEditor } from "@podoba/react/editor";
 import { examples as accountDialogExamples } from "../../../packages/react/src/components/account-dialog.examples";
 import { examples as createMenuDialogExamples } from "../../../packages/react/src/components/create-menu-dialog.examples";
 import { examples as isoDatePickerExamples } from "../../../packages/react/src/components/iso-date-picker.examples";
+import { examples as librarySummaryCardExamples } from "../../../packages/react/src/components/library-summary-card.examples";
 import { examples as tableExamples } from "../../../packages/react/src/components/table.examples";
 import { type ComponentType, createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
@@ -1353,6 +1354,25 @@ const SECTIONS: SectionDef[] = [
 					{isoDatePickerExamples.date()}
 					{isoDatePickerExamples.dateTime()}
 					{isoDatePickerExamples.invalid()}
+				</div>
+			</Demo>
+		),
+	},
+	{
+		id: "library-summary-card",
+		group: "Content",
+		title: "Library summary card",
+		subtitle:
+			"One tile of a library overview: the latest file of a group. A photo or video fills the tile (a video plays on hover, never under reduced motion), SVG artwork stays inset, anything else shows a line and its extension. The app decides the groups and the wording.",
+		content: (
+			<Demo label="Photo · video · logo · document · recently added · empty">
+				<div className="grid gap-4 md:grid-cols-2">
+					{librarySummaryCardExamples.photo()}
+					{librarySummaryCardExamples.video()}
+					{librarySummaryCardExamples.logo()}
+					{librarySummaryCardExamples.document()}
+					{librarySummaryCardExamples.recent()}
+					{librarySummaryCardExamples.empty()}
 				</div>
 			</Demo>
 		),
