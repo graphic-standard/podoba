@@ -56,19 +56,28 @@ const TableRowBase = uic('tr', {
 
 /** Elements in a cell that handle their own press: a click on one is not a row press. */
 const NESTED_CONTROL =
-	'a[href],button,input,label,select,textarea,summary,[contenteditable="true"],' +
-	'[role="button"],[role="link"],[role="checkbox"],[role="switch"],[role="radio"],[role="combobox"],[role="menuitem"],[role="tab"],[role="option"]'
+	'a[href],button,input,select,textarea,summary,[contenteditable="true"],' +
+	'[role="button"],[role="link"],[role="checkbox"],[role="switch"],[role="radio"],[role="combobox"],' +
+	'[role="menuitem"],[role="menuitemcheckbox"],[role="menuitemradio"],[role="tab"],[role="option"],' +
+	'[role="slider"],[role="spinbutton"],[role="textbox"],[role="searchbox"],[role="treeitem"]'
 
 /**
  * Whether a click inside a row started on a control of its own (a link, a button, a
  * field) rather than on the row. Clicks from portals (a dialog a cell opened) bubble
  * through React but are not inside the row's DOM, so they never press it either.
+ * A `<label>` counts only when it labels a control (its click goes on to that control);
+ * a bare label used as text or a tag is part of the row.
  */
 export function isNestedRowControl(row: Element, target: EventTarget | null): boolean {
 	if (!(target instanceof Element) || !row.contains(target)) return true
 	const control = target.closest(NESTED_CONTROL)
-	return control !== null && control !== row && row.contains(control)
+	if (control !== null && control !== row && row.contains(control)) return true
+	const label = target.closest('label')
+	return label !== null && row.contains(label) && (label as HTMLLabelElement).control != null
 }
+
+/** Whether a row's groups would show anything: hidden items and empty groups don't. */
+const hasVisibleActions = (groups: ContextMenuGroup[]) => groups.some((group) => group.items.some((item) => !item.hidden))
 
 export type TableRowProps = ComponentProps<typeof TableRowBase> & {
 	/**
@@ -231,7 +240,9 @@ export type TableProps<Row> = {
 	 * menu key on a focused row opens the groups returned for that row (see
 	 * `ContextMenu`). Rows without `onRowClick` become focusable for the keyboard,
 	 * without turning into buttons. Right-clicks on a link or a field in a cell keep
-	 * the browser's own menu. Return `[]` for a row with no actions.
+	 * the browser's own menu. Return `[]` (or only hidden items) for a row with no
+	 * actions: it keeps the browser's menu too. Called on every right-click, so keep
+	 * it cheap.
 	 */
 	rowActions?: (row: Row) => ContextMenuGroup[]
 	/** Names the row menu for assistive tech. Defaults to "Row actions". */
@@ -349,19 +360,23 @@ export function Table<Row>({
 	)
 	if (!rowActions) return table
 
+	const actionsFor = (target: HTMLElement): ContextMenuGroup[] => {
+		const rowElement = target.closest('[data-table-row]')
+		if (rowElement?.getAttribute('data-table-scope') !== scope) return []
+		const row = rowsByKey.get(rowElement.getAttribute('data-table-row') ?? '')
+		return row === undefined ? [] : rowActions(row)
+	}
+
 	return (
 		<ContextMenu
 			// The wrapper sits around the scroll container; it shrinks like it in a flex row.
-			className="w-full min-w-0"
+			// Links get the iOS long-press callout back: they keep the platform menu here.
+			className="w-full min-w-0 [&_a]:[-webkit-touch-callout:default]"
 			aria-label={rowActionsLabel}
+			// A row without actions, a link or a field keeps the platform's own menu.
 			shouldOpen={(target) =>
-				target.closest('[data-table-row]')?.getAttribute('data-table-scope') === scope &&
-				!target.closest('a[href],input,textarea,select,[contenteditable="true"]')}
-			groups={({ target }) => {
-				const key = target.closest('[data-table-row]')?.getAttribute('data-table-row')
-				const row = key == null ? undefined : rowsByKey.get(key)
-				return row === undefined ? [] : rowActions(row)
-			}}
+				!target.closest('a[href],input,textarea,select,[contenteditable="true"]') && hasVisibleActions(actionsFor(target))}
+			groups={({ target }) => actionsFor(target)}
 		>
 			{table}
 		</ContextMenu>
