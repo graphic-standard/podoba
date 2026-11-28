@@ -35,3 +35,24 @@ describe('<CtaPill> foreground pairing (WCAG AA — issue #13)', () => {
 		expect(mobileHtml).not.toContain('fixed')
 	})
 })
+
+describe('<CtaPill> stacked', () => {
+	const render = (stacked?: boolean) =>
+		renderToStaticMarkup(
+			<CtaPill lead="Signups" subHeading="Opens on 1 March" stacked={stacked}>
+				<button type="button">Create</button>
+			</CtaPill>,
+		)
+
+	test('a sub-heading alone keeps the action beside the text', () => {
+		const html = render()
+		expect(html).toContain('items-center gap-nav-x')
+		expect(html).not.toContain('flex-col')
+	})
+
+	test('stacked puts the action under the text, at the end', () => {
+		const html = render(true)
+		expect(html).toContain('flex-col items-stretch gap-3')
+		expect(html).toContain('self-end')
+	})
+})
