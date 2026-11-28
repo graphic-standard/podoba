@@ -22,7 +22,6 @@ import {
 	fieldControlClasses,
 	fieldDescriptionClass,
 	fieldErrorClass,
-	fieldLabelClass,
 	fieldLabelClasses,
 	type FieldLabelSize,
 	fieldStackClass,
@@ -43,19 +42,19 @@ const Chevron = () => (
 	</svg>
 )
 
-// The shared field skin, with room on the right for the toggle. Invalid is
-// owned by the ComboBox root, so it comes through `group-data-invalid`: the
-// outlined skin reads it that way already, and the filled one takes the group
-// ring from `fieldControlClasses`' `within` form (which also keeps its own
-// focus-visible outline). Filled has one fixed 42 px height, like every filled
-// field, so `size` only applies to outlined. The skin comes in as `className`,
-// which uic merges over the base, so `pr-4` (no toggle) still wins over `pr-11`.
+// The shared field skin, with room on the right for the toggle. The input is
+// the focusable element, so both skins use the `self` focus form; invalid
+// reaches it either way (the outlined skin reads the root's
+// `group-data-invalid`, the filled one the `data-invalid` RAC also puts on the
+// input). Filled has one fixed 42 px height, like every filled field, so `size`
+// only applies to outlined. The skin comes in as `className`, which uic merges
+// over the base, so `pr-4` (no toggle) still wins over `pr-11`.
 const ComboBoxInput = uic(RACInput, {
 	displayName: 'ComboBoxInput',
 	baseClass: 'w-full rounded-lg pl-4 pr-11',
 })
 const comboBoxInputClass = (appearance: FieldAppearance, size: FieldSize, showToggle: boolean) =>
-	`${fieldControlClasses(appearance, size, appearance === 'filled')}${showToggle ? '' : ' pr-4'}`
+	`${fieldControlClasses(appearance, size)}${showToggle ? '' : ' pr-4'}`
 
 export const ComboBoxItem = uic(ListBoxItem, {
 	displayName: 'ComboBoxItem',
@@ -118,7 +117,7 @@ export const ComboBox = <T extends object>({
 	if (inFocus) {
 		return (
 			<div className={fieldStackClass}>
-				<span className={fieldLabelClass}>{label}</span>
+				<span className={fieldLabelClasses[labelSize]}>{label}</span>
 				<Autocomplete filter={contains}>
 					<SearchField aria-label={typeof label === 'string' ? label : 'Search'}>
 						<RACInput

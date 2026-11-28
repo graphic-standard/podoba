@@ -32,9 +32,32 @@ describe('ComboBox appearance', () => {
 		expect(cls).toContain('border-0 bg-surface-card')
 		expect(cls).toContain('h-10.5')
 		expect(cls).not.toMatch(/\bh-10(?![.\d])|h-control-tall/)
-		// Invalid lives on the ComboBox root, so the filled ring must read the group.
-		expect(cls).toContain('group-data-[invalid]:ring-danger')
+		expect(cls).toContain('data-[invalid]:ring-danger')
 		expect(cls).toContain('focus-visible:outline-ring')
+		// RAC's Input never sets data-focus-within, so the wrapper focus form would be dead.
+		expect(cls).not.toContain('data-[focus-within]')
+	})
+
+	test('an invalid ComboBox marks the input itself, which the filled ring reads', () => {
+		const html = renderToStaticMarkup(
+			<ComboBox label="L" appearance="filled" isInvalid errorMessage="Pick one">
+				<ComboBoxItem id="a">A</ComboBoxItem>
+			</ComboBox>,
+		)
+
+		expect(html).toMatch(/<input[^>]*data-invalid="true"/)
+	})
+
+	test('the focus overlay honours labelSize too', () => {
+		const html = renderToStaticMarkup(
+			<FocusOverlayContext.Provider value>
+				<ComboBox label="Sport" labelSize="compact">
+					{[]}
+				</ComboBox>
+			</FocusOverlayContext.Provider>,
+		)
+
+		expect(html).toMatch(/<span class="text-label font-normal text-fg-muted">Sport<\/span>/)
 	})
 
 	test('without the toggle the right padding shrinks in both skins', () => {
