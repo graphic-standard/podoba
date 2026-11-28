@@ -1346,7 +1346,7 @@ const SECTIONS: SectionDef[] = [
 		group: "Date & time",
 		title: "Date picker over an ISO string",
 		subtitle:
-			"For forms whose data is JSON: the value in and out is an ISO string, so the form needs no date library. The stored value is shown under each field.",
+			"For forms whose data is JSON: the value in and out is an ISO string, so the form needs no date library. Local dates and date-times only, no instants: a value with Z or an offset shows empty. The stored value is shown under each field.",
 		content: (
 			<Demo label="Date · date and time · invalid stored value">
 				<div className="flex flex-wrap gap-6">

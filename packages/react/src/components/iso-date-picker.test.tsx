@@ -15,7 +15,17 @@ describe('ISO date helpers', () => {
 		// A date-time stored where a date is expected keeps its date; a date given to minute starts at midnight.
 		expect(parseIsoDateValue('2026-03-01T09:30', 'day')?.toString()).toBe('2026-03-01')
 		expect(parseIsoDateValue('2026-03-01', 'minute')?.toString()).toBe('2026-03-01T00:00:00')
-		for (const bad of ['', null, undefined, 'tomorrow', '2026-13-45']) expect(parseIsoDateValue(bad)).toBeNull()
+		expect(parseIsoDateValue('2026-03-01T09:30:15.250', 'minute')?.toString()).toBe('2026-03-01T09:30:15.25')
+		for (const bad of ['', null, undefined, 'tomorrow', '2026-13-45', '2026-03-01garbage']) expect(parseIsoDateValue(bad)).toBeNull()
+	})
+
+	test('instants are refused in both granularities instead of read as a UTC date', () => {
+		// Midnight 1 March in Central Europe, as Date#toISOString() writes it: slicing it
+		// would show 28 February.
+		for (const instant of ['2026-02-28T23:00:00.000Z', '2026-03-01T09:30:00Z', '2026-03-01T09:30:00+01:00']) {
+			expect(parseIsoDateValue(instant, 'day')).toBeNull()
+			expect(parseIsoDateValue(instant, 'minute')).toBeNull()
+		}
 	})
 
 	test('format to the stored shape: YYYY-MM-DD or YYYY-MM-DDTHH:mm', () => {
@@ -49,17 +59,34 @@ describe('IsoDatePicker', () => {
 		expect(invalid.year).toBeNull()
 	})
 
-	test('a change comes back as an ISO string', async () => {
-		const changes: (string | null)[] = []
+	/** Mount a picker; keys go to segments without focus(), which loops happy-dom's selection. */
+	async function mount(node: () => React.ReactElement) {
 		const host = document.createElement('div')
 		document.body.append(host)
 		const root = createRoot(host)
-		await act(async () => root.render(<IsoDatePicker label="Starts" value="2026-03-01" onChange={(value) => changes.push(value)} />))
-		// No focus(): happy-dom's selection handling loops on a focused date segment.
-		const day = host.querySelector<HTMLElement>('[data-type="day"]')!
-		await act(async () => { day.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true, cancelable: true })) })
+		await act(async () => root.render(node()))
+		const press = async (type: string, key: string) => {
+			const segment = host.querySelector<HTMLElement>(`[data-type="${type}"]`)!
+			await act(async () => { segment.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true })) })
+		}
+		const unmount = async () => { await act(async () => root.unmount()); host.remove() }
+		return { press, unmount }
+	}
+
+	test('a change comes back as an ISO string, in both granularities', async () => {
+		const changes: (string | null)[] = []
+		const day = await mount(() => <IsoDatePicker label="Starts" value="2026-03-01" onChange={(value) => changes.push(value)} />)
+		await day.press('day', 'ArrowUp')
 		expect(changes).toEqual(['2026-03-02'])
-		await act(async () => root.unmount())
-		host.remove()
+		await day.unmount()
+
+		const minute = await mount(() => <IsoDatePicker label="Starts" granularity="minute" value="2026-03-01T09:30" onChange={(value) => changes.push(value)} />)
+		await minute.press('minute', 'ArrowUp')
+		expect(changes.at(-1)).toBe('2026-03-01T09:31')
+		await minute.unmount()
 	})
+
+	// Clearing segments (Backspace) loops happy-dom's selection inside React Aria, so the
+	// re-render and min/max contracts are tested against a stubbed DatePicker in
+	// iso-date-picker-props.test.tsx, and clearing to null is checked in the gallery.
 })

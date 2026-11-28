@@ -31,7 +31,7 @@
 		"@podoba/tokens": "workspace:*",
 		"@podoba/tailwind": "workspace:*",
 		"react-aria-components": "catalog:ui",
-		"@internationalized/date": "^3.12.3",
+		"@internationalized/date": "catalog:ui",
 		"class-variance-authority": "catalog:ui",
 		"clsx": "catalog:ui",
 		"tailwind-merge": "catalog:ui",
