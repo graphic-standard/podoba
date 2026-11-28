@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { AssetSelectionSurface, AssetSelectionGrid, AssetSelectionEmpty, AssetLibraryPreview } from './asset-selection-surface'
 import { Button } from './button'
 import { Subtle } from './subtle'

@@ -2,7 +2,10 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"outDir": "dist",
-		"rootDir": "src"
+		"rootDir": "src",
+		// Consumers compile this package's src (its exports point at ./src), some with
+		// noUnusedLocals, so an unused import here fails their typecheck.
+		"noUnusedLocals": true
 	},
 	"references": [
 		{ "path": "../tokens" }
