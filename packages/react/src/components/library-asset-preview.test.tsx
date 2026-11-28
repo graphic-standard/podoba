@@ -52,11 +52,13 @@ const key = (element: Element | null, name: string) =>
 	act(async () => element?.dispatchEvent(new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true })))
 
 describe('LibraryAssetPreview', () => {
-	test('a single item is not a carousel', async () => {
+	test('a single item is a named group, not a carousel', async () => {
 		await render(<Stage items={pages(1)} />)
 		const root = byTestId(stage)
-		expect(root?.getAttribute('role')).toBeNull()
+		expect(root?.getAttribute('role')).toBe('group')
+		expect(root?.getAttribute('aria-label')).toBe('Manual')
 		expect(root?.getAttribute('aria-roledescription')).toBeNull()
+		expect(root?.tabIndex).not.toBe(0)
 		expect(byTestId(`${stage}-previous`)).toBeNull()
 		expect(host.textContent).toContain('page 1')
 	})
@@ -72,7 +74,7 @@ describe('LibraryAssetPreview', () => {
 
 		await press(byTestId(`${stage}-next`))
 		expect(host.textContent).toContain('page 2')
-		expect(host.querySelector('[role="status"]')?.textContent).toBe('Page 2, 2 of 3')
+		expect(byTestId(`${stage}-announcement`)?.textContent).toBe('Page 2, 2 of 3')
 
 		await key(carousel, 'ArrowRight')
 		expect(host.textContent).toContain('3 of 3')
@@ -93,6 +95,30 @@ describe('LibraryAssetPreview', () => {
 		expect(host.textContent).toContain('2 of 2')
 	})
 
+	test('arrow keys in a text field move its caret, not the carousel', async () => {
+		const field = <input data-testid="field" defaultValue="crop" />
+		await render(<Stage items={pages(2, { preview: field })} />)
+		await act(async () => byTestId('field')?.focus())
+		await key(byTestId('field'), 'ArrowRight')
+		expect(host.textContent).toContain('1 of 2')
+	})
+
+	test("a preview's state does not carry over to the next item", async () => {
+		function Counter() {
+			const [clicks, setClicks] = useState(0)
+			return (
+				<button type="button" data-testid="counter" onClick={() => setClicks((value) => value + 1)}>
+					{clicks}
+				</button>
+			)
+		}
+		await render(<Stage items={pages(2, { preview: <Counter />, interactivePreview: true })} />)
+		await press(byTestId('counter'))
+		expect(byTestId('counter')?.textContent).toBe('1')
+		await press(byTestId(`${stage}-next`))
+		expect(byTestId('counter')?.textContent).toBe('0')
+	})
+
 	test('an out-of-range index is clamped to the items', async () => {
 		await render(<Stage items={pages(2)} initial={7} />)
 		expect(host.textContent).toContain('2 of 2')
@@ -107,7 +133,10 @@ describe('LibraryAssetPreview', () => {
 		await press(expand)
 		const dialog = document.querySelector('[role="dialog"]')
 		expect(dialog?.getAttribute('aria-label')).toBe('Fullscreen')
-		expect(byTestId('library-preview-fullscreen-node')?.getAttribute('aria-label')).toBe('Page 1')
+		const node = byTestId('library-preview-fullscreen-node')
+		// A group, not an image: interactive previews inside must stay reachable.
+		expect(node?.getAttribute('role')).toBe('group')
+		expect(node?.getAttribute('aria-label')).toBe('Page 1')
 		expect(document.querySelector('[aria-label="Close it"]')).not.toBeNull()
 	})
 
@@ -131,10 +160,15 @@ describe('LibraryAssetPreview', () => {
 		expect(zoom?.getAttribute('aria-label')).toBe('Zoom out')
 	})
 
-	test('loading is announced politely and an error as an alert', async () => {
+	test('loading fills a status region that was already mounted; an error is an alert', async () => {
+		await render(<Stage items={pages(1)} />)
+		const status = byTestId(`${stage}-loading-status`)
+		expect(status?.getAttribute('role')).toBe('status')
+		expect(status?.textContent).toBe('')
 		await render(<Stage items={pages(1)} isLoading error="Could not load." />)
-		expect(byTestId(`${stage}-loading`)?.getAttribute('role')).toBe('status')
-		expect(byTestId(`${stage}-loading`)?.textContent).toBe('Loading…')
+		expect(byTestId(`${stage}-loading-status`)).toBe(status)
+		expect(status?.textContent).toBe('Loading…')
+		expect(byTestId(`${stage}-loading`)?.getAttribute('aria-hidden')).toBe('true')
 		expect(byTestId(`${stage}-error`)?.getAttribute('role')).toBe('alert')
 	})
 })

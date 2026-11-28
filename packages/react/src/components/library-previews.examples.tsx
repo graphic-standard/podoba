@@ -26,7 +26,18 @@ function Logo({ src, name }: { src: string; name: string }) {
 function Stage() {
 	const [index, setIndex] = useState(0)
 	const items: LibraryAssetPreviewItem[] = [
-		{ id: 'photo', name: 'Court at dusk', preview: <div className="relative h-full w-full"><PhotoPreview src={photo} name="Court at dusk" /></div>, interactivePreview: true },
+		{
+			id: 'photo',
+			name: 'Court at dusk',
+			preview: (
+				<div className="relative h-full w-full">
+					<PhotoPreview src={photo} name="Court at dusk" />
+				</div>
+			),
+			// Fullscreen shows this image with click-to-zoom.
+			fullscreenSrc: photo,
+			interactivePreview: true,
+		},
 		{ id: 'dark', name: 'Acme logo', preview: <Logo src={darkLogo} name="Acme logo" />, interactivePreview: true },
 		{ id: 'light', name: 'Nova logo', preview: <Logo src={lightLogo} name="Nova logo" />, interactivePreview: true },
 	]

@@ -52,15 +52,68 @@ describe('PhotoPreview', () => {
 		expect(stage().dataset.fit).toBe('contain')
 	})
 
-	test('the wheel zooms, but leaves browser zoom and sideways scrolling alone', async () => {
+	test('the wheel zooms, but leaves browser zoom, sideways scrolling and tiny steps alone', async () => {
 		await act(async () => root.render(<PhotoPreview src={src} name="Court" />))
 		await wheel({ deltaY: 40, ctrlKey: true })
 		expect(stage().dataset.fit).toBe('contain')
 		await wheel({ deltaY: 10, deltaX: 80 })
 		expect(stage().dataset.fit).toBe('contain')
+		await wheel({ deltaY: 2 })
+		expect(stage().dataset.fit).toBe('contain')
 		await wheel({ deltaY: 40 })
 		expect(stage().dataset.fit).toBe('cover')
+		await wheel({ deltaY: -2 })
+		expect(stage().dataset.fit).toBe('cover')
 		await wheel({ deltaY: -40 })
+		expect(stage().dataset.fit).toBe('contain')
+	})
+
+	test('a wheel that would not change the state scrolls the page', async () => {
+		await act(async () => root.render(<PhotoPreview src={src} name="Court" />))
+		const up = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: -40 })
+		await act(async () => stage().dispatchEvent(up))
+		expect(up.defaultPrevented).toBe(false)
+		const down = new WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: 40 })
+		await act(async () => stage().dispatchEvent(down))
+		expect(down.defaultPrevented).toBe(true)
+	})
+
+	test('a double-click toggles fill and fit', async () => {
+		await act(async () => root.render(<PhotoPreview src={src} name="Court" />))
+		const dblclick = () => act(async () => stage().dispatchEvent(new MouseEvent('dblclick', { bubbles: true, cancelable: true })))
+		await dblclick()
+		expect(stage().dataset.fit).toBe('cover')
+		await dblclick()
+		expect(stage().dataset.fit).toBe('contain')
+	})
+
+	test('a double-tap toggles fill; a drag between taps does not count', async () => {
+		await act(async () => root.render(<PhotoPreview src={src} name="Court" />))
+		let time = 1000
+		const tapAt = async (x: number, upX = x) => {
+			const at = (type: string, clientX: number) => {
+				const event = new PointerEvent(type, { bubbles: true, cancelable: true, pointerId: 1, pointerType: 'touch', clientX, clientY: 50, button: 0 })
+				Object.defineProperty(event, 'timeStamp', { value: time })
+				return event
+			}
+			await act(async () => stage().dispatchEvent(at('pointerdown', x)))
+			await act(async () => stage().dispatchEvent(at('pointerup', upX)))
+			time += 100
+		}
+		await tapAt(50)
+		await tapAt(52)
+		expect(stage().dataset.fit).toBe('cover')
+		time += 1000
+		await tapAt(50)
+		await tapAt(50, 120)
+		expect(stage().dataset.fit).toBe('cover')
+	})
+
+	test('a new src starts fitted again', async () => {
+		await act(async () => root.render(<PhotoPreview src={src} name="Court" />))
+		await key('+')
+		expect(stage().dataset.fit).toBe('cover')
+		await act(async () => root.render(<PhotoPreview src={`${src}#next`} name="Hall" />))
 		expect(stage().dataset.fit).toBe('contain')
 	})
 })

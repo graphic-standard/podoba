@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react'
+import { type ReactNode, useRef, useState } from 'react'
 import { Dialog } from './dialog'
 
 export type LibraryPreviewFullscreenLabels = {
@@ -26,19 +26,34 @@ export type LibraryPreviewFullscreenProps = {
 	labels?: LibraryPreviewFullscreenLabels
 }
 
+/** How much larger the zoomed image is than the fitted one. */
+const ZOOM = 1.5
+
 /**
  * Fullscreen lightbox for a file or content preview. `Dialog` at `full` size supplies the
  * portal, focus trap, Esc, scroll lock and backdrop; this adds the centred body and a
- * click-to-zoom image (`scale-150`). The zoom resets on close. The entrance and the zoom
- * transition are off under reduced motion.
+ * click-to-zoom image. Zooming enlarges the image itself (not a transform), and the body
+ * centres it only while it fits, so every edge of the zoomed image can be scrolled to,
+ * by touch too. The zoom resets on close; the entrance is off under reduced motion.
+ *
+ * Without `src`, `children` sit in a named group, so interactive previews (a zoomable
+ * photo) stay reachable to assistive tech.
  */
 export function LibraryPreviewFullscreen({ isOpen, onOpenChange, src, previewLabel, children, labels }: LibraryPreviewFullscreenProps) {
-	const [isZoomed, setIsZoomed] = useState(false)
+	// null at 1×; zoomed, the width in px measured from the fitted image (if it had one).
+	const [zoom, setZoom] = useState<{ width?: number } | null>(null)
+	const image = useRef<HTMLImageElement>(null)
+	const isZoomed = zoom !== null
 	const label = previewLabel ?? 'Content preview'
 
 	const handleOpenChange = (open: boolean) => {
-		if (!open) setIsZoomed(false)
+		if (!open) setZoom(null)
 		onOpenChange(open)
+	}
+	const toggleZoom = () => {
+		if (isZoomed) return setZoom(null)
+		const fitted = image.current?.getBoundingClientRect().width ?? 0
+		setZoom(fitted > 0 ? { width: Math.round(fitted * ZOOM) } : {})
 	}
 
 	return (
@@ -51,27 +66,31 @@ export function LibraryPreviewFullscreen({ isOpen, onOpenChange, src, previewLab
 		>
 			<div
 				data-testid="library-preview-fullscreen-body"
-				className="flex min-h-0 flex-1 items-center justify-center overflow-auto motion-safe:animate-lightbox-in motion-reduce:animate-none"
+				// `-safe` centring falls back to the start edge once the zoomed image overflows,
+				// so its top and left stay reachable by scrolling.
+				className="flex min-h-0 flex-1 items-center-safe justify-center-safe overflow-auto motion-safe:animate-lightbox-in motion-reduce:animate-none"
 			>
 				{src ? (
 					<button
 						type="button"
 						aria-pressed={isZoomed}
 						aria-label={isZoomed ? (labels?.zoomOut ?? 'Zoom out') : (labels?.zoomIn ?? 'Zoom in')}
-						onClick={() => setIsZoomed((zoomed) => !zoomed)}
-						className={`flex max-h-full max-w-full items-center justify-center rounded-md outline-none ${isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'} focus-visible:ring-2 focus-visible:ring-ring`}
+						onClick={toggleZoom}
+						className={`flex shrink-0 items-center justify-center rounded-md outline-none ${isZoomed ? 'cursor-zoom-out' : 'max-h-full max-w-full cursor-zoom-in'} focus-visible:ring-2 focus-visible:ring-ring`}
 					>
 						<img
+							ref={image}
 							data-testid="library-preview-fullscreen-image"
 							src={src}
 							alt={label}
-							className={`max-h-[90vh] max-w-[95vw] object-contain transition-transform duration-200 ease-out motion-reduce:transition-none ${isZoomed ? 'scale-150' : 'scale-100'}`}
+							className={isZoomed ? 'max-h-none max-w-none' : 'max-h-[90vh] max-w-[95vw] object-contain'}
+							style={zoom?.width ? { width: zoom.width } : undefined}
 						/>
 					</button>
 				) : (
 					<div
 						data-testid="library-preview-fullscreen-node"
-						role="img"
+						role="group"
 						aria-label={label}
 						className="flex h-full min-h-0 w-full items-center justify-center overflow-hidden"
 					>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { type PointerEvent, useEffect, useRef, useState } from 'react'
 import { clampPhotoPan, photoPreviewGeometry } from './photo-preview-geometry'
 
 export type PhotoPreviewProps = {
@@ -10,24 +10,42 @@ export type PhotoPreviewProps = {
 	onDimensions?: (size: { width: number; height: number }) => void
 	/**
 	 * Accessible name of the stage; it should say how to zoom and pan. Default: "Photo
-	 * preview. Scroll down or press plus to fill the frame. Drag or use arrow keys to move
-	 * the zoomed photo. Scroll up or press minus to fit."
+	 * preview. Double-tap, scroll down or press plus to fill the frame. Drag or use the
+	 * arrow keys to move the zoomed photo. Double-tap again, scroll up or press minus to fit."
 	 */
 	zoomHint?: string
 }
 
 const defaultZoomHint =
-	'Photo preview. Scroll down or press plus to fill the frame. Drag or use arrow keys to move the zoomed photo. Scroll up or press minus to fit.'
+	'Photo preview. Double-tap, scroll down or press plus to fill the frame. Drag or use the arrow keys to move the zoomed photo. Double-tap again, scroll up or press minus to fit.'
+
+/** A smaller wheel step is ignored (e.g. the reverse tail of a trackpad's momentum). */
+const WHEEL_THRESHOLD = 4
+/** Two taps this close in time (ms) and space (px) are a double-tap. */
+const DOUBLE_TAP_MS = 300
+const DOUBLE_TAP_PX = 30
+/** A pointer that moves further than this between down and up was a drag, not a tap. */
+const TAP_SLOP_PX = 10
 
 /**
  * A photo on a preview stage, in two states. `contain` shows the whole photo with an inset;
  * `cover` fills the frame and can be dragged (or moved with the arrow keys) to show the
- * cropped edges, never past them. Wheel down or `+`/`=` fills; wheel up, `-` or `0` fits.
- * A ctrl/cmd wheel (browser zoom) and a sideways wheel are left alone. Fills its
- * positioned parent (`absolute inset-0`).
+ * cropped edges, never past them. A double-tap (or double-click) toggles the two. Wheel
+ * down or `+`/`=` fills; wheel up, `-` or `0` fits. A wheel that would not change the state
+ * scrolls the page as usual, and a ctrl/cmd wheel (browser zoom) or a sideways wheel is
+ * left alone. A new `src` starts fitted. Fills its positioned parent (`absolute inset-0`).
  */
-export function PhotoPreview({ src, name, onError, onDimensions, zoomHint = defaultZoomHint }: PhotoPreviewProps) {
+export function PhotoPreview(props: PhotoPreviewProps) {
+	// A new file starts fresh: fit, pan and the measured size do not carry over to it.
+	return <PhotoPreviewStage key={props.src} {...props} />
+}
+
+function PhotoPreviewStage({ src, name, onError, onDimensions, zoomHint = defaultZoomHint }: PhotoPreviewProps) {
 	const [fit, setFit] = useState<'contain' | 'cover'>('contain')
+	const fitRef = useRef(fit)
+	fitRef.current = fit
+	const tap = useRef<{ x: number; y: number } | null>(null)
+	const lastTap = useRef<{ time: number; x: number; y: number } | null>(null)
 	const surface = useRef<HTMLDivElement>(null)
 	const [surfaceSize, setSurfaceSize] = useState({ width: 0, height: 0 })
 	const [imageSize, setImageSize] = useState({ width: 0, height: 0 })
@@ -70,24 +88,45 @@ export function PhotoPreview({ src, name, onError, onDimensions, zoomHint = defa
 		// clampPan is derived from exactly these sizes, so they are the dependencies.
 	}, [fit, surfaceSize.width, surfaceSize.height, imageSize.width, imageSize.height])
 
-	// A non-passive listener, so the wheel zooms the photo instead of scrolling the page.
+	// A non-passive listener, so a wheel that changes the state does not also scroll the page.
 	useEffect(() => {
 		const node = surface.current
 		if (!node) return
 		const wheel = (event: WheelEvent) => {
-			if (event.ctrlKey || event.metaKey || event.deltaY === 0 || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
+			if (event.ctrlKey || event.metaKey || Math.abs(event.deltaY) < WHEEL_THRESHOLD || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
+			const next = event.deltaY > 0 ? 'cover' : 'contain'
+			if (next === fitRef.current) return
 			event.preventDefault()
 			event.stopPropagation()
-			setFit(event.deltaY > 0 ? 'cover' : 'contain')
+			setFit(next)
 		}
 		node.addEventListener('wheel', wheel, { passive: false })
 		return () => node.removeEventListener('wheel', wheel)
 	}, [])
 
+	const toggleFit = () => setFit((current) => (current === 'cover' ? 'contain' : 'cover'))
+
 	const endDrag = (pointerId: number) => {
 		if (drag.current?.id !== pointerId) return
 		drag.current = null
 		setDragging(false)
+	}
+
+	// Touch and pen have no double-click, so a double-tap is detected from pointer ups:
+	// two short taps close together. Mouse uses onDoubleClick.
+	const tapUp = (event: PointerEvent) => {
+		const start = tap.current
+		tap.current = null
+		if (event.pointerType === 'mouse' || !start) return
+		if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > TAP_SLOP_PX) return
+		const previous = lastTap.current
+		const now = event.timeStamp
+		if (previous && now - previous.time <= DOUBLE_TAP_MS && Math.hypot(event.clientX - previous.x, event.clientY - previous.y) <= DOUBLE_TAP_PX) {
+			lastTap.current = null
+			toggleFit()
+			return
+		}
+		lastTap.current = { time: now, x: event.clientX, y: event.clientY }
 	}
 
 	return (
@@ -99,8 +138,14 @@ export function PhotoPreview({ src, name, onError, onDimensions, zoomHint = defa
 			role="group"
 			aria-label={zoomHint}
 			className={`absolute inset-0 flex items-center justify-center overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${fit === 'cover' && geometry ? (dragging ? 'cursor-grabbing' : 'cursor-grab') : ''}`}
-			style={{ touchAction: fit === 'cover' ? 'none' : 'auto' }}
+			// `manipulation` turns off the browser's own double-tap zoom, so the double-tap is ours.
+			style={{ touchAction: fit === 'cover' ? 'none' : 'manipulation' }}
+			onDoubleClick={(event) => {
+				event.preventDefault()
+				toggleFit()
+			}}
 			onPointerDown={(event) => {
+				tap.current = { x: event.clientX, y: event.clientY }
 				if (fit !== 'cover' || !geometry || event.button !== 0) return
 				event.preventDefault()
 				event.currentTarget.focus({ preventScroll: true })
@@ -113,7 +158,10 @@ export function PhotoPreview({ src, name, onError, onDimensions, zoomHint = defa
 				if (!start || start.id !== event.pointerId || fit !== 'cover') return
 				setPan(clampPan(start.startX + event.clientX - start.x, start.startY + event.clientY - start.y))
 			}}
-			onPointerUp={(event) => endDrag(event.pointerId)}
+			onPointerUp={(event) => {
+				endDrag(event.pointerId)
+				tapUp(event)
+			}}
 			onPointerCancel={(event) => endDrag(event.pointerId)}
 			onLostPointerCapture={(event) => endDrag(event.pointerId)}
 			onKeyDown={(event) => {

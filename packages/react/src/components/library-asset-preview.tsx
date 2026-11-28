@@ -1,7 +1,13 @@
-import { type ReactNode, useState } from 'react'
+import { Fragment, type ReactNode, useState } from 'react'
 import { Button } from './button'
 import { LibraryPreviewFullscreen, type LibraryPreviewFullscreenLabels } from './library-preview-fullscreen'
 import { PreviewControlsContext } from './preview-controls-context'
+
+/** A text field (or anything editable) uses the arrow keys for its caret. */
+function isEditable(target: EventTarget | null): boolean {
+	if (!(target instanceof HTMLElement)) return false
+	return target.isContentEditable || ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName)
+}
 
 const CORNER_BUTTON_CLASS = 'h-6 min-w-6 px-2 py-0 text-label leading-none'
 
@@ -133,13 +139,15 @@ export function LibraryAssetPreview({
 				<div
 					data-testid={testId}
 					className="relative h-full min-h-0 overflow-visible"
-					role={hasCarousel ? 'group' : undefined}
+					// A group in both cases, so `ariaLabel` names the stage even with one item.
+					role="group"
 					aria-label={ariaLabel}
 					aria-roledescription={hasCarousel ? carouselLabel : undefined}
 					tabIndex={hasCarousel ? 0 : undefined}
 					onKeyDown={(event) => {
-						// Artwork that used the key (a zoomed photo panning) keeps it.
-						if (event.defaultPrevented) return
+						// Artwork that used the key (a zoomed photo panning) keeps it, and so does
+						// a text field in the artwork or the corner row (moving the caret).
+						if (event.defaultPrevented || isEditable(event.target)) return
 						if (event.key === 'ArrowLeft' && safeIndex > 0) {
 							event.preventDefault()
 							select(safeIndex - 1)
@@ -165,20 +173,20 @@ export function LibraryAssetPreview({
 							className={stageClassName(interactive, hasCarousel, fitArtwork)}
 							data-testid={`${testId}-expand`}
 						>
-							{item?.preview ?? fallback}
+							{/* Keyed by item, so a preview's state (a manual choice, a zoom) never moves to the next file. */}
+							{item ? <Fragment key={item.id}>{item.preview}</Fragment> : fallback}
 						</div>
 					</div>
 
 					{isLoading ? (
-						<div
-							className="absolute inset-0 z-10 flex items-center justify-center bg-surface-placeholder/80"
-							role="status"
-							aria-live="polite"
-							data-testid={`${testId}-loading`}
-						>
+						<div aria-hidden="true" className="absolute inset-0 z-10 flex items-center justify-center bg-surface-placeholder/80" data-testid={`${testId}-loading`}>
 							<span className="text-small text-fg-inverted/70">{loadingLabel}</span>
 						</div>
 					) : null}
+					{/* Mounted empty and filled while loading: a live region that appears with its text is often not read. */}
+					<span className="sr-only" role="status" aria-live="polite" data-testid={`${testId}-loading-status`}>
+						{isLoading ? loadingLabel : null}
+					</span>
 
 					{item ? (
 						<div
@@ -218,7 +226,7 @@ export function LibraryAssetPreview({
 					) : null}
 
 					{item && hasCarousel ? (
-						<span className="sr-only" role="status" aria-live="polite">
+						<span className="sr-only" role="status" aria-live="polite" data-testid={`${testId}-announcement`}>
 							{announcement(item, safeIndex + 1, count)}
 						</span>
 					) : null}
@@ -232,7 +240,7 @@ export function LibraryAssetPreview({
 					previewLabel={(typeof item.name === 'string' ? item.name : '') || ariaLabel}
 					labels={fullscreenLabels}
 				>
-					{item.fullscreenSrc ? null : item.preview}
+					{item.fullscreenSrc ? null : <Fragment key={item.id}>{item.preview}</Fragment>}
 				</LibraryPreviewFullscreen>
 			) : null}
 		</>
