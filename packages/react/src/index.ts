@@ -38,6 +38,7 @@ export * from './components/source-icons'
 export * from './components/animated-summary-text'
 export * from './components/date-field'
 export * from './components/date-picker'
+export * from './components/iso-date-picker'
 export * from './components/dialog'
 export {
 	AssetSelectionSurface,

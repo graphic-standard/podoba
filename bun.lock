@@ -32,6 +32,7 @@
       "name": "@podoba/react",
       "version": "0.0.69",
       "dependencies": {
+        "@internationalized/date": "^3.12.3",
         "@podoba/tailwind": "workspace:*",
         "@podoba/tokens": "workspace:*",
         "@radix-ui/react-slot": "catalog:ui",
