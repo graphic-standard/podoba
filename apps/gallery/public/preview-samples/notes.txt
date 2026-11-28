@@ -1,0 +1,5 @@
+Season notes (synthetic sample)
+
+- Courts open at 8:00 on weekdays.
+- Bring indoor shoes.
+- <b>Markup stays literal</b>: this file is shown as text, never rendered.

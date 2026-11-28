@@ -12,6 +12,8 @@
 		"@podoba/react": "workspace:*",
 		"@podoba/tailwind": "workspace:*",
 		"@podoba/tokens": "workspace:*",
+		"fflate": "catalog:ui",
+		"pdfjs-dist": "catalog:ui",
 		"react": "catalog:ui",
 		"react-dom": "catalog:ui"
 	},

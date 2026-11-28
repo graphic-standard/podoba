@@ -116,6 +116,8 @@ import { examples as createMenuDialogExamples } from "../../../packages/react/sr
 import { examples as isoDatePickerExamples } from "../../../packages/react/src/components/iso-date-picker.examples";
 import { examples as librarySummaryCardExamples } from "../../../packages/react/src/components/library-summary-card.examples";
 import { examples as libraryPreviewsExamples } from "../../../packages/react/src/components/library-previews.examples";
+import { examples as filePreviewExamples } from "../../../packages/react/src/file-preview/file-preview.examples";
+import pdfWorkerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { examples as tableExamples } from "../../../packages/react/src/components/table.examples";
 import { type ComponentType, createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
@@ -1388,6 +1390,21 @@ const SECTIONS: SectionDef[] = [
 			<>
 				<Demo label="Stage · photo, dark logo, light logo">{libraryPreviewsExamples.stage()}</Demo>
 				<Demo label="Logo contrast · dark logo, light logo">{libraryPreviewsExamples.logos()}</Demo>
+			</>
+		),
+	},
+	{
+		id: "file-preview",
+		group: "Content",
+		title: "File previews (@podoba/react/file-preview)",
+		subtitle:
+			"Viewers for files that aren't images, all in the browser: PDF pages in a carousel with fullscreen, the text of Word, Excel and PowerPoint files, plain text shown literally, fonts, audio and video. A separate entry point, because it needs the optional peers pdfjs-dist and fflate.",
+		content: (
+			<>
+				<Demo label="PDF · two pages">{filePreviewExamples.pdf(pdfWorkerSrc)}</Demo>
+				<Demo label="Word document · text only">{filePreviewExamples.office()}</Demo>
+				<Demo label="Plain text · markup stays literal">{filePreviewExamples.text()}</Demo>
+				<Demo label="Unsupported format">{filePreviewExamples.unsupported()}</Demo>
 			</>
 		),
 	},

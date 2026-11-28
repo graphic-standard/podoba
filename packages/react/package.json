@@ -15,6 +15,7 @@
 	"exports": {
 		".": "./src/index.ts",
 		"./editor": "./src/editor/index.ts",
+		"./file-preview": "./src/file-preview/index.ts",
 		"./styles.css": "./dist/styles.css"
 	},
 	"files": ["src", "!src/**/*.test.*", "dist/styles.css"],
@@ -38,9 +39,12 @@
 		"@radix-ui/react-slot": "catalog:ui"
 	},
 	"//tiptap": "Only `@podoba/react/editor` (BlockEditor) needs Tiptap. Optional peers, not dependencies: the base package must not make every consumer install ProseMirror, and a peer keeps ONE @tiptap/pm in the tree — two copies of prosemirror-model break instanceof across the editor.",
+	"//file-preview": "Only `@podoba/react/file-preview` (PDF, Office, text and font viewers) needs pdfjs-dist and fflate. Optional peers, like Tiptap for the editor: the base package must not make every consumer install a PDF renderer.",
 	"peerDependencies": {
 		"react": ">=19",
 		"react-dom": ">=19",
+		"pdfjs-dist": "catalog:ui",
+		"fflate": "catalog:ui",
 		"@tiptap/react": "catalog:ui",
 		"@tiptap/pm": "catalog:ui",
 		"@tiptap/starter-kit": "catalog:ui",
@@ -50,6 +54,8 @@
 		"@tiptap/extension-task-item": "catalog:ui"
 	},
 	"peerDependenciesMeta": {
+		"pdfjs-dist": { "optional": true },
+		"fflate": { "optional": true },
 		"@tiptap/react": { "optional": true },
 		"@tiptap/pm": { "optional": true },
 		"@tiptap/starter-kit": { "optional": true },
@@ -73,6 +79,8 @@
 		"@tiptap/extension-placeholder": "catalog:ui",
 		"@tiptap/extension-highlight": "catalog:ui",
 		"@tiptap/extension-task-list": "catalog:ui",
-		"@tiptap/extension-task-item": "catalog:ui"
+		"@tiptap/extension-task-item": "catalog:ui",
+		"pdfjs-dist": "catalog:ui",
+		"fflate": "catalog:ui"
 	}
 }
