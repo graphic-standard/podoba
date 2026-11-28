@@ -111,6 +111,7 @@ import {
 // Opt-in subpath — this import is what pulls Tiptap/ProseMirror into the bundle.
 import { BlockEditor } from "@podoba/react/editor";
 import { examples as accountDialogExamples } from "../../../packages/react/src/components/account-dialog.examples";
+import { examples as tableExamples } from "../../../packages/react/src/components/table.examples";
 import { type ComponentType, createElement, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 // ── gallery chrome ──────────────────────────────────────────────────────────
@@ -1418,6 +1419,18 @@ const SECTIONS: SectionDef[] = [
 		content: (
 			<Demo label="Grid · List">
 				<ViewToggleDemo />
+			</Demo>
+		),
+	},
+	{
+		id: "table-row-actions",
+		group: "Actions",
+		title: "Table with row actions",
+		subtitle:
+			"Click a row to press it; the link in a cell keeps its own click. Right-click a row, long-press it on touch, or focus it and press Shift+F10 for that row's actions.",
+		content: (
+			<Demo label="Pressable rows · links in cells · row menu">
+				<div className="w-full max-w-3xl">{tableExamples.rowActions()}</div>
 			</Demo>
 		),
 	},
