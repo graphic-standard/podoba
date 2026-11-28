@@ -114,13 +114,16 @@ describe('rowActions', () => {
 		expect(pressed).toEqual([])
 	})
 
-	test('a table nested in a cell does not open the outer table’s menu', async () => {
+	test('a table nested in a cell with its own rowActions opens only its own menu', async () => {
 		const inner: TableColumn<Venue>[] = [{ key: 'name', header: 'Name', render: () => <span data-inner="">inner</span> }]
-		const outer: TableColumn<Venue>[] = [{ key: 'name', header: 'Name', render: () => <Table data={[rows[0]!]} columns={inner} /> }]
+		const innerActions = () => [{ id: 'inner', items: [{ id: 'detach', label: 'Detach' }] }]
+		const outer: TableColumn<Venue>[] = [
+			{ key: 'name', header: 'Name', render: () => <Table data={[rows[0]!]} columns={inner} getRowKey={(row) => row.id} rowActions={innerActions} /> },
+		]
 		await act(async () => root.render(<Table data={rows} columns={outer} getRowKey={(row) => row.id} rowActions={actions} />))
 		await rightClick(host.querySelector('[data-inner]')!)
 
-		expect(document.querySelector('[role="menu"]')).toBeNull()
+		expect(menuItems()).toEqual(['Detach'])
 	})
 
 	test('without rowActions there is no menu wrapper and rows stay plain', async () => {
