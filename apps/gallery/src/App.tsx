@@ -66,6 +66,7 @@ import {
 	ContextMenuButton,
 	type ContextMenuGroup,
 	CtaPill,
+	CtaPillAction,
 	DashboardGrid,
 	DashboardTile,
 	DeliveryStatusModule,
@@ -1833,13 +1834,39 @@ const SECTIONS: SectionDef[] = [
 		subtitle:
 			"The Brand Core hero CTA: a teal bar with a three-fragment copy line, an action control, and an optional 99px mobile-header density. BrandPageHeader docks that variant above the safe bottom edge on phones (below 640px); tablets keep it in the header.",
 		content: (
-			<Demo label="Hero CTA">
-				<CtaPill lead="Let's" emphasis="create" tail="something">
-					<Button className="rounded-full bg-surface-inverted text-fg-inverted data-[hovered]:opacity-90">
-						<PlusIcon className="h-4 w-4" /> Create
-					</Button>
-				</CtaPill>
-			</Demo>
+			<>
+				<Demo label="Hero CTA">
+					<CtaPill lead="Let's" emphasis="create" tail="something">
+						<Button className="rounded-full bg-surface-inverted text-fg-inverted data-[hovered]:opacity-90">
+							<PlusIcon className="h-4 w-4" /> Create
+						</Button>
+					</CtaPill>
+				</Demo>
+				<Demo label="Hold for more · default 550 ms · 750 ms with a progress ring">
+					<div className="flex w-full flex-col gap-3">
+						<CtaPill lead="Create a" emphasis="project" onOpenMenu={() => {}} menuHint="Hold or press Shift+F10 for more options.">
+							<CtaPillAction onPress={() => {}}>Create</CtaPillAction>
+						</CtaPill>
+						<CtaPill lead="Create a" emphasis="project" holdMs={750} holdFeedback onOpenMenu={() => {}} menuHint="Hold or press Shift+F10 for more options.">
+							<CtaPillAction onPress={() => {}}>Create</CtaPillAction>
+						</CtaPill>
+					</div>
+				</Demo>
+				<Demo label="Sub-heading · beside (default) · stacked">
+					<div className="flex flex-wrap gap-3">
+						<div className="w-72">
+							<CtaPill lead="Signups" subHeading="Open until the end of March">
+								<CtaPillAction>Add</CtaPillAction>
+							</CtaPill>
+						</div>
+						<div className="w-72">
+							<CtaPill lead="Signups" subHeading="Open until the end of March" stacked>
+								<CtaPillAction>Add</CtaPillAction>
+							</CtaPill>
+						</div>
+					</div>
+				</Demo>
+			</>
 		),
 	},
 	{
