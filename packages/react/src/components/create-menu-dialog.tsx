@@ -45,7 +45,9 @@ export function CreateMenuDialog({ isOpen, onOpenChange, title, closeLabel, back
 						variant="ghost"
 						aria-label={closeLabel}
 						onPress={() => onOpenChange(false)}
-						className="absolute end-4 top-3.5 z-10 h-8 w-8 rounded-md p-0 text-fg-subtle"
+						// fg-muted, not the library's usual fg-subtle close glyph: that ink is below
+						// the 3:1 floor for an icon-only control (see fg-subtle-usage.test.ts).
+						className="absolute end-4 top-3.5 z-10 h-8 w-8 rounded-md p-0 text-fg-muted"
 					>
 						<CloseIcon aria-hidden="true" className="h-4.5 w-4.5" />
 					</Button>
