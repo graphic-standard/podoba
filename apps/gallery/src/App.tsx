@@ -1077,9 +1077,19 @@ const SECTIONS: SectionDef[] = [
 		title: "Combobox",
 		subtitle: "Filterable single-select — type to narrow the list.",
 		content: (
-			<Demo label="Filter as you type">
+			<Demo label="Outlined · filled">
 				<div className="w-72">
 					<ComboBox label="Country" placeholder="Search…">
+						<ComboBoxItem id="cz">Czechia</ComboBoxItem>
+						<ComboBoxItem id="sk">Slovakia</ComboBoxItem>
+						<ComboBoxItem id="pl">Poland</ComboBoxItem>
+						<ComboBoxItem id="de">Germany</ComboBoxItem>
+						<ComboBoxItem id="at">Austria</ComboBoxItem>
+						<ComboBoxItem id="hu">Hungary</ComboBoxItem>
+					</ComboBox>
+				</div>
+				<div className="w-72">
+					<ComboBox label="Country" labelSize="compact" appearance="filled" placeholder="Search…" emptyState="No country matches" allowsEmptyCollection>
 						<ComboBoxItem id="cz">Czechia</ComboBoxItem>
 						<ComboBoxItem id="sk">Slovakia</ComboBoxItem>
 						<ComboBoxItem id="pl">Poland</ComboBoxItem>
