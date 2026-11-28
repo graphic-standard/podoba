@@ -30,7 +30,7 @@
     },
     "packages/react": {
       "name": "@podoba/react",
-      "version": "0.0.69",
+      "version": "0.0.70",
       "dependencies": {
         "@internationalized/date": "catalog:ui",
         "@podoba/tailwind": "workspace:*",
@@ -81,7 +81,7 @@
     },
     "packages/tailwind": {
       "name": "@podoba/tailwind",
-      "version": "0.0.69",
+      "version": "0.0.70",
       "dependencies": {
         "@tailwindcss/typography": "catalog:ui",
       },
@@ -91,7 +91,7 @@
     },
     "packages/tokens": {
       "name": "@podoba/tokens",
-      "version": "0.0.69",
+      "version": "0.0.70",
       "devDependencies": {
         "@types/bun": "catalog:",
         "typescript": "catalog:",
