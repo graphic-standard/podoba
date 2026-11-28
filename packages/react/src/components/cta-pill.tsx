@@ -8,6 +8,21 @@ const HoldRing = createContext<{ feedback: boolean; holding: boolean; ms: number
 /** A press on a disabled action is not a hold: nothing would follow it. */
 const DISABLED_ACTION = 'button:disabled, [aria-disabled="true"], [data-disabled]'
 
+/**
+ * Whether a press landed on a disabled action in this pill. A disabled `Button` has
+ * `pointer-events: none`, so the browser sends the press to whatever is under it (the
+ * action's wrapper, the pill), never to the button: read the pointer's position
+ * against each disabled action instead of the event target. Scoped to the pill, so a
+ * disabled ancestor outside it changes nothing.
+ */
+function pressOnDisabledAction(pill: Element, x: number, y: number): boolean {
+ for (const action of pill.querySelectorAll(DISABLED_ACTION)) {
+  const r = action.getBoundingClientRect()
+  if (x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return true
+ }
+ return false
+}
+
 export interface CtaPillProps {
  lead: ReactNode
  emphasis?: ReactNode
@@ -41,7 +56,7 @@ export function CtaPill({ lead, emphasis, tail, children, mobileHeader = false, 
  const interactive = tone === 'brand' && Boolean(onOpenMenu)
  return <div className="relative h-full w-full" onPointerDownCapture={event => {
   if (!interactive || event.button !== 0) return
-  if (event.target instanceof Element && event.target.closest(DISABLED_ACTION)) return
+  if (pressOnDisabledAction(event.currentTarget, event.clientX, event.clientY)) return
   clear(); held.current = false; origin.current = { x: event.clientX, y: event.clientY }
   if (holdFeedback) setHolding(true)
   timer.current = setTimeout(() => { held.current = true; setHolding(false); onOpenMenu?.() }, holdMs)
@@ -57,7 +72,10 @@ export function CtaPill({ lead, emphasis, tail, children, mobileHeader = false, 
   if (target instanceof Element && !target.closest('button, a, input, [role="button"]')) event.currentTarget.querySelector<HTMLButtonElement>('button:not(:disabled)')?.click()
  }} onKeyDownCapture={event => {
   if (interactive && (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10'))) { event.preventDefault(); event.stopPropagation(); onOpenMenu?.() }
- }} onContextMenu={event => { if (held.current) event.preventDefault() }}>
+ // While a hold runs too: a touch platform raises its own long-press contextmenu
+ // (~500 ms) before a longer holdMs ends, and its menu or selection would win.
+ // A right click never starts a hold, so desktop menus are untouched.
+ }} onContextMenu={event => { if (held.current || timer.current) event.preventDefault() }}>
   <ShortcutHint.Provider value={interactive && menuHint ? hintId : undefined}>
   <HoldRing.Provider value={{ feedback: interactive && holdFeedback, holding: interactive && holding, ms: holdMs }}>
    {interactive && menuHint ? <span id={hintId} className="sr-only">{menuHint}</span> : null}
@@ -92,10 +110,12 @@ export interface CtaPillActionProps {
 // The ring is a second background layer on the border box, under the button's own
 // fill on the padding box; the transparent 2px border is where it shows. The border
 // is there whenever feedback is on, so starting a hold does not resize the button.
+// The sweep starts at the top (0deg) and runs clockwise. With reduced motion there is
+// no sweep: the ring shows full for as long as the hold runs.
 const ringIdle: CSSProperties = { border: '2px solid transparent' }
 const ringHolding = (ms: number): CSSProperties => ({
  ...ringIdle,
- backgroundImage: 'linear-gradient(var(--color-surface-inverted), var(--color-surface-inverted)), conic-gradient(from 55deg, var(--color-fg-inverted) var(--cta-hold-progress), transparent 0)',
+ backgroundImage: 'linear-gradient(var(--color-surface-inverted), var(--color-surface-inverted)), conic-gradient(from 0deg, var(--color-fg-inverted) var(--cta-hold-progress), transparent 0)',
  backgroundOrigin: 'padding-box, border-box',
  backgroundClip: 'padding-box, border-box',
  ['--cta-hold-duration' as string]: `${ms}ms`,
@@ -107,5 +127,5 @@ export const CtaPillAction = forwardRef<HTMLButtonElement, CtaPillActionProps>(f
  return <Button {...props} ref={ref} variant="primary" size="md" aria-describedby={hint} aria-keyshortcuts={hint ? 'Shift+F10' : undefined}
   data-holding={ring.holding ? '' : undefined}
   style={ring.feedback ? (ring.holding ? ringHolding(ring.ms) : ringIdle) : undefined}
-  className={'bg-surface-inverted px-3 font-normal leading-[15.5px] tracking-[0] text-fg-inverted data-[pressed]:bg-surface-inverted' + (ring.holding ? ' animate-cta-hold' : '') + (coverParent ? " after:absolute after:inset-0 after:cursor-pointer after:content-['']" : '')} />
+  className={'bg-surface-inverted px-3 font-normal leading-[15.5px] tracking-[0] text-fg-inverted data-[pressed]:bg-surface-inverted' + (ring.holding ? ' animate-cta-hold motion-reduce:animate-none motion-reduce:[--cta-hold-progress:100%]' : '') + (coverParent ? " after:absolute after:inset-0 after:cursor-pointer after:content-['']" : '')} />
 })

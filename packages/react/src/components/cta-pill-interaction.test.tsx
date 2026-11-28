@@ -56,8 +56,33 @@ test('a press on a disabled action never turns into a hold', async () => {
  await act(async () => root.render(<CtaPill lead="Create" onOpenMenu={() => menu++}><CtaPillAction isDisabled>Create</CtaPillAction></CtaPill>))
  const button = host.querySelector('button')!
  expect(button.disabled).toBe(true)
- await act(async () => { pointer('pointerdown', button); await wait(600) })
+ // A disabled Button has pointer-events: none, so the browser sends the press to what
+ // is under it (its wrapper) at a point inside the button's box.
+ button.getBoundingClientRect = () => ({ left: 100, right: 180, top: 10, bottom: 50, x: 100, y: 10, width: 80, height: 40, toJSON() {} }) as DOMRect
+ const press = (type: string, x: number) => button.parentElement!.dispatchEvent(new PointerEvent(type, { bubbles: true, button: 0, pointerId: 1, pointerType: 'mouse', clientX: x, clientY: 30 }))
+ await act(async () => { press('pointerdown', 140); await wait(600) })
  expect(menu).toBe(0)
+ await act(async () => { press('pointerup', 140) })
+ // Outside the disabled action, on the pill, a hold still works.
+ await act(async () => { press('pointerdown', 20); await wait(600) })
+ expect(menu).toBe(1)
+ await act(async () => { press('pointerup', 20) })
+ await act(async () => root.unmount()); host.remove()
+})
+
+test('the platform context menu is held off while a hold runs, not only after', async () => {
+ const host = document.createElement('div'); document.body.append(host)
+ const root = createRoot(host)
+ await act(async () => root.render(<CtaPill lead="Create" holdMs={750} onOpenMenu={() => {}}><CtaPillAction>Create</CtaPillAction></CtaPill>))
+ const button = host.querySelector('button')!
+ await act(async () => { pointer('pointerdown', button); await wait(450) })
+ const early = new MouseEvent('contextmenu', { bubbles: true, cancelable: true })
+ button.dispatchEvent(early)
+ expect(early.defaultPrevented).toBe(true)
+ await act(async () => { pointer('pointerup', button) })
+ const idle = new MouseEvent('contextmenu', { bubbles: true, cancelable: true })
+ button.dispatchEvent(idle)
+ expect(idle.defaultPrevented).toBe(false)
  await act(async () => root.unmount()); host.remove()
 })
 
@@ -72,6 +97,9 @@ test('holdFeedback draws the ring only while a hold runs, at the hold length; wi
  await act(async () => { pointer('pointerdown', button); await wait(50) })
  expect(button.hasAttribute('data-holding')).toBe(true)
  expect(button.className).toContain('animate-cta-hold')
+ // Reduced motion: no sweep, a full ring for as long as the hold runs.
+ expect(button.className).toContain('motion-reduce:animate-none')
+ expect(button.className).toContain('motion-reduce:[--cta-hold-progress:100%]')
  expect(button.style.getPropertyValue('--cta-hold-duration')).toBe('750ms')
  await act(async () => { pointer('pointerup', button) })
  expect(button.hasAttribute('data-holding')).toBe(false)
