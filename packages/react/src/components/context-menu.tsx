@@ -45,7 +45,8 @@ export { isLongPressContextMenu, LONG_PRESS_MS, useLongPressContextMenu } from '
  *    and own the open state yourself — pair with {@link useContextMenu} so a
  *    surface can do `<div onContextMenu={menu.open} />` + `<ContextMenu
  *    {...menu.props} groups={…} />`. Renders nothing while closed or when every
- *    group is empty / hidden.
+ *    group is empty / hidden, unless it has a `header` (e.g. a search field that
+ *    filters the groups) or an `emptyState` to show instead.
  *  - **Wrapper**: wrap a target with `<ContextMenu groups={…}>{target}</ContextMenu>`;
  *    the right-click on the wrapper opens the menu and the component owns the state.
  *    `groups` may be a {@link ContextMenuGroupsResolver} for contextual menus.
@@ -116,6 +117,19 @@ export interface ContextMenuProps {
 	className?: string
 	/** See {@link ContextMenuPresentation}. */
 	presentation?: ContextMenuPresentation
+	/**
+	 * Content above the items inside the panel, typically a search field that filters
+	 * `groups`. With a header, the header keeps focus when the menu opens (give its
+	 * field `autoFocus`) instead of the first item, the menu stays open while the
+	 * groups are empty, and ArrowDown / ArrowUp in the header move to the first / last
+	 * item unless the header handled the key itself.
+	 */
+	header?: ReactNode
+	/**
+	 * Shown in place of the items when no visible item is left, e.g. "No blocks match".
+	 * Without `header` or `emptyState`, a menu with no visible item renders nothing.
+	 */
+	emptyState?: ReactNode
 }
 
 /**
@@ -426,16 +440,19 @@ function ContextMenuBody({
 	ariaLabel,
 	onItem,
 	sheet = false,
+	autoFocus = true,
 }: {
 	groups: ContextMenuGroup[]
 	soonLabel?: ReactNode
 	ariaLabel: string
 	onItem?: () => void
 	sheet?: boolean
+	/** Focus the first item on open; off when a header owns the initial focus. */
+	autoFocus?: boolean
 }) {
 	const size = sheet ? 'sheet' : 'panel'
 	return (
-		<RACMenu aria-label={ariaLabel} className={menuClass} autoFocus onClose={onItem}>
+		<RACMenu aria-label={ariaLabel} className={menuClass} autoFocus={autoFocus} onClose={onItem}>
 			{groups.map((group, gi) => (
 				// gs separates groups with an 18px top margin (`.group + .group`), not a
 				// rule line — so the first group sits flush, the rest gain the gap.
@@ -493,13 +510,29 @@ function ControlledContextMenu({
 	'aria-label': ariaLabel = 'Actions',
 	className,
 	presentation,
+	header,
+	emptyState,
 }: ContextMenuProps): React.JSX.Element | null {
 	const popoverRef = useRef<HTMLElement>(null)
 	const visibleGroups = visibleGroupsOf(groups)
-	if (visibleGroups.length === 0) {
+	const hasHeader = header != null && header !== false
+	const hasEmptyState = emptyState != null && emptyState !== false
+	if (visibleGroups.length === 0 && !hasHeader && !hasEmptyState) {
 		return null
 	}
 	const pos = position ?? { x: 0, y: 0 }
+	const body = (sheet: boolean) => (
+		<>
+			{hasHeader ? <ContextMenuHeader panelRef={popoverRef}>{header}</ContextMenuHeader> : null}
+			{visibleGroups.length > 0 ? (
+				<ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={onClose} sheet={sheet} autoFocus={!hasHeader} />
+			) : hasEmptyState ? (
+				<div role="status" data-context-menu-empty="" className={sheet ? emptySheetClass : emptyPanelClass}>
+					{emptyState}
+				</div>
+			) : null}
+		</>
+	)
 	return (
 		<ContextMenuSurface
 			presentation={presentation}
@@ -514,8 +547,36 @@ function ControlledContextMenu({
 			}}
 			className={className}
 		>
-			{(sheet) => <ContextMenuBody groups={visibleGroups} soonLabel={soonLabel} ariaLabel={ariaLabel} onItem={onClose} sheet={sheet} />}
+			{body}
 		</ContextMenuSurface>
+	)
+}
+
+// Same ink and inset as an item row, so the message lines up with the items it replaces.
+const emptyPanelClass = 'px-3 py-1.5 text-compact leading-4 text-context-menu-fg'
+const emptySheetClass = 'px-4 py-3 text-body leading-6 text-context-menu-fg'
+
+/**
+ * Wraps a controlled menu's `header`. ArrowDown / ArrowUp that the header did not
+ * handle itself (`preventDefault`) move focus to the first / last enabled item, so a
+ * search field above the menu reaches the results the way a menu's own keys would.
+ */
+function ContextMenuHeader({ panelRef, children }: { panelRef: React.RefObject<HTMLElement | null>; children: ReactNode }) {
+	return (
+		<div
+			data-context-menu-header=""
+			className="mb-2 min-w-0"
+			onKeyDown={(event) => {
+				if (event.defaultPrevented || (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')) return
+				const rows = panelRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')
+				const row = event.key === 'ArrowDown' ? rows?.[0] : rows?.[rows.length - 1]
+				if (!row) return
+				event.preventDefault()
+				row.focus()
+			}}
+		>
+			{children}
+		</div>
 	)
 }
 

@@ -422,3 +422,103 @@ describe('⋯ button and keyboard', () => {
 		expect(menu()).not.toBeNull()
 	})
 })
+
+describe('controlled menu header and empty state', () => {
+	const items = ['Heading', 'Paragraph', 'Image']
+	/** A block picker: a search field in the header filters the one group. */
+	// The query comes in as a prop: a re-render stands in for typing, which happy-dom
+	// does not deliver to React's onChange.
+	function Picker({ query = '', onClose = () => {}, headerKeys }: { query?: string; onClose?: () => void; headerKeys?: (event: React.KeyboardEvent) => void }) {
+		const shown = items.filter((label) => label.toLowerCase().includes(query.toLowerCase()))
+		return (
+			<ContextMenu
+				isOpen
+				position={{ x: 10, y: 20 }}
+				onClose={onClose}
+				aria-label="Add block"
+				header={
+					<div onKeyDown={headerKeys}>
+						<input aria-label="Search blocks" autoFocus value={query} readOnly />
+					</div>
+				}
+				emptyState="No blocks match"
+				groups={[{ id: 'insert', items: shown.map((label) => ({ id: label, label })) }]}
+			/>
+		)
+	}
+	const search = () => document.querySelector<HTMLInputElement>('input[aria-label="Search blocks"]')!
+	const type = async (query: string) => {
+		await act(async () => root.render(<Picker query={query} />))
+	}
+	const key = async (target: Element, k: string) => {
+		await act(async () => { target.dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true })) })
+	}
+
+	test('the header sits inside the panel and keeps focus instead of the first item', async () => {
+		await act(async () => root.render(<Picker />))
+		await act(async () => { await wait(20) })
+		const header = document.querySelector('[data-context-menu-panel] [data-context-menu-header]')!
+		expect(header.contains(search())).toBe(true)
+		// The header comes before the items.
+		expect(header.compareDocumentPosition(menu()!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+		expect(document.activeElement).toBe(search())
+	})
+
+	test('filtering down to nothing keeps the panel open and shows the empty state', async () => {
+		await act(async () => root.render(<Picker />))
+		await type('zzz')
+		expect(menu()).toBeNull()
+		expect(document.querySelector('[data-context-menu-header]')).not.toBeNull()
+		const empty = document.querySelector('[data-context-menu-empty]')!
+		expect(empty.getAttribute('role')).toBe('status')
+		expect(empty.textContent).toBe('No blocks match')
+		await type('ima')
+		expect([...document.querySelectorAll('[role="menuitem"]')].map((item) => item.textContent)).toEqual(['Image'])
+		expect(document.querySelector('[data-context-menu-empty]')).toBeNull()
+	})
+
+	test('ArrowDown and ArrowUp in the header move to the first and last item', async () => {
+		await act(async () => root.render(<Picker />))
+		await key(search(), 'ArrowDown')
+		expect(document.activeElement?.textContent).toBe('Heading')
+		search().focus()
+		await key(search(), 'ArrowUp')
+		expect(document.activeElement?.textContent).toBe('Image')
+	})
+
+	test('a header that handles the arrow itself keeps it', async () => {
+		await act(async () => root.render(<Picker headerKeys={(event) => { if (event.key === 'ArrowDown') event.preventDefault() }} />))
+		await key(search(), 'ArrowDown')
+		expect(document.activeElement).toBe(search())
+	})
+
+	test('the phone sheet carries the header too', async () => {
+		setPhone(true)
+		await act(async () => root.render(<Picker />))
+		const sheet = document.querySelector('[data-context-menu-sheet]')!
+		expect(sheet.querySelector('[data-context-menu-header] input')).not.toBeNull()
+		await type('zzz')
+		expect(sheet.querySelector('[data-context-menu-empty]')!.className).toContain('text-body')
+	})
+
+	test('an empty state alone shows when nothing is left; without either the menu still renders nothing', async () => {
+		await act(async () => root.render(<ContextMenu isOpen position={{ x: 0, y: 0 }} onClose={() => {}} groups={[{ items: [{ id: 'a', label: 'A', hidden: true }] }]} emptyState="Nothing to do" />))
+		expect(document.querySelector('[data-context-menu-empty]')!.textContent).toBe('Nothing to do')
+		await act(async () => root.render(<ContextMenu isOpen position={{ x: 0, y: 0 }} onClose={() => {}} groups={[{ items: [{ id: 'a', label: 'A', hidden: true }] }]} />))
+		expect(document.querySelector('[data-context-menu-panel]')).toBeNull()
+	})
+
+	test('a menu without a header still focuses into its items', async () => {
+		await act(async () => root.render(<ContextMenu isOpen position={{ x: 0, y: 0 }} onClose={() => {}} groups={groups} />))
+		await act(async () => { await wait(20) })
+		expect(menu()!.contains(document.activeElement)).toBe(true)
+		expect(document.querySelector('[data-context-menu-header]')).toBeNull()
+	})
+
+	test('Escape in the header closes the menu', async () => {
+		let closed = 0
+		await act(async () => root.render(<Picker onClose={() => closed++} />))
+		await key(search(), 'Escape')
+		expect(closed).toBe(1)
+	})
+})

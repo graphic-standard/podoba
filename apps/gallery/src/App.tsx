@@ -646,6 +646,53 @@ function ContextMenuDemo() {
 	);
 }
 
+// ── context menu with a search header ──────────────────────────────────────
+const blockTypes = ["Heading", "Paragraph", "Image", "Gallery", "Quote", "Button", "Divider"];
+
+function ContextMenuSearchDemo() {
+	const menu = useContextMenu();
+	const [query, setQuery] = useState("");
+	const shown = blockTypes.filter((name) => name.toLowerCase().includes(query.trim().toLowerCase()));
+	return (
+		<>
+			<Button
+				variant="secondary"
+				size="sm"
+				onPress={(event) => {
+					const rect = (event.target as HTMLElement).getBoundingClientRect();
+					setQuery("");
+					menu.open({ preventDefault: () => {}, clientX: rect.left, clientY: rect.bottom + 4 });
+				}}
+			>
+				<PlusIcon className="h-4 w-4" /> Add block
+			</Button>
+			<ContextMenu
+				{...menu.props}
+				aria-label="Add block"
+				header={
+					<div className="px-1.5">
+						<Input
+							autoFocus
+							appearance="filled"
+							label={<span className="sr-only">Search blocks</span>}
+							placeholder="Search blocks…"
+							value={query}
+							onChange={setQuery}
+						/>
+					</div>
+				}
+				emptyState="No block type matches."
+				groups={[
+					{
+						id: "insert",
+						items: shown.map((name) => ({ id: name, label: name, icon: <PlusIcon className="h-3.5 w-3.5" /> })),
+					},
+				]}
+			/>
+		</>
+	);
+}
+
 // ── context menu on touch (long press · bottom sheet · ⋯) ─────────────────
 const touchAssets = [
 	{ id: "logo", name: "Logo, primary", kind: "SVG · 12 kB" },
@@ -1420,6 +1467,18 @@ const SECTIONS: SectionDef[] = [
 		content: (
 			<Demo label="Right-click the surface">
 				<ContextMenuDemo />
+			</Demo>
+		),
+	},
+	{
+		id: "context-menu-search",
+		group: "Actions",
+		title: "Context menu with search",
+		subtitle:
+			"A controlled menu with a header: here a search field that filters the items. The field keeps focus, ArrowDown moves into the list, and an empty state replaces the items when nothing matches.",
+		content: (
+			<Demo label="Open it and type">
+				<ContextMenuSearchDemo />
 			</Demo>
 		),
 	},
